@@ -1,0 +1,34 @@
+<aside class="sidebar" [class.sidebar--open]="isSidebarOpen">
+  <div class="sidebar__header">
+    <div class="logo-icon">⚡</div>
+    <span class="logo-text">Emergencias</span>
+    <button class="btn-close-sidebar" (click)="toggleSidebar()">✕</button>
+  </div>
+
+  <nav class="sidebar__nav">
+    <p class="nav-title">Principal</p>
+    <a routerLink="/inicio" routerLinkActive="active" class="nav-link">
+      <span class="icon">🏠</span> Dashboard
+    </a>
+    
+    <p class="nav-title">Módulos</p>
+    <a routerLink="/clientes" routerLinkActive="active" class="nav-link">
+      <span class="icon">👥</span> Clientes
+    </a>
+    <a routerLink="/talleres" routerLinkActive="active" class="nav-link">
+      <span class="icon">🔧</span> Talleres
+    </a>
+  </nav>
+
+  <div class="sidebar__footer">
+    <button class="btn-logout" (click)="cerrarSesion()">
+      <span class="icon">🚪</span> Cerrar Sesión
+    </button>
+  </div>
+</aside>
+
+<div 
+  class="sidebar-overlay" 
+  *ngIf="isSidebarOpen" 
+  (click)="toggleSidebar()">
+</div>

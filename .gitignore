@@ -1,0 +1,9 @@
+# Backend
+emergencias-backend/venv/
+emergencias-backend/.env
+emergencias-backend/__pycache__/
+
+# Frontend
+emergencias-frontend/node_modules/
+emergencias-frontend/.angular/
+emergencias-frontend/dist/

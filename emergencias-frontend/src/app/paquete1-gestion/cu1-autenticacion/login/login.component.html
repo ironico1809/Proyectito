@@ -1,0 +1,62 @@
+<div class="login-layout">
+  <div class="login-banner">
+    <div class="banner-content">
+      <div class="logo-placeholder">⚡</div>
+      <h1>Plataforma de Emergencias</h1>
+      <p>Gestión inteligente de talleres, clientes y asistencias vehiculares.</p>
+    </div>
+  </div>
+
+  <div class="login-form-container">
+    <div class="login-card">
+      <h2 class="login-title">{{ isLoginMode ? 'Bienvenido de nuevo' : 'Registra tu Taller' }}</h2>
+      <p class="login-subtitle">{{ isLoginMode ? 'Ingresa tus credenciales para acceder al panel' : 'Únete a nuestra red de asistencia vehicular' }}</p>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form-content">
+        
+        <div *ngIf="!isLoginMode" class="form-extra-fields">
+          <div class="form-group">
+            <label class="form-label">Nombre del Propietario</label>
+            <input class="form-input" formControlName="nombre_dueno" type="text" placeholder="Ej. Juan Pérez">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nombre del Taller</label>
+            <input class="form-input" formControlName="nombre_taller" type="text" placeholder="Ej. Mecánica Rápida">
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Teléfono</label>
+              <input class="form-input" formControlName="telefono" type="text" placeholder="+591...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">NIT</label>
+              <input class="form-input" formControlName="nit" type="text">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Dirección</label>
+            <input class="form-input" formControlName="direccion" type="text">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Correo Electrónico</label>
+          <input class="form-input" formControlName="email" type="email" placeholder="correo@ejemplo.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <input class="form-input" formControlName="password" type="password" placeholder="••••••••">
+        </div>
+
+        <button type="submit" class="btn-submit" [disabled]="loginForm.invalid">
+          {{ isLoginMode ? 'Iniciar Sesión' : 'Crear Cuenta' }}
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <p *ngIf="isLoginMode">¿Tienes un taller y no estás en la red? <br><a (click)="toggleMode()">Regístrate aquí</a></p>
+        <p *ngIf="!isLoginMode">¿Ya tienes una cuenta registrada? <br><a (click)="toggleMode()">Inicia sesión</a></p>
+      </div>
+    </div>
+  </div>
+</div>

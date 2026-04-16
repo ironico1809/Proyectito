@@ -1,0 +1,109 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+    <div class="page-clientes">
+      <header class="page-header">
+        <div class="page-header__title-block">
+          <p class="page-header__eyebrow"><span class="dot"></span> Módulo de Gestión</p>
+          <h1 class="page-header__title">Clientes</h1>
+          <p class="page-header__subtitle">Administra los usuarios registrados en la plataforma</p>
+        </div>
+        <button [routerLink]="['/inicio']" class="btn btn--ghost">Volver al Inicio</button>
+      </header>
+
+      <div class="data-card" *ngIf="!cargando && !error">
+        <div class="data-card__header">
+          <strong style="font-size:0.9rem; color:var(--gray-800);">Lista de usuarios</strong>
+          <span class="data-card__count">{{ usuarios.length }} registros</span>
+        </div>
+
+        <div class="data-table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="col-id">#ID</th>
+                <th>Usuario</th>
+                <th class="col-email">Email</th>
+                <th class="col-telefono">Teléfono</th>
+                <th class="col-rol">Rol</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of usuarios" [class.row--editing]="usuarioEditando?.id_usuario === user.id_usuario">
+                <td class="td-id col-id">{{ user.id_usuario }}</td>
+                <td>
+                  <div class="td-user">
+                    <div class="user-avatar">{{ user.nombre.charAt(0) }}</div>
+                    <div>
+                      <span class="user-name">{{ user.nombre }}</span>
+                      <span class="user-email-small">{{ user.email }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="td-email col-email">{{ user.email }}</td>
+                <td class="td-phone col-telefono">{{ user.telefono || 'N/A' }}</td>
+                <td class="col-rol">
+                  <span class="badge-rol" [ngClass]="{
+                    'badge-rol--admin':    user.rol === 'admin',
+                    'badge-rol--cliente':  user.rol === 'cliente',
+                    'badge-rol--tecnico':  user.rol === 'tecnico',
+                    'badge-rol--taller':   user.rol === 'taller'
+                  }">{{ user.rol }}</span>
+                </td>
+                <td class="td-acciones">
+                  <div class="acciones-group">
+                    <button class="btn btn--ghost btn--sm" (click)="abrirEditar(user)">Editar</button>
+                    <button class="btn btn--danger btn--sm" (click)="eliminarUsuario(user.id_usuario!, user.nombre)">Eliminar</button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="usuarios.length === 0">
+                <td colspan="6">
+                  <div class="table-empty">
+                    <p class="table-empty__text">No hay usuarios registrados aún.</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="scroll-hint">← Desliza para ver más →</div>
+        </div>
+      </div>
+
+      <div class="edit-panel" *ngIf="usuarioEditando">
+        <div class="edit-panel__header">
+          <h2 class="edit-panel__title">Editando: {{ usuarioEditando.nombre }}</h2>
+          <button class="edit-panel__close" (click)="cancelarEdicion()">✕</button>
+        </div>
+        <div class="edit-panel__body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Nombre <span class="required">*</span></label>
+              <input class="form-input" type="text" [(ngModel)]="usuarioEditando.nombre" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Teléfono</label>
+              <input class="form-input" type="tel" [(ngModel)]="usuarioEditando.telefono" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Rol <span class="required">*</span></label>
+              <select class="form-select" [(ngModel)]="usuarioEditando.rol">
+                <option value="cliente">Cliente</option>
+                <option value="admin">Administrador</option>
+                <option value="tecnico">Técnico</option>
+                <option value="taller">Taller</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="edit-panel__footer">
+          <button class="btn btn--ghost" (click)="cancelarEdicion()">Cancelar</button>
+          <button class="btn btn--primary" (click)="guardarEdicion()">Guardar cambios</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>

@@ -1,0 +1,48 @@
+<div class="dashboard-layout">
+
+  <app-sidebar></app-sidebar>
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div class="user-profile">
+        <div class="avatar">M</div>
+        <span>Administrador</span>
+      </div>
+    </header>
+
+    <div class="dashboard-body">
+      <h1 class="welcome-title">Bienvenido al Panel de Control</h1>
+      <p class="welcome-subtitle">Aquí tienes un resumen rápido de la plataforma.</p>
+
+      <div class="kpi-grid">
+        <div class="kpi-card" routerLink="/clientes">
+          <div class="kpi-icon blue">👥</div>
+          <div class="kpi-info">
+            <h3>Gestión de Clientes</h3>
+            <p>Administra usuarios del sistema</p>
+          </div>
+          <div class="kpi-arrow">→</div>
+        </div>
+
+        <div class="kpi-card" routerLink="/talleres">
+          <div class="kpi-icon purple">🔧</div>
+          <div class="kpi-info">
+            <h3>Gestión de Talleres</h3>
+            <p>Red de mecánicos afiliados</p>
+          </div>
+          <div class="kpi-arrow">→</div>
+        </div>
+
+        <div class="kpi-card disabled">
+          <div class="kpi-icon gray">🚨</div>
+          <div class="kpi-info">
+            <h3>Emergencias Activas</h3>
+            <p>Módulo en desarrollo...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>

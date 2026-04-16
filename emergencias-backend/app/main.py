@@ -1,0 +1,55 @@
+# ============================================================
+# main.py
+#
+# CONTEXTO DEL PROYECTO:
+#   Plataforma Inteligente de Emergencias Vehiculares
+#   Backend: FastAPI + PostgreSQL (Supabase)
+#   Universidad Autónoma Gabriel René Moreno - SI2 2026
+#
+# PUNTO DE ENTRADA DE LA APLICACIÓN
+# Registra todos los routers por caso de uso:
+#   - auth.py     → CU1: Autenticación
+#   - usuarios.py → CU2: Gestión de Usuarios
+#   - talleres.py → CU3: Gestión de Talleres  ← NUEVO
+#
+# CORS configurado para Angular en localhost:4200
+# ============================================================
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from app.routers import auth, usuarios, talleres, vehiculos, incidentes
+
+app = FastAPI(
+    title="Plataforma Inteligente de Emergencias Vehiculares",
+    description="API REST - Sistema de Información 2 | UAGRM Grupo 25",
+    version="1.0.0"
+)
+
+# -------------------------------------------------------
+# CORS: permite que Angular (localhost:4200) consuma la API
+# En producción reemplazar con el dominio real
+# -------------------------------------------------------
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4200"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# -------------------------------------------------------
+# Registro de routers por caso de uso
+# Cada router tiene su propio prefijo y tag en Swagger
+# -------------------------------------------------------
+app.include_router(auth.router)       # CU1 - /auth
+app.include_router(usuarios.router)   # CU2 - /usuarios
+app.include_router(talleres.router)   # CU3 - /talleres
+app.include_router(vehiculos.router)  # CU5 - /vehiculos
+app.include_router(incidentes.router) # CU7 - /incidentes
+
+# -------------------------------------------------------
+# Endpoint raíz: verifica que el servidor esté corriendo
+# -------------------------------------------------------
+@app.get("/")
+def root():
+    return {"message": "API de Emergencias Vehiculares corriendo ✓"}
