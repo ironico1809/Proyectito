@@ -7,18 +7,10 @@
 #   Universidad Autónoma Gabriel René Moreno - SI2 2026
 #
 # CU3: Gestión de Talleres
-#
-# Representa la tabla "talleres" de la base de datos.
-# SQLAlchemy mapea esta clase a la tabla real en Supabase.
-#
-# RELACIONES:
-#   - dueño_id → FK a usuarios.id_usuario (el taller pertenece a un Usuario con rol 'taller')
-#
-# ACTORES:
-#   A4 (Administrador) → gestiona el CRUD completo de talleres
 # ============================================================
 
-from sqlalchemy import Column, Integer, String, Text, Numeric, ForeignKey
+# CORRECCIÓN: Importar DECIMAL en lugar de Numeric
+from sqlalchemy import Column, Integer, String, Text, DECIMAL, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -37,10 +29,10 @@ class Taller(Base):
     direccion         = Column(Text)
     nit               = Column(String(50))
 
-    # Coordenadas geográficas para el motor de asignación (CU11)
-    latitud_decimal   = Column(Numeric(10, 8))
-    longitud_decimal  = Column(Numeric(10, 8))
+    # CORRECCIÓN: Usar DECIMAL para coincidir con tu script de BD
+    latitud_decimal   = Column(DECIMAL(10, 8))
+    longitud_decimal  = Column(DECIMAL(10, 8))
 
-    # Relación con el modelo Usuario (el dueño del taller)
-    # Permite acceder a taller.dueno.nombre, taller.dueno.email, etc.
+    # Relaciones
     dueno             = relationship("Usuario", backref="talleres")
+    tecnicos          = relationship("Tecnico", back_populates="taller", cascade="all, delete")

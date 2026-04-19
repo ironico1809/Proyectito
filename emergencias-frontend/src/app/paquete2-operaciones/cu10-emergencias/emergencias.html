@@ -1,0 +1,90 @@
+<div class="layout-principal">
+
+  <div class="contenido-derecha">
+    <div class="contenedor-principal">
+      
+      <div class="header-seccion">
+        <div>
+          <h1 class="titulo-pagina">Emergencias Entrantes</h1>
+          <p class="subtitulo-pagina">Solicitudes cercanas reportadas por los clientes.</p>
+        </div>
+        <button class="btn-refrescar" (click)="cargarPendientes()">🔄 Actualizar</button>
+      </div>
+
+      <div *ngIf="cargando" class="estado-vacio">Buscando emergencias en tu zona...</div>
+
+      <div *ngIf="!cargando && emergencias.length === 0" class="estado-vacio">
+        No hay emergencias pendientes en este momento. Tómate un café ☕
+      </div>
+
+      <div class="grid-tarjetas" *ngIf="!cargando && emergencias.length > 0">
+        
+        <div class="card-emergencia" *ngFor="let em of emergencias">
+          <div class="card-header">
+            <span class="badge-prioridad" [ngClass]="'prioridad-' + em.prioridad_enum">
+              {{ em.prioridad_enum | uppercase }}
+            </span>
+            <span class="fecha">{{ em.fecha_creacion_timestamp | date:'shortTime' }}</span>
+          </div>
+
+          <div class="card-body">
+            <h3 class="diagnostico">
+              {{ em.evidencias[0]?.clasificacion_ia_texto || 'Diagnóstico en proceso' | uppercase }}
+            </h3>
+            <p class="descripcion">"{{ em.descripcion_texto || 'Sin descripción del cliente.' }}"</p>
+            
+            <div class="ubicacion">
+              📍 Lat: {{ em.latitud_emergencia | number:'1.2-2' }}, Lng: {{ em.longitud_emergencia | number:'1.2-2' }}
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <button class="btn-rechazar" (click)="responder(em, 'rechazar')">Rechazar</button>
+            <button class="btn-aceptar" (click)="responder(em, 'aceptar')">Aceptar</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+    </div>
+    <div class="modal-overlay" *ngIf="mostrarModal">
+    <div class="modal-container">
+        
+        <div class="modal-header">
+        <h2>Asignar Técnico</h2>
+        <button class="btn-cerrar-modal" (click)="cerrarModal()">✕</button>
+        </div>
+
+        <div class="modal-body">
+        <p class="modal-instruccion">
+            Has aceptado la emergencia de prioridad <strong [ngClass]="'texto-' + incidenteSeleccionado?.prioridad_enum">{{ incidenteSeleccionado?.prioridad_enum | uppercase }}</strong>.<br>
+            Selecciona qué mecánico acudirá a la ubicación:
+        </p>
+
+        <div class="form-grupo">
+            <label for="tecnico">Técnico Disponible:</label>
+            
+            <select id="tecnico" class="form-select" [(ngModel)]="tecnicoSeleccionadoId" [disabled]="tecnicosDisponibles.length === 0">
+            <option [ngValue]="null" disabled selected>-- Seleccione un mecánico --</option>
+            <option *ngFor="let tec of tecnicosDisponibles" [ngValue]="tec.id_tecnico">
+                {{ tec.nombre }} ({{ tec.especialidad || 'General' }})
+            </option>
+            </select>
+
+            <p class="error-texto" *ngIf="tecnicosDisponibles.length === 0">
+            ⚠️ No tienes técnicos disponibles en este momento.
+            </p>
+        </div>
+        </div>
+
+        <div class="modal-footer">
+        <button class="btn-secundario" (click)="cerrarModal()" [disabled]="cargandoAsignacion">Cancelar</button>
+        <button class="btn-primario-modal" (click)="confirmarAsignacion()" [disabled]="!tecnicoSeleccionadoId || cargandoAsignacion">
+            {{ cargandoAsignacion ? 'Asignando...' : 'Confirmar Despacho' }}
+        </button>
+        </div>
+
+    </div>
+    </div>
+</div>

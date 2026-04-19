@@ -81,6 +81,45 @@ def registrar_usuario(datos: UsuarioCreate, db: Session = Depends(get_db)):
 
     return nuevo_usuario
 
+# -------------------------------------------------------
+# PUT /usuarios/me
+# PRIVADO - Cualquier usuario autenticado (CU4)
+# Permite al usuario logueado (Cliente, Taller, Técnico)
+# actualizar su propio perfil.
+# -------------------------------------------------------
+@router.put("/me", response_model=UsuarioOut, tags=["CU4 - Gestión de Perfil de Usuario"])
+def actualizar_mi_perfil(
+    datos: UsuarioUpdate,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    # Traemos al usuario de la BD
+    usuario = db.query(Usuario).filter(Usuario.id_usuario == current_user.id_usuario).first()
+    
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    # Actualizamos solo los datos permitidos (No dejamos que se cambie el rol él mismo)
+    if datos.nombre is not None: 
+        usuario.nombre = datos.nombre
+    if datos.telefono is not None: 
+        usuario.telefono = datos.telefono
+    if datos.password is not None: 
+        usuario.password_hash = hash_password(datos.password)
+    
+    # Si intenta cambiar el email, verificamos que no exista
+    if datos.email is not None and datos.email != usuario.email:
+        email_existe = db.query(Usuario).filter(Usuario.email == datos.email).first()
+        if email_existe:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El email ya está en uso"
+            )
+        usuario.email = datos.email
+
+    db.commit()
+    db.refresh(usuario)
+    return usuario
 
 # -------------------------------------------------------
 # GET /usuarios/

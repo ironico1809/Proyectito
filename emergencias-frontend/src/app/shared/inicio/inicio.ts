@@ -1,30 +1,25 @@
-import { Component } from '@angular/core';
+// src/app/shared/inicio/inicio.ts
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
-import { Sidebar } from '../sidebar/sidebar'; // 👈 agrega esta línea
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [CommonModule, RouterModule, Sidebar],
+  imports: [CommonModule, RouterModule],
   templateUrl: './inicio.html',
-  styleUrl: './inicio.css'
+  styleUrls: ['./inicio.css']
 })
-export class Inicio {
-  isSidebarOpen = false;
+export class Inicio implements OnInit {
+  
+  // La variable inicia vacía
+  rolUsuario: string = ''; 
 
-  constructor(private router: Router) {}
+  constructor() {}
 
-  toggleSidebar() {
-    this.isSidebarOpen = !this.isSidebarOpen;
-  }
-
-  // Agrega tu lógica de logout aquí si usas AuthService
-  cerrarSesion() {
-    // 1. Borramos el token para que el backend ya no lo deje pasar
-    localStorage.removeItem('token'); 
-    
-    // 2. Lo enviamos a la ruta de login
-    this.router.navigate(['/login']);
+  ngOnInit(): void {
+    // ⚡ AQUÍ ESTÁ LA MAGIA: Leemos el rol real.
+    // Angular mostrará automáticamente las tarjetas de Admin o Taller según lo que encuentre aquí.
+    this.rolUsuario = localStorage.getItem('rol') || 'taller';
   }
 }

@@ -7,24 +7,24 @@ import { TokenResponse, TipoRol } from '../../shared/models/usuario.model';
   providedIn: 'root'
 })
 export class AuthService {
-  // La dirección donde corre tu backend
   private apiUrl = 'http://127.0.0.1:8000/auth';
 
   constructor(private http: HttpClient) {}
 
-  // Función para iniciar sesión
   login(datos: any): Observable<TokenResponse> {
     return this.http.post<TokenResponse>(`${this.apiUrl}/login`, datos).pipe(
       tap(res => {
-        // Guardamos los datos en el navegador para no perder la sesión
         localStorage.setItem('token', res.access_token);
         localStorage.setItem('rol', res.rol);
         localStorage.setItem('nombre', res.nombre);
+        
+        // ⚡ GUARDADO INTELIGENTE: Si trae id_taller lo usamos, si no, usamos el id_usuario general
+        const idParaGuardar = res.id_taller ? res.id_taller : res.id_usuario;
+        localStorage.setItem('id_entidad', idParaGuardar.toString());
       })
     );
   }
 
-  // Función para cerrar sesión
   logout(): void {
     localStorage.clear();
   }

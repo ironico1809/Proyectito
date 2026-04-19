@@ -1,33 +1,120 @@
-/* CONTENIDO ESPECÍFICO DEL DASHBOARD DE INICIO */
+/* =========================================================
+   CONTENIDO ESPECÍFICO DEL DASHBOARD DE INICIO
+   ========================================================= */
 .dashboard-body { padding: 2.5rem; max-width: 1200px; margin: 0 auto; width: 100%; }
-.welcome-title { font-size: 2rem; color: var(--gray-900); margin-bottom: 0.5rem; }
-.welcome-subtitle { color: var(--gray-500); font-size: 1.1rem; margin-bottom: 2.5rem; }
+.welcome-title { font-size: 2rem; color: #111827; margin-bottom: 0.5rem; }
+.welcome-subtitle { color: #6b7280; font-size: 1.1rem; margin-bottom: 2.5rem; }
 
-/* KPI CARDS (Tarjetas grandes) */
+/* =========================================================
+   KPI CARDS (Tarjetas de Admin y Taller)
+   ========================================================= */
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-.kpi-card { background: white; border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.5rem; display: flex; align-items: center; gap: 1.2rem; cursor: pointer; box-shadow: var(--shadow-card); transition: 0.2s; text-decoration: none; color: inherit; }
-.kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: var(--primary-200); }
+.kpi-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem; display: flex; align-items: center; gap: 1.2rem; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: 0.2s; text-decoration: none; color: inherit; }
+.kpi-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #bfdbfe; }
 .kpi-card.disabled { opacity: 0.6; cursor: not-allowed; }
-.kpi-card.disabled:hover { transform: none; box-shadow: var(--shadow-card); border-color: var(--border-light); }
+.kpi-card.disabled:hover { transform: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-color: #e5e7eb; }
 
 .kpi-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-.kpi-icon.blue { background: var(--primary-50); color: var(--primary-600); }
-.kpi-icon.purple { background: var(--accent-50); color: var(--accent-600); }
-.kpi-icon.gray { background: var(--gray-100); color: var(--gray-500); }
+.kpi-icon.blue { background: #eff6ff; color: #2563eb; }
+.kpi-icon.purple { background: #f5f3ff; color: #7c3aed; }
+.kpi-icon.gray { background: #f3f4f6; color: #6b7280; }
 
-.kpi-info h3 { font-size: 1.1rem; margin: 0 0 0.2rem 0; color: var(--gray-900); }
-.kpi-info p { margin: 0; font-size: 0.85rem; color: var(--gray-500); }
-.kpi-arrow { margin-left: auto; font-size: 1.2rem; color: var(--gray-400); transition: 0.2s; }
-.kpi-card:hover .kpi-arrow { color: var(--primary-600); transform: translateX(5px); }
-.dashboard-layout {
+.kpi-info h3 { font-size: 1.1rem; margin: 0 0 0.2rem 0; color: #111827; }
+.kpi-info p { margin: 0; font-size: 0.85rem; color: #6b7280; }
+.kpi-arrow { margin-left: auto; font-size: 1.2rem; color: #9ca3af; transition: 0.2s; }
+.kpi-card:hover .kpi-arrow { color: #2563eb; transform: translateX(5px); }
+
+
+/* =========================================================
+   VISTA DEL CLIENTE (Landing Page de Descarga)
+   ========================================================= */
+.client-download-container {
   display: flex;
-  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+  animation: fadeIn 0.5s ease-out;
 }
 
-.main-content {
-  flex: 1;
-  overflow-y: auto;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
+
+.download-card {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.01);
+  border: 1px solid #f1f5f9;
+  max-width: 600px;
+  width: 100%;
+}
+
+.download-icon {
+  font-size: 64px;
+  margin-bottom: 15px;
+}
+
+.client-title { font-size: 1.8rem; color: #0f172a; margin-bottom: 15px; font-weight: 700; }
+.client-subtitle { color: #475569; font-size: 1.05rem; line-height: 1.6; margin-bottom: 30px; }
+
+.store-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap; /* Para que en celulares se pongan uno debajo del otro */
+}
+
+.btn-store {
+  background: #0f172a;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 180px;
+  transition: 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.btn-store:hover {
+  background: #334155;
+  transform: translateY(-2px);
+}
+
+.small-text { font-size: 10px; font-weight: 500; opacity: 0.8; letter-spacing: 0.5px; }
+.large-text { font-size: 18px; font-weight: 600; margin-top: 2px; }
+
+.qr-section {
+  margin-top: 40px;
+  border-top: 2px dashed #e2e8f0;
+  padding-top: 30px;
+}
+
+.qr-section p { color: #64748b; font-size: 0.95rem; margin-bottom: 15px; font-weight: 500; }
+
+.qr-placeholder {
+  width: 180px;
+  height: 180px;
+  background: #f8fafc;
+  margin: 0 auto;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cbd5e1;
+}
+
+/* =========================================================
+   RESPONSIVO (Móviles)
+   ========================================================= */
 @media (max-width: 768px) {
   .dashboard-body { padding: 1.5rem; }
+  .download-card { padding: 30px 20px; }
+  .client-title { font-size: 1.5rem; }
 }

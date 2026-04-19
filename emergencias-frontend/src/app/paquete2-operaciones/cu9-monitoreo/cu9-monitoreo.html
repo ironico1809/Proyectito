@@ -1,0 +1,30 @@
+<div class="layout-principal">
+  <div class="contenido-derecha">
+    <h1 class="titulo-pagina">Monitoreo de Auxilios</h1>
+    <p class="subtitulo-pagina">Seguimiento en tiempo real de servicios en curso (CU9 y CU12).</p>
+
+    <div class="grid-monitoreo">
+      <div class="card-seguimiento" *ngFor="let s of serviciosActivos">
+        <div class="status-bar">EN PROCESO</div>
+        <div class="info-body">
+          <h3>Emergencia #{{ s.id_incidente }}</h3>
+          <p><strong>Técnico:</strong> {{ s.tecnico_id }}</p>
+          <p><strong>Ubicación:</strong> {{ s.latitud_emergencia }}, {{ s.longitud_emergencia }}</p>
+          
+          <div class="map-placeholder">
+            <span>📍 Visualización de GPS activa</span>
+          </div>
+        </div>
+        <div class="acciones">
+          <button class="btn-finalizar" (click)="finalizarServicio(s.id_incidente)">
+            ✅ Finalizar y Liberar Técnico
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="estado-vacio" *ngIf="serviciosActivos.length === 0 && !cargando">
+      No hay servicios activos para monitorear.
+    </div>
+  </div>
+</div>

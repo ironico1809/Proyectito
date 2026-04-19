@@ -1,0 +1,43 @@
+<div class="layout-principal">
+  <div class="contenido-derecha">
+    <div class="contenedor-principal">
+      <div class="header-seccion">
+        <div>
+          <h1 class="titulo-pagina">Mi Historial de Servicios</h1>
+          <p class="subtitulo-pagina">Resumen de todos los auxilios viales atendidos por tu unidad.</p>
+        </div>
+      </div>
+
+      <div *ngIf="cargando" class="estado-vacio">Cargando bitácora de servicios...</div>
+
+      <div class="tabla-contenedor" *ngIf="!cargando && historial.length > 0">
+        <table class="tabla-moderna">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Fecha</th>
+              <th>Cliente</th>
+              <th>Vehículo</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let h of historial">
+              <td><strong>#{{ h.id_incidente }}</strong></td>
+              <td>{{ h.fecha_creacion_timestamp | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ h.cliente_nombre }}</td>
+              <td>{{ h.vehiculo_modelo }}</td>
+              <td>
+                <span class="badge-atendido">FINALIZADO</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!cargando && historial.length === 0" class="estado-vacio">
+        Aún no tienes servicios registrados en tu historial.
+      </div>
+    </div>
+  </div>
+</div>

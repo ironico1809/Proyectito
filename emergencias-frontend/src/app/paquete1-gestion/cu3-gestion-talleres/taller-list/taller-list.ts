@@ -4,12 +4,11 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TallerService } from '../../../core/services/taller';
 import { Taller } from '../../../shared/models/taller.model';
-import { Sidebar } from '../../../shared/sidebar/sidebar';
 
 @Component({
   selector: 'app-taller-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, Sidebar],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './taller-list.html',
   styleUrls: ['./taller-list.css'] // opcional
 })

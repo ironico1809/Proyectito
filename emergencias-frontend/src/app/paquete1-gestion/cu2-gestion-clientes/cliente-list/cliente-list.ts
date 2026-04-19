@@ -4,12 +4,11 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms'; // <--- 1. Importante importar esto
 import { UsuarioService } from '../../../core/services/usuario';
 import { Usuario } from '../../../shared/models/usuario.model';
-import { Sidebar } from '../../../shared/sidebar/sidebar';
 
 @Component({
   selector: 'app-cliente-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, Sidebar],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './cliente-list.html',
   styleUrl: './cliente-list.css' // <--- FÍJATE QUE ES styleUrl EN SINGULAR
 })

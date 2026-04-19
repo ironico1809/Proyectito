@@ -1,0 +1,88 @@
+<div class="layout-principal">
+  <div class="contenido-derecha"> 
+    
+    <div class="contenedor-principal">
+      <div class="header-seccion">
+        <div>
+          <h1 class="titulo-pagina">Staff Técnico</h1>
+          <p class="subtitulo-pagina">Gestiona a los mecánicos de tu taller.</p>
+        </div>
+        <button class="btn-agregar" (click)="abrirModalNuevo()">
+          + Agregar Técnico
+        </button>
+      </div>
+
+      <div class="card-tabla">
+        <table class="tabla-moderna">
+          <thead>
+            <tr>
+              <th>Mecánico</th>
+              <th>Especialidad</th>
+              <th>Disponibilidad</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let tecnico of tecnicos">
+              <td class="col-nombre">
+                <div class="avatar-texto">
+                  <div class="avatar-circulo">{{ tecnico.nombre.charAt(0) | uppercase }}</div>
+                  <span class="nombre-bold">{{ tecnico.nombre }}</span>
+                </div>
+              </td>
+              <td>{{ tecnico.especialidad || 'General' }}</td>
+              <td>
+                <label class="switch">
+                  <input type="checkbox" [checked]="tecnico.disponible_boolean" (change)="cambiarDisponibilidad(tecnico)">
+                  <span class="slider round"></span>
+                </label>
+              </td>
+              <td class="col-acciones">
+                <button class="btn-icono">✏️</button>
+                <button class="btn-icono" (click)="eliminarTecnico(tecnico.id_tecnico)">🗑️</button>
+              </td>
+            </tr>
+            <tr *ngIf="tecnicos.length === 0">
+              <td colspan="4" class="estado-vacio">No tienes técnicos registrados.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div class="modal-overlay" *ngIf="mostrarModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>Contratar Personal</h2>
+      <button class="btn-cerrar" (click)="cerrarModal()">×</button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="input-group">
+        <label>Nombre del Técnico</label>
+        <input type="text" [(ngModel)]="nuevoTecnico.nombre" placeholder="Ej. Juan Perez">
+      </div>
+      <div class="input-group">
+        <label>Correo Electrónico</label>
+        <input type="email" [(ngModel)]="nuevoTecnico.email" placeholder="correo@tecnico.com">
+      </div>
+      <div class="input-group">
+        <label>Contraseña para la App</label>
+        <input type="password" [(ngModel)]="nuevoTecnico.password" placeholder="Mínimo 6 caracteres">
+      </div>
+      <div class="input-group">
+        <label>Especialidad</label>
+        <input type="text" [(ngModel)]="nuevoTecnico.especialidad" placeholder="Ej. Mecánico, Electricista">
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-confirmar" (click)="guardarTecnico()" [disabled]="cargando">
+        {{ cargando ? 'Guardando...' : 'Confirmar Registro' }}
+      </button>
+    </div>
+  </div>
+</div>

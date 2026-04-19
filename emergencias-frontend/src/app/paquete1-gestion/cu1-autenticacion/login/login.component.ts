@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { TallerService } from '../../../core/services/taller'; // <--- Importamos el servicio del CU3
+import { TallerService } from '../../../core/services/taller';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +19,7 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder, 
     private authService: AuthService,
-    private tallerService: TallerService, // <--- Lo inyectamos aquí
+    private tallerService: TallerService,
     private router: Router
   ) {
     this.iniciarFormulario();
@@ -27,13 +27,11 @@ export class LoginComponent {
 
   iniciarFormulario() {
     if (this.isLoginMode) {
-      // Formulario corto para Iniciar Sesión
       this.loginForm = this.fb.group({
         email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required, Validators.minLength(6)]]
       });
     } else {
-      // Formulario largo para Registrar un Taller (Basado en TallerCreate del backend)
       this.loginForm = this.fb.group({
         nombre_dueno: ['', Validators.required],
         email: ['', [Validators.required, Validators.email]],
@@ -48,29 +46,41 @@ export class LoginComponent {
 
   toggleMode() {
     this.isLoginMode = !this.isLoginMode;
-    this.iniciarFormulario(); // Reconstruye el formulario con los campos correctos
+    this.iniciarFormulario();
   }
 
   onSubmit() {
     if (this.loginForm.invalid) return;
 
     if (this.isLoginMode) {
-      // Lógica de Iniciar Sesión (Se mantiene igual)
+      // ========================================================
+      // ⚡ LÓGICA DE LOGIN (AQUÍ GUARDAMOS EL ROL) ⚡
+      // ========================================================
       this.authService.login(this.loginForm.value).subscribe({
-        next: (res) => {
-          alert('¡Hola ' + res.nombre + '!');
+        next: (res: any) => {
+          // 1. Guardamos el token (Soporta si tu backend manda access_token o token)
+          localStorage.setItem('token', res.access_token || res.token);
+          
+          // 2. Guardamos el rol para que el Sidebar y Dashboard se adapten
+          // Nota: Si tu backend devuelve el rol bajo otro nombre como 'rol_enum', 
+          // cambiaselo aquí abajo a res.rol_enum
+          localStorage.setItem('rolUsuario', res.rol);
+          
+          // 3. Nos vamos al Dashboard
           this.router.navigate(['/inicio']);
         },
         error: (err) => alert('Correo o contraseña incorrectos')
       });
     } else {
-      // Lógica de Registrar Taller (CU3)
+      // ========================================================
+      // ⚡ LÓGICA DE REGISTRO DE TALLER (CU3) ⚡
+      // ========================================================
       this.tallerService.crearTaller(this.loginForm.value).subscribe({
         next: (res) => {
           alert('¡Taller registrado exitosamente! Ahora puedes iniciar sesión.');
-          this.toggleMode(); // Lo devolvemos a la vista de login
+          this.toggleMode(); 
         },
-        error: (err) => alert('Error al registrar el taller: ' + err.error?.detail)
+        error: (err) => alert('Error al registrar: ' + (err.error?.detail || 'Verifique sus datos'))
       });
     }
   }

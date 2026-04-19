@@ -1,155 +1,98 @@
-/* DISEÑO ESPECÍFICO DEL SIDEBAR */
+/* =========================================================
+   ESTILO BASE DEL SIDEBAR - DISEÑO PREMIUM
+   ========================================================= */
 .sidebar {
   width: 260px;
-  background-color: var(--primary-900);
+  background-color: #0f172a; /* Azul noche profundo */
   color: white;
   display: flex;
   flex-direction: column;
   height: 100vh;
-  transition: transform 0.3s ease;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
+  overflow: hidden;
+  box-shadow: 4px 0 10px rgba(0,0,0,0.02);
 }
 
-.sidebar__header {
-  height: 70px;
-  padding: 0 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+/* --- CABECERA (LOGO) --- */
+.sidebar__header { 
+  height: 70px; padding: 0 1.5rem; display: flex; align-items: center; gap: 14px; 
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05); min-width: 260px; 
+}
+.logo-icon { 
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); 
+  width: 36px; height: 36px; border-radius: 10px; 
+  display: flex; align-items: center; justify-content: center; 
+  font-weight: bold; font-size: 1.3rem; box-shadow: 0 2px 5px rgba(59, 130, 246, 0.5);
+}
+.logo-text { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.5px; color: #f8fafc;}
+
+/* --- NAVEGACIÓN --- */
+.sidebar__nav { 
+  flex: 1; padding: 1.5rem 1rem; overflow-y: auto; min-width: 260px; 
+}
+/* Barra de scroll bonita para el menú */
+.sidebar__nav::-webkit-scrollbar { width: 4px; }
+.sidebar__nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+.nav-title { 
+  font-size: 0.7rem; text-transform: uppercase; color: #64748b; 
+  margin: 1.5rem 0 0.5rem 0.5rem; letter-spacing: 1.2px; font-weight: 800; 
 }
 
-.logo-icon {
-  background: var(--primary-600);
-  width: 35px;
-  height: 35px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 1.2rem;
+.nav-link { 
+  display: flex; align-items: center; gap: 14px; padding: 12px 16px; 
+  text-decoration: none; color: #94a3b8; border-radius: 10px; 
+  transition: all 0.2s ease; margin-bottom: 6px; font-weight: 500; font-size: 0.95rem;
+}
+.nav-link:hover { 
+  background: rgba(255, 255, 255, 0.06); color: white; transform: translateX(4px);
+}
+.nav-link.active { 
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); 
+  color: white; font-weight: 600;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
 }
 
-.logo-text {
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+/* --- FOOTER (CERRAR SESIÓN) --- */
+.sidebar__footer { 
+  padding: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.05); min-width: 260px; 
+}
+.btn-logout { 
+  width: 100%; display: flex; align-items: center; justify-content: center; 
+  gap: 10px; background: rgba(255, 255, 255, 0.05); color: #cbd5e1; 
+  border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; 
+  cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.2s ease; 
+}
+.btn-logout:hover { 
+  background: #ef4444; color: white; border-color: #ef4444;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
 }
 
-.sidebar__nav {
-  flex: 1;
-  padding: 1.5rem 1rem;
-  overflow-y: auto;
+/* =========================================================
+   COMPORTAMIENTO EN COMPUTADORA (Empuja el contenido)
+   ========================================================= */
+@media (min-width: 769px) {
+  :host-context(.sidebar-oculto) .sidebar {
+    width: 0px;
+    padding: 0;
+  }
 }
 
-.nav-title {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  color: var(--gray-500);
-  margin: 1.5rem 0 0.5rem 0.5rem;
-  letter-spacing: 1px;
-  font-weight: bold;
-}
-
-.nav-link {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 15px;
-  text-decoration: none;
-  color: var(--gray-300);
-  border-radius: 8px;
-  transition: 0.2s;
-  margin-bottom: 4px;
-  font-weight: 500;
-}
-
-.nav-link:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
-}
-
-.nav-link.active {
-  background: var(--primary-700);
-  color: white;
-}
-
-.sidebar__footer {
-  padding: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.btn-logout {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
-  border: none;
-  padding: 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: 0.2s;
-}
-
-.btn-logout:hover {
-  background: var(--danger-600);
-}
-
-/* Overlay para móviles */
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-}
-
+/* =========================================================
+   COMPORTAMIENTO EN CELULAR (Flota por encima)
+   ========================================================= */
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
-    top: 0;
-    left: 0;
-    transform: translateX(-100%);
+    top: 0; left: 0;
+    box-shadow: 4px 0 25px rgba(0,0,0,0.6);
+    transform: translateX(0); /* Posición visible */
   }
-  .sidebar.sidebar--open {
-    transform: translateX(0);
-  }
-  .btn-close-sidebar {
-    display: block;
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.2rem;
-    cursor: pointer;
-    margin-left: auto;
-  }
-}
-.sidebar-overlay {
-  display: none; /* oculto por defecto en escritorio */
-}
 
-@media (max-width: 768px) {
-  .sidebar-overlay {
-    display: block;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-  }
-}
-@media (min-width: 769px) {
-  .btn-close-sidebar {
-    display: none;
+  /* Cuando está oculto, se desliza fuera de la pantalla */
+  :host-context(.sidebar-oculto) .sidebar {
+    transform: translateX(-100%);
+    width: 260px; 
   }
 }

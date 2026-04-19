@@ -1,0 +1,40 @@
+<div class="layout-principal">
+  <div class="contenido-derecha">
+    <div class="perfil-container">
+      <h1 class="titulo-perfil">Configuración de Perfil</h1>
+      <p class="subtitulo-perfil">Actualiza tu información personal y de contacto.</p>
+
+      <div class="perfil-card">
+        <div class="perfil-header">
+          <div class="avatar-grande">{{ usuario.nombre[0] | uppercase }}</div>
+          <div class="user-meta">
+            <h2>{{ usuario.nombre }}</h2>
+            <span class="badge-rol">{{ usuario.rol | uppercase }}</span>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="input-group">
+            <label>Nombre Completo</label>
+            <input type="text" [(ngModel)]="usuario.nombre" placeholder="Nombre completo">
+          </div>
+          <div class="input-group">
+            <label>Correo Electrónico (No editable)</label>
+            <input type="email" [value]="usuario.email" disabled class="input-disabled">
+          </div>
+          <div class="input-group">
+            <label>Teléfono / Celular</label>
+            <input type="text" [(ngModel)]="usuario.telefono" placeholder="Ej. 78012345">
+          </div>
+        </div>
+
+        <div class="perfil-footer">
+          <span class="msj-exito" *ngIf="mensaje">{{ mensaje }}</span>
+          <button class="btn-guardar" (click)="actualizar()" [disabled]="cargando">
+            {{ cargando ? 'Guardando...' : 'Guardar Cambios' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

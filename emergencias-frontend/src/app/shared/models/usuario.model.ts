@@ -35,4 +35,6 @@ export interface TokenResponse {
   token_type: string;
   rol: TipoRol;
   nombre: string;
+  id_usuario: number;     // 👈 Esto tranquiliza a Angular
+  id_taller?: number;
 }

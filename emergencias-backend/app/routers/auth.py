@@ -8,9 +8,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-
+from passlib.context import CryptContext
 from app.database import get_db
-from app.models.usuario import Usuario
+from app.models.usuario import Usuario, TipoRol # 👈 Añadido TipoRol
+from app.models.taller import Taller
 from app.schemas.usuario import LoginRequest, TokenResponse
 from app.utils.security import verify_password, create_access_token, decode_access_token
 
@@ -36,8 +37,15 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales incorrectas"
         )
+    # 3. ⚡ BÚSQUEDA INTELIGENTE DEL TALLER
+    # Si el usuario es un taller, buscamos su ID en la tabla talleres
+    id_taller_encontrado = None
+    if usuario.rol == TipoRol.taller:
+        taller = db.query(Taller).filter(Taller.dueño_id == usuario.id_usuario).first()
+        if taller:
+            id_taller_encontrado = taller.id_taller
 
-    # 3. Generar el token con el email y rol del usuario
+    # 4. Generar el token con el email y rol del usuario
     token = create_access_token(data={
         "sub": usuario.email,
         "rol": usuario.rol
@@ -45,8 +53,11 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
 
     return TokenResponse(
         access_token=token,
+        token_type="bearer",
         rol=usuario.rol,
-        nombre=usuario.nombre
+        nombre=usuario.nombre,
+        id_usuario=usuario.id_usuario,  # 👈 ESTO ES LO QUE FALTA
+        id_taller=id_taller_encontrado
     )
 
 

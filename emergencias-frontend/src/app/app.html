@@ -1,1 +1,22 @@
-<router-outlet></router-outlet>
+<ng-container *ngIf="router.url === '/login'; else layoutMaestro">
+  <router-outlet></router-outlet>
+</ng-container>
+
+<ng-template #layoutMaestro>
+  <div class="layout-global" [class.sidebar-oculto]="sidebarColapsado">
+    
+    <div class="sidebar-overlay" *ngIf="!sidebarColapsado" (click)="toggleSidebar()"></div>
+
+    <app-sidebar></app-sidebar>
+
+    <div class="columna-derecha">
+      
+      <app-navbar (onToggle)="toggleSidebar()"></app-navbar>
+
+      <main class="area-trabajo">
+        <router-outlet></router-outlet>
+      </main>
+
+    </div>
+  </div>
+</ng-template>

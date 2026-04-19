@@ -17,8 +17,7 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, usuarios, talleres, vehiculos, incidentes
-
+from app.routers import auth, usuarios, talleres, vehiculos, tecnicos, incidentes, ia, notificaciones, pagos
 app = FastAPI(
     title="Plataforma Inteligente de Emergencias Vehiculares",
     description="API REST - Sistema de Información 2 | UAGRM Grupo 25",
@@ -41,12 +40,15 @@ app.add_middleware(
 # Registro de routers por caso de uso
 # Cada router tiene su propio prefijo y tag en Swagger
 # -------------------------------------------------------
-app.include_router(auth.router)       # CU1 - /auth
-app.include_router(usuarios.router)   # CU2 - /usuarios
-app.include_router(talleres.router)   # CU3 - /talleres
-app.include_router(vehiculos.router)  # CU5 - /vehiculos
-app.include_router(incidentes.router) # CU7 - /incidentes
-
+app.include_router(auth.router)           # CU1 - /auth
+app.include_router(usuarios.router)       # CU2 - /usuarios
+app.include_router(talleres.router)       # CU3 - /talleres
+app.include_router(vehiculos.router)      # CU5 - /vehiculos
+app.include_router(tecnicos.router)       # CU6 - /tecnicos
+app.include_router(incidentes.router)     # CU7, CU10, CU11 - /incidentes
+app.include_router(ia.router)             # CU8 - /ia
+app.include_router(notificaciones.router) # CU15 - /notificaciones
+app.include_router(pagos.router)
 # -------------------------------------------------------
 # Endpoint raíz: verifica que el servidor esté corriendo
 # -------------------------------------------------------

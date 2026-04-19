@@ -1,0 +1,239 @@
+/* Contenedor base adaptado a tu panel */
+.contenedor-principal {
+  padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+.layout-principal {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+.contenido-derecha {
+  flex: 1; /* Esto hace que el contenido tome todo el espacio restante */
+  width: 100%;
+  height: 100vh;
+  overflow-y: auto; /* Para que la página haga scroll si hay muchos técnicos */
+}
+.header-seccion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.titulo-pagina {
+  font-size: 24px;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+  font-weight: 600;
+}
+
+.subtitulo-pagina {
+  color: #64748b;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Botón principal */
+.btn-agregar {
+  background-color: #0f172a; /* Azul oscuro corporativo */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+.btn-primario:hover {
+  background-color: #1e293b;
+}
+
+/* Tarjeta y Tabla */
+.card-tabla {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.tabla-moderna {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.tabla-moderna th {
+  background-color: #f8fafc;
+  color: #475569;
+  padding: 14px 20px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tabla-moderna td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+  color: #334155;
+  font-size: 14px;
+}
+
+/* Avatar del mecánico */
+.avatar-texto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-circulo {
+  width: 36px;
+  height: 36px;
+  background-color: #3b82f6; /* Azul brillante */
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.nombre-bold {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* Botones de acción (iconos) */
+.col-acciones {
+  white-space: nowrap;
+}
+.btn-icono {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 8px;
+  border-radius: 4px;
+  opacity: 0.6;
+  transition: all 0.2s;
+}
+.btn-icono:hover { 
+  opacity: 1; 
+  background-color: #f1f5f9;
+}
+.btn-eliminar:hover {
+  background-color: #fee2e2;
+}
+
+/* --- MAGIA DEL SWITCH TIPO iOS --- */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  margin-right: 12px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #cbd5e1;
+  transition: .3s;
+  border-radius: 24px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+input:checked + .slider {
+  background-color: #10b981; /* Verde éxito */
+}
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* --- BADGES (Etiquetas) --- */
+.badge-estado {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge-verde {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+.badge-gris {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+.estado-vacio {
+  text-align: center;
+  padding: 60px 20px !important;
+  color: #64748b;
+  font-style: italic;
+}
+/* Este es el fondo que bloquea todo lo demás */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7); /* Fondo oscuro con transparencia */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* 👈 Esto lo pone por encima de CUALQUIER otra cosa */
+  backdrop-filter: blur(5px); /* Efecto borroso muy pro */
+}
+
+/* La tarjeta del modal */
+.modal-card {
+  background: white;
+  width: 90%;
+  max-width: 500px;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: aparecer 0.3s ease-out;
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-header h2 { margin: 0; color: #1e293b; }
+.btn-cerrar { border: none; background: none; font-size: 28px; cursor: pointer; color: #94a3b8; }
+
+.modal-body { display: flex; flex-direction: column; gap: 15px; }
+.input-group { display: flex; flex-direction: column; gap: 5px; }
+.input-group label { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; }
+.input-group input { padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; }
+
+.modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px; }
+.btn-confirmar { background: #0f172a; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+.btn-cancelar { background: #f1f5f9; color: #475569; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; }

@@ -38,6 +38,9 @@ class TokenResponse(BaseModel):
     token_type:   str = "bearer"
     rol:          TipoRol
     nombre:       str
+    # ⚡ NUEVOS CAMPOS:
+    id_usuario:   int
+    id_taller:    Optional[int] = None
 
 
 # -------------------------------------------------------

@@ -1,0 +1,63 @@
+
+<header class="topbar">
+  <header class="topbar">
+  <div class="topbar-left">
+    <button class="btn-toggle" (click)="notificarToggle()">
+      ☰
+    </button>
+  </div>
+</header>
+  <div class="topbar-left"></div>
+
+  <div class="topbar-right">
+    
+    <div class="notificaciones-wrapper">
+      <button class="btn-campana" (click)="toggleDropdown($event)">
+        <span class="icono-campana">🔔</span>
+        <span class="badge-notif" *ngIf="cantidadNoLeidas > 0">{{ cantidadNoLeidas }}</span>
+      </button>
+
+      <div class="dropdown-notificaciones" *ngIf="mostrarDropdown" (click)="$event.stopPropagation()">
+        <div class="dropdown-header">
+          <h4>Notificaciones</h4>
+          <span class="marcar-todas">Marcar leídas</span>
+        </div>
+        
+        <div class="dropdown-body">
+          <div class="notif-vacia" *ngIf="notificaciones.length === 0">
+            No tienes alertas nuevas.
+          </div>
+
+          <div class="notif-item" 
+               *ngFor="let notif of notificaciones" 
+               [class.no-leida]="!notif.leido_boolean"
+               (click)="marcarLeida(notif, $event)">
+            
+            <div class="notif-icon">
+              <span *ngIf="notif.titulo.includes('Emergencia')">🚨</span>
+              <span *ngIf="notif.titulo.includes('Técnico')">👨‍🔧</span>
+              <span *ngIf="notif.titulo.includes('Pago')">💰</span>
+            </div>
+            
+            <div class="notif-content">
+              <h5>{{ notif.titulo }}</h5>
+              <p>{{ notif.mensaje }}</p>
+              <span class="notif-fecha">Hace un momento</span>
+            </div>
+            
+            <div class="punto-azul" *ngIf="!notif.leido_boolean"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="perfil-usuario" routerLink="/perfil" style="cursor: pointer;">
+      <div class="avatar">{{ nombreUsuario.charAt(0) | uppercase }}</div>
+      <div class="info-perfil">
+        <span class="nombre">{{ nombreUsuario }}</span>
+        <span class="rol">{{ rolUsuario }}</span>
+      </div>
+    </div>
+
+  </div>
+</header>

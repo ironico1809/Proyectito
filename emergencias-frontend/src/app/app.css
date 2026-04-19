@@ -1,0 +1,34 @@
+.layout-global {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: #f8fafc;
+}
+
+.columna-derecha {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.area-trabajo {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* OVERLAY OSCURO PARA MÓVILES */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background-color: rgba(15, 23, 42, 0.5); /* Color oscuro transparente */
+  backdrop-filter: blur(2px); /* Efecto de desenfoque */
+  z-index: 990; /* ⚡ IMPORTANTE: Menor que el z-index del sidebar (1000) */
+}
+
+@media (max-width: 768px) {
+  .sidebar-overlay { display: block; }
+}
