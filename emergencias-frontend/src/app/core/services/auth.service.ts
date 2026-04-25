@@ -7,7 +7,7 @@ import { TokenResponse, TipoRol } from '../../shared/models/usuario.model';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://127.0.0.1:8000/auth';
+  private apiUrl = 'https://backend-ixkv.onrender.com/auth';
 
   constructor(private http: HttpClient) {}
 
