@@ -1,15 +1,9 @@
 # ============================================================
 # models/usuario.py
-# Representa la tabla "usuarios" de la base de datos
-# SQLAlchemy mapea esta clase a la tabla real en Supabase
-# ============================================================
-
 from sqlalchemy import Column, Integer, String, Enum as SAEnum
 from app.database import Base
 import enum
 
-
-# Enum igual al que definimos en la BD de Supabase
 class TipoRol(str, enum.Enum):
     cliente    = "cliente"
     taller     = "taller"

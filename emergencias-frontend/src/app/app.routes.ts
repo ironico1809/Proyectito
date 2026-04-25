@@ -10,6 +10,8 @@ import { Cu9Monitoreo } from './paquete2-operaciones/cu9-monitoreo/cu9-monitoreo
 import { Cu14ComisionesComponent } from './paquete5-finanzas/cu14-comisiones/cu14-comisiones'; 
 import { Cu4Perfil } from './paquete1-gestion/cu4-perfil/cu4-perfil';
 import { HistorialTecnico } from './paquete2-operaciones/historial-tecnico/historial-tecnico';
+import { UbicacionComponent } from './paquete2-operaciones/ubicacion/ubicacion';
+
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'inicio', component: Inicio },
@@ -23,7 +25,7 @@ export const routes: Routes = [
   { path: 'perfil', component: Cu4Perfil },
   { path: 'monitoreo', component: Cu9Monitoreo },
   { path: 'comisiones', component: Cu14ComisionesComponent }, 
-
+  { path: 'mi-ubicacion', component: UbicacionComponent },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' }
 ];

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'; // 👈 IMPORTANTE
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-cu9-monitoreo',
@@ -16,24 +16,30 @@ export class Cu9Monitoreo implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private sanitizer: DomSanitizer // 👈 Inyectamos el Sanitizer
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit() {
     this.cargarSeguimiento();
-    // Opcional: Refrescar automáticamente cada 30 seg para ver movimiento real
-    setInterval(() => this.cargarSeguimiento(), 30000);
+    setInterval(() => this.cargarSeguimiento(), 10000);
   }
+  getMapaUrl(incidente: any): SafeResourceUrl {
+    let url = '';
+    const latCli = incidente.latitud_emergencia;
+    const lngCli = incidente.longitud_emergencia;
+    const latTec = incidente.latitud_tecnico;
+    const lngTec = incidente.longitud_tecnico;
 
-  // ⚡ FUNCIÓN MÁGICA PARA EL MAPA REAL
-  getMapaUrl(lat: number, lng: number): SafeResourceUrl {
-    // Usamos el modo 'embed' de Google Maps. No requiere API Key para uso básico.
-    const url = `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
+    if (latTec && lngTec) {
+      url = `https://maps.google.com/maps?saddr=${latTec},${lngTec}&daddr=${latCli},${lngCli}&output=embed`;
+    } else {
+      url = `https://maps.google.com/maps?q=${latCli},${lngCli}&z=15&output=embed`;
+    }
+    
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   cargarSeguimiento() {
-    this.cargando = true;
     this.http.get<any[]>('http://localhost:8000/incidentes/en-proceso').subscribe({
       next: (data) => {
         this.serviciosActivos = data;

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -9,13 +9,22 @@ export class PagoService {
   private apiUrl = 'http://localhost:8000/pagos';
 
   constructor(private http: HttpClient) {}
-
-  // CU14: Obtener todos los pagos y comisiones para el Admin
-  obtenerPagos(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/`);
+  private getAuthHeaders() {
+    const token = localStorage.getItem('token');
+    return {
+      headers: new HttpHeaders({
+        'Authorization': `Bearer ${token}`
+      })
+    };
   }
-  // Para el Taller: Ver solo sus ingresos
-  obtenerPagosPorTaller(tallerId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/taller/${tallerId}`);
+
+  // CU14: Para el Admin - Ve TODA la plata de la plataforma
+  obtenerPagos(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/`, this.getAuthHeaders());
+  }
+
+  // CU13: Para el Taller - Ve SOLO su plata (El backend lo sabe por el token)
+  obtenerMisIngresos(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/mis-ingresos`, this.getAuthHeaders());
   }
 }

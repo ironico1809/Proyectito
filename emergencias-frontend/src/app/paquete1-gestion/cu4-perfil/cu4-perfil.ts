@@ -11,7 +11,6 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./cu4-perfil.css']
 })
 export class Cu4Perfil implements OnInit {
-  // Datos reales del usuario
   usuario = { 
     nombre: localStorage.getItem('nombre') || '', 
     email: '', 
@@ -29,7 +28,6 @@ export class Cu4Perfil implements OnInit {
   }
 
   obtenerDatosCompletos() {
-    // Usamos el endpoint /me que ya configuramos en FastAPI
     this.http.get<any>('http://localhost:8000/usuarios/me').subscribe({
       next: (res) => this.usuario = res,
       error: (err) => console.error("Error al traer perfil", err)
@@ -42,7 +40,7 @@ export class Cu4Perfil implements OnInit {
       next: () => {
         this.cargando = false;
         this.mensaje = "¡Perfil actualizado! ✅";
-        localStorage.setItem('nombre', this.usuario.nombre); // Actualizamos el nombre en el navegador
+        localStorage.setItem('nombre', this.usuario.nombre); 
         setTimeout(() => this.mensaje = '', 3000);
       },
       error: () => {

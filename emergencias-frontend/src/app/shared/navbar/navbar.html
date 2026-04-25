@@ -1,16 +1,9 @@
-
 <header class="topbar">
-  <header class="topbar">
   <div class="topbar-left">
-    <button class="btn-toggle" (click)="notificarToggle()">
-      ☰
-    </button>
+    <button class="btn-toggle" (click)="notificarToggle()">☰</button>
   </div>
-</header>
-  <div class="topbar-left"></div>
 
   <div class="topbar-right">
-    
     <div class="notificaciones-wrapper">
       <button class="btn-campana" (click)="toggleDropdown($event)">
         <span class="icono-campana">🔔</span>
@@ -42,7 +35,7 @@
             <div class="notif-content">
               <h5>{{ notif.titulo }}</h5>
               <p>{{ notif.mensaje }}</p>
-              <span class="notif-fecha">Hace un momento</span>
+              <span class="notif-fecha">{{ obtenerTiempoRelativo(notif.fecha_creacion_timestamp) }}</span>
             </div>
             
             <div class="punto-azul" *ngIf="!notif.leido_boolean"></div>
@@ -58,6 +51,5 @@
         <span class="rol">{{ rolUsuario }}</span>
       </div>
     </div>
-
   </div>
 </header>

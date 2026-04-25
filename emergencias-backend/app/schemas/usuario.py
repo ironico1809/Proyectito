@@ -1,12 +1,6 @@
 # ============================================================
 # schemas/usuario.py
 #
-# CONTEXTO DEL PROYECTO:
-#   Plataforma Inteligente de Emergencias Vehiculares
-#   Backend: FastAPI + PostgreSQL (Supabase)
-#   Este archivo define los schemas de validación para el
-#   modelo Usuario usando Pydantic.
-#
 # CU1: LoginRequest, TokenResponse → Autenticación
 # CU2: UsuarioCreate, UsuarioUpdate, UsuarioOut → CRUD Usuarios
 #

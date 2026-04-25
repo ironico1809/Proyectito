@@ -1,3 +1,7 @@
+// ============================================================
+// login.component.ts
+// CONTEXTO: CU1 (Login) y CU3 (Registro de Taller)
+// ============================================================
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -53,35 +57,38 @@ export class LoginComponent {
     if (this.loginForm.invalid) return;
 
     if (this.isLoginMode) {
-      // ========================================================
-      // ⚡ LÓGICA DE LOGIN (AQUÍ GUARDAMOS EL ROL) ⚡
-      // ========================================================
       this.authService.login(this.loginForm.value).subscribe({
         next: (res: any) => {
-          // 1. Guardamos el token (Soporta si tu backend manda access_token o token)
           localStorage.setItem('token', res.access_token || res.token);
-          
-          // 2. Guardamos el rol para que el Sidebar y Dashboard se adapten
-          // Nota: Si tu backend devuelve el rol bajo otro nombre como 'rol_enum', 
-          // cambiaselo aquí abajo a res.rol_enum
           localStorage.setItem('rolUsuario', res.rol);
+          localStorage.setItem('idTaller', res.id_taller || res.id_usuario); 
           
-          // 3. Nos vamos al Dashboard
           this.router.navigate(['/inicio']);
         },
         error: (err) => alert('Correo o contraseña incorrectos')
       });
     } else {
-      // ========================================================
-      // ⚡ LÓGICA DE REGISTRO DE TALLER (CU3) ⚡
-      // ========================================================
-      this.tallerService.crearTaller(this.loginForm.value).subscribe({
-        next: (res) => {
-          alert('¡Taller registrado exitosamente! Ahora puedes iniciar sesión.');
-          this.toggleMode(); 
-        },
-        error: (err) => alert('Error al registrar: ' + (err.error?.detail || 'Verifique sus datos'))
-      });
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const datosConUbicacion = {
+            ...this.loginForm.value,
+            latitud_decimal: position.coords.latitude,
+            longitud_decimal: position.coords.longitude
+          };
+
+          this.tallerService.crearTaller(datosConUbicacion).subscribe({
+            next: (res) => {
+              alert('¡Taller registrado exitosamente! Ahora puedes iniciar sesión.');
+              this.toggleMode(); 
+            },
+            error: (err) => alert('Error al registrar: ' + (err.error?.detail || 'Verifique sus datos'))
+          });
+        }, (error) => {
+           alert("Por favor, permite la ubicación para registrar tu taller.");
+        });
+      } else {
+        alert("Geolocalización no soportada en este navegador.");
+      }
     }
   }
 }

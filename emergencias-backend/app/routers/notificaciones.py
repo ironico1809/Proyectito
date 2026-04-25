@@ -1,9 +1,5 @@
 # ============================================================
 # routers/notificaciones.py
-#
-# CONTEXTO DEL PROYECTO:
-#   Plataforma Inteligente de Emergencias Vehiculares
-#
 # CU15: Servicio de Notificaciones y Comunicación
 #
 # ENDPOINTS:
@@ -11,12 +7,6 @@
 #   PATCH /notificaciones/{id}/leer          → Marcar como leída
 #   GET   /notificaciones/no-leidas          → Contar no leídas (para badge)
 #
-# FUNCIÓN INTERNA:
-#   crear_notificacion_interna() → La usan otros routers para
-#   enviar notificaciones automáticamente cuando hay eventos
-#   (incidente aceptado, técnico asignado, etc.)
-# ============================================================
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
@@ -42,8 +32,7 @@ def crear_notificacion_interna(db: Session, usuario_id: int, titulo: str, mensaj
         mensaje    = mensaje
     )
     db.add(notif)
-    # No hacemos commit aquí, lo hace el router que llama esta función
-
+    
 
 # -------------------------------------------------------
 # GET /notificaciones/mis-notificaciones

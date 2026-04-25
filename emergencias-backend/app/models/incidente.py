@@ -3,22 +3,13 @@
 #
 # CONTEXTO DEL PROYECTO:
 #   Plataforma Inteligente de Emergencias Vehiculares
-#   Backend: FastAPI + PostgreSQL (Supabase)
-#   Universidad Autónoma Gabriel René Moreno - SI2 2026
-#
 # TABLAS QUE REPRESENTA ESTE ARCHIVO:
 #   1. incidentes        → Flujo principal del sistema (CU7, CU10, CU11)
 #   2. evidencias_ia     → Archivos multimodales del cliente para análisis (CU8)
 #   3. historial_estados → Trazabilidad de cambios de estado (Auditoría)
-#
-# ACTORES QUE INTERACTÚAN:
-#   A1 = Cliente (reporta la emergencia)
-#   A2 = Taller (acepta/rechaza y asigna técnico)
-#   A3 = Técnico (atiende el incidente en sitio)
-#   A4 = Admin (supervisa todo el flujo)
 # ============================================================
 
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, Enum as SAEnum, DECIMAL, TIMESTAMP
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum as SAEnum, Numeric, TIMESTAMP, Text, DECIMAL
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
@@ -30,14 +21,15 @@ import enum
 # -------------------------------------------------------
 class EstadoIncidente(str, enum.Enum):
     pendiente  = "pendiente"
-    en_proceso = "en proceso"
+    en_proceso = "en_proceso"
     atendido   = "atendido"
+    cancelado  = "cancelado"
 
 class PrioridadIncidente(str, enum.Enum):
     baja     = "baja"
     media    = "media"
     alta     = "alta"
-    incierto = "incierto" # Valor por defecto hasta que la IA (CU8) lo clasifique
+    incierto = "incierto" 
 
 class TipoEvidencia(str, enum.Enum):
     audio  = "audio"
@@ -55,19 +47,19 @@ class Incidente(Base):
     cliente_id               = Column(Integer, ForeignKey("usuarios.id_usuario"))
     vehiculo_id              = Column(Integer, ForeignKey("vehiculos.id_vehiculo"))
     
-    # El técnico es NULL al inicio. Se llena en el CU11 (Asignación)
+    taller_actual_id         = Column(Integer, ForeignKey("talleres.id_taller"), nullable=True)
     tecnico_id               = Column(Integer, ForeignKey("tecnicos.id_tecnico"), nullable=True)
     
     fecha_creacion_timestamp = Column(TIMESTAMP, server_default=func.now())
     estado_enum              = Column(SAEnum(EstadoIncidente, name="estado_incidente"), default=EstadoIncidente.pendiente)
     prioridad_enum           = Column(SAEnum(PrioridadIncidente, name="prioridad_incidente"), default=PrioridadIncidente.incierto)
     descripcion_texto        = Column(Text, nullable=True)
-    
-    # Coordenadas exactas mapeadas como DECIMAL(10,8) según el script BD
-    latitud_emergencia       = Column(DECIMAL(10, 8))
-    longitud_emergencia      = Column(DECIMAL(10, 8))
+    costo_final_decimal = Column(DECIMAL(10, 2), nullable=True)
+    latitud_emergencia       = Column(DECIMAL(12, 8))
+    longitud_emergencia      = Column(DECIMAL(12, 8))
+    latitud_tecnico = Column(Numeric(10, 6), nullable=True)
+    longitud_tecnico = Column(Numeric(10, 6), nullable=True)
 
-    # Relaciones ORM: cascade="all, delete" asegura limpieza en BD si se borra un incidente
     evidencias = relationship("EvidenciaIA", back_populates="incidente", cascade="all, delete")
     historial  = relationship("HistorialEstado", back_populates="incidente", cascade="all, delete")
 

@@ -12,18 +12,17 @@ import { PagoService } from '../../core/services/pago';
 export class IngresosTallerComponent implements OnInit {
   pagos: any[] = [];
   cargando: boolean = true;
-  tallerId: number = 0;
 
   constructor(private pagoService: PagoService) {}
 
   ngOnInit(): void {
-    this.tallerId = Number(localStorage.getItem('id_taller')) || 1; 
     this.cargarMisIngresos();
   }
 
   cargarMisIngresos(): void {
     this.cargando = true;
-    this.pagoService.obtenerPagosPorTaller(this.tallerId).subscribe({
+    
+    this.pagoService.obtenerMisIngresos().subscribe({
       next: (data) => {
         this.pagos = data;
         this.cargando = false;

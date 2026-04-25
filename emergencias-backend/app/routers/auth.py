@@ -28,24 +28,19 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 @router.post("/login", response_model=TokenResponse)
 def login(request: LoginRequest, db: Session = Depends(get_db)):
 
-    # 1. Buscar el usuario por email
     usuario = db.query(Usuario).filter(Usuario.email == request.email).first()
 
-    # 2. Verificar que existe y que la contraseña es correcta
     if not usuario or not verify_password(request.password, usuario.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales incorrectas"
         )
-    # 3. ⚡ BÚSQUEDA INTELIGENTE DEL TALLER
-    # Si el usuario es un taller, buscamos su ID en la tabla talleres
     id_taller_encontrado = None
     if usuario.rol == TipoRol.taller:
         taller = db.query(Taller).filter(Taller.dueño_id == usuario.id_usuario).first()
         if taller:
             id_taller_encontrado = taller.id_taller
 
-    # 4. Generar el token con el email y rol del usuario
     token = create_access_token(data={
         "sub": usuario.email,
         "rol": usuario.rol
@@ -69,7 +64,6 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
 @router.post("/logout")
 def logout(token: str = Depends(oauth2_scheme)):
 
-    # Verificar que el token sea válido
     payload = decode_access_token(token)
     if not payload:
         raise HTTPException(
@@ -77,8 +71,6 @@ def logout(token: str = Depends(oauth2_scheme)):
             detail="Token inválido o ya expirado"
         )
 
-    # En JWT stateless, el cierre de sesión lo maneja el cliente
-    # borrando el token de su almacenamiento local
     return {"message": "Sesión cerrada correctamente"}
 
 

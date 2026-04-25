@@ -1,6 +1,13 @@
 <aside class="sidebar" [class.sidebar--open]="isSidebarOpen">
   <div class="sidebar__header">
-    <div class="logo-icon">⚡</div>
+    <div class="logo-icon">
+        <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
+          <path d="M19 4L34 12V26L19 34L4 26V12L19 4Z" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+          <path d="M19 10L29 15.5V26.5L19 32L9 26.5V15.5L19 10Z" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+          <circle cx="19" cy="19" r="4" fill="white"/>
+          <path d="M19 10V14M19 24V28M9 15.5L12.5 17.5M25.5 20.5L29 22.5M9 22.5L12.5 20.5M25.5 17.5L29 15.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
     <span class="logo-text">Emergencias</span>
   </div>
 
@@ -36,6 +43,11 @@
       <a routerLink="/tecnicos" routerLinkActive="active" class="nav-link">
         <span class="icon">👨‍🔧</span> Staff Técnico
       </a>
+
+      <a routerLink="/mi-ubicacion" routerLinkActive="active" class="nav-link">
+        <span class="icon">📍</span> Mi Ubicación (GPS)
+      </a>
+
       <a routerLink="/monitoreo" routerLinkActive="active" class="nav-link">
         <span class="icon">🛰️</span> Monitoreo Real
       </a>

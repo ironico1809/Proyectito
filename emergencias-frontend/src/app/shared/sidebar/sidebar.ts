@@ -13,14 +13,11 @@ import { RouterModule, Router } from '@angular/router';
 export class Sidebar implements OnInit {
   isSidebarOpen = false;
   
-  // La variable inicia vacía
   rolUsuario: string = ''; 
 
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    // ⚡ AQUÍ ESTÁ LA MAGIA: Leemos el rol real guardado en el navegador.
-    // (Ponemos 'taller' como valor por defecto por si acaso entra directo sin login por ahora)
     this.rolUsuario = localStorage.getItem('rol') || 'taller';
   }
   
@@ -29,7 +26,6 @@ export class Sidebar implements OnInit {
   }
 
   cerrarSesion() {
-    // Es vital borrar TODO al salir para que no se quede pegada la vista anterior
     localStorage.removeItem('token'); 
     this.rolUsuario = localStorage.getItem('rol') || 'taller';
     this.router.navigate(['/login']); 

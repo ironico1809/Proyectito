@@ -10,14 +10,12 @@ import { Usuario } from '../../../shared/models/usuario.model';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './cliente-list.html',
-  styleUrl: './cliente-list.css' // <--- FÍJATE QUE ES styleUrl EN SINGULAR
+  styleUrl: './cliente-list.css' 
 })
 export class ClienteList implements OnInit {
   usuarios: Usuario[] = [];
   cargando: boolean = true;
   error: string | null = null;
-  
-  // Variable para guardar los datos del usuario que estamos editando en ese momento
   usuarioEditando: any = null; 
 
   constructor(private usuarioService: UsuarioService) {}
@@ -42,12 +40,12 @@ export class ClienteList implements OnInit {
   // --- NUEVAS FUNCIONES ---
 
   eliminarUsuario(id: number, nombre: string) {
-    // Alerta nativa para confirmar antes de borrar
+    
     if (confirm(`¿Estás súper seguro de eliminar a ${nombre}?`)) {
       this.usuarioService.deleteUsuario(id).subscribe({
         next: () => {
           alert('Usuario eliminado correctamente');
-          this.cargarUsuarios(); // Recarga la tabla automáticamente
+          this.cargarUsuarios(); 
         },
         error: (err) => alert('Error al eliminar: ' + err.error?.detail)
       });
@@ -55,14 +53,12 @@ export class ClienteList implements OnInit {
   }
 
   abrirEditar(user: Usuario) {
-    // Hacemos una copia del usuario para no modificar la tabla en vivo hasta que demos "Guardar"
     this.usuarioEditando = { ...user };
   }
 
   guardarEdicion() {
     const id = this.usuarioEditando.id_usuario;
     
-    // Empaquetamos solo los datos que queremos permitir editar
     const datosUpdate = {
       nombre: this.usuarioEditando.nombre,
       telefono: this.usuarioEditando.telefono,
@@ -72,14 +68,14 @@ export class ClienteList implements OnInit {
     this.usuarioService.updateUsuario(id, datosUpdate).subscribe({
       next: () => {
         alert('Datos actualizados con éxito');
-        this.usuarioEditando = null; // Cierra el formulario
-        this.cargarUsuarios(); // Recarga la tabla
+        this.usuarioEditando = null; 
+        this.cargarUsuarios();
       },
       error: (err) => alert('Error al actualizar: ' + err.error?.detail)
     });
   }
 
   cancelarEdicion() {
-    this.usuarioEditando = null; // Cierra el formulario sin guardar nada
+    this.usuarioEditando = null;
   }
 }

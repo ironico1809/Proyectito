@@ -18,7 +18,6 @@ export class AuthService {
         localStorage.setItem('rol', res.rol);
         localStorage.setItem('nombre', res.nombre);
         
-        // ⚡ GUARDADO INTELIGENTE: Si trae id_taller lo usamos, si no, usamos el id_usuario general
         const idParaGuardar = res.id_taller ? res.id_taller : res.id_usuario;
         localStorage.setItem('id_entidad', idParaGuardar.toString());
       })

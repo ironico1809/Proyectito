@@ -14,13 +14,10 @@ export class UsuarioService {
   getUsuarios(): Observable<Usuario[]> {
     return this.http.get<Usuario[]>(this.apiUrl);
   }
-
-  // NUEVO: Petición DELETE
   deleteUsuario(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}${id}`);
   }
 
-  // NUEVO: Petición PATCH para editar parcialmente
   updateUsuario(id: number, datos: any): Observable<any> {
     return this.http.patch(`${this.apiUrl}${id}`, datos);
   }

@@ -1,10 +1,6 @@
 # ============================================================
 # routers/usuarios.py
 #
-# CONTEXTO DEL PROYECTO:
-#   Plataforma Inteligente de Emergencias Vehiculares
-#   Backend: FastAPI + PostgreSQL (Supabase)
-#
 # CU2: Gestión de Clientes/Usuarios
 #
 # ENDPOINTS:
@@ -14,12 +10,6 @@
 #   PUT    /usuarios/{id}         → Actualizar usuario completo (solo A4)
 #   PATCH  /usuarios/{id}         → Actualizar campos parciales (solo A4)
 #   DELETE /usuarios/{id}         → Eliminar usuario (solo A4)
-#
-# SEGURIDAD:
-#   - El registro es público (no requiere token)
-#   - Todas las demás operaciones requieren rol 'admin'
-#   - Se usa get_current_user de auth.py para validar el token
-# ============================================================
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -71,7 +61,7 @@ def registrar_usuario(datos: UsuarioCreate, db: Session = Depends(get_db)):
         email         = datos.email,
         password_hash = hash_password(datos.password),
         telefono      = datos.telefono,
-        rol           = "admin"
+        rol           = datos.rol
     )
 
     # 3. Guardar en la base de datos

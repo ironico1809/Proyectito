@@ -102,4 +102,14 @@ export class TallerList implements OnInit {
   cancelar() {
     this.mostrarFormulario = false;
   }
+  // ✨ NUEVO: Función para abrir Google Maps
+  abrirMapa(lat: number | null | undefined, lng: number | null | undefined, nombreTaller: string) {
+    if (lat && lng) {
+      // Abre una nueva pestaña de Google Maps con un pin en esas coordenadas
+      const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+      window.open(url, '_blank');
+    } else {
+      alert(`El taller '${nombreTaller}' aún no ha registrado sus coordenadas GPS.`);
+    }
+  }
 }

@@ -1,104 +1,226 @@
 <div class="dashboard-body">
-  <h1 class="welcome-title">Bienvenido al Panel de Control</h1>
-  <p class="welcome-subtitle">Aquí tienes un resumen rápido de tu área de trabajo.</p>
 
+  <div class="welcome-bar">
+    <div>
+      <h1 class="welcome-title">Bienvenido al Panel de Control</h1>
+      <p class="welcome-subtitle">Aquí tienes un resumen rápido de tu área de trabajo.</p>
+    </div>
+    <div class="welcome-role-badge" [ngClass]="rolUsuario">
+      <span class="role-dot"></span>
+      {{ rolUsuario | titlecase }}
+    </div>
+  </div>
+
+  <!-- ── ADMIN ── -->
   <div class="kpi-grid" *ngIf="rolUsuario === 'admin'">
-    
-    <div class="kpi-grid" *ngIf="rolUsuario === 'admin'">
-    
-    <div class="kpi-card" routerLink="/clientes">
-      <div class="kpi-icon blue">👥</div>
+
+    <a class="kpi-card" routerLink="/clientes">
+      <div class="kpi-icon blue">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
       <div class="kpi-info">
-        <h3>Gestión de Clientes</h3>
+        <h3>Clientes</h3>
         <p>Administra usuarios del sistema</p>
       </div>
-      <div class="kpi-arrow">→</div>
-    </div>
+      <div class="kpi-arrow">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </div>
+    </a>
 
-    <div class="kpi-card" routerLink="/talleres">
-      <div class="kpi-icon purple">🔧</div>
+    <a class="kpi-card" routerLink="/talleres">
+      <div class="kpi-icon purple">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+      </div>
       <div class="kpi-info">
-        <h3>Gestión de Talleres</h3>
+        <h3>Talleres</h3>
         <p>Red de mecánicos afiliados</p>
       </div>
-      <div class="kpi-arrow">→</div>
-    </div>
+      <div class="kpi-arrow">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </div>
+    </a>
 
-    <div class="kpi-card" routerLink="/comisiones">
-      <div class="kpi-icon" style="background: #f0fdf4; color: #16a34a;">💰</div>
+    <a class="kpi-card" routerLink="/comisiones">
+      <div class="kpi-icon green">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/>
+        </svg>
+      </div>
       <div class="kpi-info">
-        <h3>Reportes y Comisiones</h3>
+        <h3>Comisiones</h3>
         <p>Monitoreo financiero (10%)</p>
       </div>
-      <div class="kpi-arrow">→</div>
-    </div>
+      <div class="kpi-arrow">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </div>
+    </a>
 
   </div>
 
-  </div>
-
+  <!-- ── TALLER ── -->
   <div class="kpi-grid" *ngIf="rolUsuario === 'taller'">
-    
-    <div class="kpi-card" routerLink="/solicitudes">
-      <div class="kpi-icon" style="background: #fee2e2; color: #ef4444;">🚨</div>
+
+    <a class="kpi-card" routerLink="/solicitudes">
+      <div class="kpi-icon red">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
       <div class="kpi-info">
         <h3>Emergencias Entrantes</h3>
         <p>Solicitudes esperando atención</p>
       </div>
-      <div class="kpi-arrow">→</div>
-    </div>
+      <div class="kpi-arrow">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </div>
+    </a>
 
-    <div class="kpi-card" routerLink="/tecnicos">
-      <div class="kpi-icon" style="background: #e0e7ff; color: #4f46e5;">👨‍🔧</div>
+    <a class="kpi-card" routerLink="/tecnicos">
+      <div class="kpi-icon indigo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
       <div class="kpi-info">
-        <h3>Mi Staff Técnico</h3>
+        <h3>Staff Técnico</h3>
         <p>Disponibilidad de mecánicos</p>
       </div>
-      <div class="kpi-arrow">→</div>
-    </div>
-    <div class="kpi-card" routerLink="/monitoreo">
-      <div class="kpi-icon" style="background: #e0f2fe; color: #0284c7;">🛰️</div>
+      <div class="kpi-arrow">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </div>
+    </a>
+
+    <a class="kpi-card" routerLink="/mi-ubicacion">
+      <div class="kpi-icon orange">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+        </svg>
+      </div>
+      <div class="kpi-info">
+        <h3>Mi Ubicación (GPS)</h3>
+        <p>Actualiza la posición de tu taller</p>
+      </div>
+      <div class="kpi-arrow">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </div>
+    </a>
+
+    <a class="kpi-card" routerLink="/monitoreo">
+      <div class="kpi-icon sky">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/>
+        </svg>
+      </div>
       <div class="kpi-info">
         <h3>Monitoreo en Vivo</h3>
         <p>Seguimiento de auxilios activos</p>
       </div>
-      <div class="kpi-arrow">→</div>
-    </div>
-    <div class="kpi-card" routerLink="/mis-ingresos">
-      <div class="kpi-icon" style="background: #dcfce7; color: #16a34a;">💰</div>
+      <div class="kpi-arrow">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </div>
+    </a>
+
+    <a class="kpi-card" routerLink="/mis-ingresos">
+      <div class="kpi-icon green">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
       <div class="kpi-info">
         <h3>Mis Ingresos</h3>
         <p>Historial de servicios y comisiones</p>
       </div>
-      <div class="kpi-arrow">→</div>
-    </div>
+      <div class="kpi-arrow">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </div>
+    </a>
 
   </div>
 
-  <div class="client-download-container" *ngIf="rolUsuario === 'cliente'">
-    <div class="download-card">
-      <div class="download-icon">📱</div>
-      <h2 class="client-title">¡Lleva Emergencias en tu bolsillo!</h2>
-      <p class="client-subtitle">
-        Para reportar accidentes, solicitar mecánicos y gestionar tus vehículos de forma rápida, 
-        debes utilizar nuestra aplicación móvil oficial.
-      </p>
-      
-      <div class="store-buttons">
-        <button class="btn-store google-play">
-          <span class="small-text">DISPONIBLE EN</span>
-          <strong class="large-text">Google Play</strong>
-        </button>
-        <button class="btn-store app-store">
-          <span class="small-text">Consíguelo en el</span>
-          <strong class="large-text">App Store</strong>
-        </button>
-      </div>
+  <!-- ── TÉCNICO ── -->
+  <div class="kpi-grid" *ngIf="rolUsuario === 'tecnico'">
 
-      <div class="qr-section">
-        <p>O escanea este código con tu celular para instalar:</p>
-        <div class="qr-placeholder">
-          <span style="font-size: 60px;">📲</span>
+    <a class="kpi-card" routerLink="/historial-tecnico">
+      <div class="kpi-icon indigo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+        </svg>
+      </div>
+      <div class="kpi-info">
+        <h3>Historial de Auxilios</h3>
+        <p>Servicios realizados como técnico</p>
+      </div>
+      <div class="kpi-arrow">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- ── CLIENTE ── -->
+  <div class="client-container" *ngIf="rolUsuario === 'cliente'">
+    <div class="client-card">
+      <div class="client-hero">
+        <div class="client-phone-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
+          </svg>
+        </div>
+        <div class="client-hero-text">
+          <h2 class="client-title">Esta plataforma es para administradores y talleres</h2>
+          <p class="client-subtitle">Como cliente, toda tu experiencia — solicitar auxilio, rastrear tu mecánico y gestionar tus vehículos — está en nuestra app móvil.</p>
+        </div>
+      </div>
+      <div class="client-divider"></div>
+      <div class="client-download-section">
+        <p class="download-label">Descarga la app oficial</p>
+        <a class="btn-download"
+           href="https://drive.google.com/drive/folders/1GR1XcS5WtZOVoeRkmR3TVM-wpoA4hLrz?usp=sharing"
+           target="_blank" rel="noopener">
+          <div class="btn-download-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </div>
+          <div class="btn-download-text">
+            <span class="btn-small">Descargar APK — Android</span>
+            <span class="btn-large">Emergencias Vehiculares</span>
+          </div>
+          <svg class="btn-ext-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+        </a>
+        <p class="ios-note">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          La versión para iOS estará disponible próximamente.
+        </p>
+      </div>
+      <div class="client-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <p>Descarga el archivo APK desde el enlace de arriba</p>
+        </div>
+        <div class="step-divider"></div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <p>Activa <strong>«Instalar apps de fuentes desconocidas»</strong> en tu Android</p>
+        </div>
+        <div class="step-divider"></div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <p>Abre el APK descargado e instala normalmente</p>
         </div>
       </div>
     </div>

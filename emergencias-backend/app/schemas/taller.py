@@ -1,24 +1,8 @@
 # ============================================================
 # schemas/taller.py
 #
-# CONTEXTO DEL PROYECTO:
-#   Plataforma Inteligente de Emergencias Vehiculares
-#   Backend: FastAPI + PostgreSQL (Supabase)
-#   Universidad Autónoma Gabriel René Moreno - SI2 2026
-#
 # CU3: Gestión de Talleres
 #
-# Define los schemas de validación Pydantic para el modelo Taller.
-#
-# SCHEMAS:
-#   TallerCreate  → body del POST (registrar taller)
-#   TallerUpdate  → body del PATCH (actualización parcial)
-#   TallerOut     → respuesta que se devuelve al cliente Angular
-#
-# ACTORES:
-#   A4 (Administrador) → único que puede crear/editar/eliminar talleres
-# ============================================================
-
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from decimal import Decimal

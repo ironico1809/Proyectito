@@ -1,61 +1,100 @@
 <div class="login-layout">
   <div class="login-banner">
+    <div class="banner-pattern"></div>
     <div class="banner-content">
-      <div class="logo-placeholder">⚡</div>
+      <div class="logo-icon">
+        <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
+          <path d="M19 4L34 12V26L19 34L4 26V12L19 4Z" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+          <path d="M19 10L29 15.5V26.5L19 32L9 26.5V15.5L19 10Z" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+          <circle cx="19" cy="19" r="4" fill="white"/>
+          <path d="M19 10V14M19 24V28M9 15.5L12.5 17.5M25.5 20.5L29 22.5M9 22.5L12.5 20.5M25.5 17.5L29 15.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
       <h1>Plataforma de Emergencias</h1>
       <p>Gestión inteligente de talleres, clientes y asistencias vehiculares.</p>
+      <div class="banner-features">
+      </div>
     </div>
   </div>
 
   <div class="login-form-container">
     <div class="login-card">
-      <h2 class="login-title">{{ isLoginMode ? 'Bienvenido de nuevo' : 'Registra tu Taller' }}</h2>
-      <p class="login-subtitle">{{ isLoginMode ? 'Ingresa tus credenciales para acceder al panel' : 'Únete a nuestra red de asistencia vehicular' }}</p>
+      <div class="card-header">
+        <h2 class="login-title">{{ isLoginMode ? 'Bienvenido de nuevo' : 'Registra tu Taller' }}</h2>
+        <p class="login-subtitle">{{ isLoginMode ? 'Ingresa tus credenciales para acceder al panel' : 'Únete a nuestra red de asistencia vehicular' }}</p>
+      </div>
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form-content">
-        
+
         <div *ngIf="!isLoginMode" class="form-extra-fields">
           <div class="form-group">
             <label class="form-label">Nombre del Propietario</label>
-            <input class="form-input" formControlName="nombre_dueno" type="text" placeholder="Ej. Juan Pérez">
+            <div class="input-wrapper">
+              <input class="form-input" formControlName="nombre_dueno" type="text" placeholder="Ej. Marco Alejandro Lopez Velasquez">
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Nombre del Taller</label>
-            <input class="form-input" formControlName="nombre_taller" type="text" placeholder="Ej. Mecánica Rápida">
+            <div class="input-wrapper">
+              <input class="form-input" formControlName="nombre_taller" type="text" placeholder="Ej. Mecánica">
+            </div>
           </div>
           <div class="form-grid-2">
             <div class="form-group">
               <label class="form-label">Teléfono</label>
-              <input class="form-input" formControlName="telefono" type="text" placeholder="+591...">
+              <div class="input-wrapper">
+                <input class="form-input" formControlName="telefono" type="text" placeholder="+591...">
+              </div>
             </div>
             <div class="form-group">
               <label class="form-label">NIT</label>
-              <input class="form-input" formControlName="nit" type="text">
+              <div class="input-wrapper">
+                <input class="form-input" formControlName="nit" type="text">
+              </div>
             </div>
           </div>
           <div class="form-group">
             <label class="form-label">Dirección</label>
-            <input class="form-input" formControlName="direccion" type="text">
+            <div class="input-wrapper">
+              <input class="form-input" formControlName="direccion" type="text" placeholder="Ej. Av. Banzer, 4to Anillo">
+            </div>
+          </div>
+
+          <div class="info-notice">
+            <div class="notice-icon">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <circle cx="7" cy="7" r="6.5" stroke="currentColor" stroke-width="1"/>
+                <path d="M7 6v4M7 4.5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <p><strong>Nota sobre tu ubicación:</strong> Podrás configurar tu ubicación GPS exacta más adelante, directamente desde tu Panel de Control.</p>
           </div>
         </div>
 
         <div class="form-group">
           <label class="form-label">Correo Electrónico</label>
-          <input class="form-input" formControlName="email" type="email" placeholder="correo@ejemplo.com">
+          <div class="input-wrapper">
+            <input class="form-input" formControlName="email" type="email" placeholder="correo@ejemplo.com">
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Contraseña</label>
-          <input class="form-input" formControlName="password" type="password" placeholder="••••••••">
+          <div class="input-wrapper">
+            <input class="form-input" formControlName="password" type="password" placeholder="••••••••">
+          </div>
         </div>
 
         <button type="submit" class="btn-submit" [disabled]="loginForm.invalid">
-          {{ isLoginMode ? 'Iniciar Sesión' : 'Crear Cuenta' }}
+          <span>{{ isLoginMode ? 'Iniciar Sesión' : 'Crear Cuenta' }}</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </button>
       </form>
 
       <div class="login-footer">
-        <p *ngIf="isLoginMode">¿Tienes un taller y no estás en la red? <br><a (click)="toggleMode()">Regístrate aquí</a></p>
-        <p *ngIf="!isLoginMode">¿Ya tienes una cuenta registrada? <br><a (click)="toggleMode()">Inicia sesión</a></p>
+        <p *ngIf="isLoginMode">¿Tienes un taller y no estás en la red? <a (click)="toggleMode()">Regístrate aquí</a></p>
+        <p *ngIf="!isLoginMode">¿Ya tienes una cuenta registrada? <a (click)="toggleMode()">Inicia sesión</a></p>
       </div>
     </div>
   </div>

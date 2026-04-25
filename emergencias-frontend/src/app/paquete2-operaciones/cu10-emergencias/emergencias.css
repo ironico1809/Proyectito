@@ -69,3 +69,42 @@
 
 .estado-vacio { text-align: center; padding: 60px 20px; color: #64748b; font-size: 16px; width: 100%; white-space: normal; word-wrap: break-word; }
 .contenedor-principal { width: 100%; max-width: 100%; box-sizing: border-box; }
+
+/* Tarjeta resaltada cuando es el turno del taller */
+.tarjeta-prioridad {
+  border: 2px solid #ef4444; /* Rojo fuerte */
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+}
+
+/* Franja del cronómetro */
+.alerta-cronometro {
+  background-color: #fee2e2;
+  color: #991b1b;
+  text-align: center;
+  padding: 8px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #fca5a5;
+}
+
+.alerta-expirado {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  text-align: center;
+  padding: 8px;
+  font-size: 0.9rem;
+}
+
+/* Efecto de latido para llamar la atención del mecánico */
+.btn-parpadeo {
+  background-color: #ef4444 !important;
+  animation: latido 1.5s infinite;
+}
+
+@keyframes latido {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); box-shadow: 0 0 10px #ef4444; }
+  100% { transform: scale(1); }
+}

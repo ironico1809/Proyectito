@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field
 from decimal import Decimal
 from datetime import datetime
-from typing import Optional
 from app.models.pago import MetodoPago
 
 class PagoCreate(BaseModel):
@@ -12,12 +11,12 @@ class PagoCreate(BaseModel):
 class PagoOut(BaseModel):
     id_pago: int
     incidente_id: int
+    dueño_taller_id: int 
     monto_total_decimal: Decimal
-    comision_plataforma_decimal: Decimal # El 10% calculado por la BD
+    comision_plataforma_decimal: Decimal
     metodo_enum: MetodoPago
     estado_pago_enum: str
     fecha_pago_timestamp: datetime
-
 
     class Config:
         from_attributes = True

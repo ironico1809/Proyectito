@@ -1,19 +1,11 @@
 # ============================================================
 # main.py
 #
-# CONTEXTO DEL PROYECTO:
-#   Plataforma Inteligente de Emergencias Vehiculares
-#   Backend: FastAPI + PostgreSQL (Supabase)
-#   Universidad Autónoma Gabriel René Moreno - SI2 2026
-#
 # PUNTO DE ENTRADA DE LA APLICACIÓN
 # Registra todos los routers por caso de uso:
 #   - auth.py     → CU1: Autenticación
 #   - usuarios.py → CU2: Gestión de Usuarios
 #   - talleres.py → CU3: Gestión de Talleres  ← NUEVO
-#
-# CORS configurado para Angular en localhost:4200
-# ============================================================
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

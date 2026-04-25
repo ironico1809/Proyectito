@@ -1,9 +1,6 @@
 # ============================================================
 # routers/tecnicos.py
 #
-# CONTEXTO DEL PROYECTO:
-#   Plataforma Inteligente de Emergencias Vehiculares
-#
 # CU6: Administrar Staff Técnico (CRUD)
 #   Actor principal: A2 (Taller)
 #
@@ -15,10 +12,6 @@
 #   PATCH  /tecnicos/{id}      → Cambiar disponibilidad
 #   DELETE /tecnicos/{id}      → Eliminar técnico
 #
-# SEGURIDAD:
-#   Solo el taller dueño puede gestionar sus técnicos
-#   El admin puede ver todos
-# ============================================================
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session

@@ -1,6 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core'; // ✅ CORRECTO
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
   selector: 'app-historial-tecnico',
@@ -17,19 +17,28 @@ export class HistorialTecnico implements OnInit {
   idTecnico: number = 0;
 
   ngOnInit(): void {
-    // Obtenemos el ID del técnico desde el login
     this.idTecnico = Number(localStorage.getItem('id_entidad')) || 0;
+    
+    if (this.idTecnico === 0) {
+      this.cargando = false;
+      return;
+    }
+    
     this.cargarHistorial();
   }
 
   cargarHistorial(): void {
-    this.http.get<any[]>(`http://localhost:8000/incidentes/historial/tecnico/${this.idTecnico}`).subscribe({
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    this.http.get<any[]>(`http://localhost:8000/incidentes/historial/tecnico/${this.idTecnico}`, { headers }).subscribe({
       next: (data) => {
         this.historial = data;
         this.cargando = false;
       },
-      error: (err) => {
-        console.error('Error al cargar historial:', err);
+      error: () => {
         this.cargando = false;
       }
     });

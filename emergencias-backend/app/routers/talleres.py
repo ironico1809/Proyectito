@@ -1,11 +1,6 @@
 # ============================================================
 # routers/talleres.py
 #
-# CONTEXTO DEL PROYECTO:
-#   Plataforma Inteligente de Emergencias Vehiculares
-#   Backend: FastAPI + PostgreSQL (Supabase)
-#   Universidad Autónoma Gabriel René Moreno - SI2 2026
-#
 # CU3: Gestión de Talleres
 #
 # ENDPOINTS:
@@ -15,17 +10,6 @@
 #   PUT    /talleres/{id_taller} → Actualizar taller completo (solo A4)
 #   PATCH  /talleres/{id_taller} → Actualizar campos parciales (solo A4)
 #   DELETE /talleres/{id_taller} → Eliminar taller y su usuario dueño (solo A4)
-#
-# SEGURIDAD:
-#   - Todos los endpoints requieren rol 'admin'
-#   - Se reutiliza require_admin de usuarios.py
-#
-# LÓGICA DE REGISTRO:
-#   Al crear un taller, se crean DOS registros en la BD:
-#     1. Un Usuario con rol='taller' (tabla usuarios)
-#     2. Un Taller vinculado a ese usuario (tabla talleres)
-#   Al eliminar un taller, se elimina también su usuario dueño.
-# ============================================================
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -76,14 +60,6 @@ def taller_a_schema(taller: Taller) -> TallerOut:
 
 # -------------------------------------------------------
 # POST /talleres/
-# PRIVADO - Solo administrador (A4)
-#
-# Flujo:
-#   1. Verifica que el email no esté registrado
-#   2. Crea el Usuario con rol='taller'
-#   3. Crea el Taller vinculado a ese usuario
-#   4. Devuelve los datos combinados
-# Para que quede así:
 @router.post("/", response_model=TallerOut, status_code=status.HTTP_201_CREATED)
 def registrar_taller(
     datos: TallerCreate,
@@ -279,3 +255,63 @@ def eliminar_taller(
 
     db.commit()
     return {"message": f"Taller '{nombre_taller}' y su usuario dueño eliminados correctamente"}
+
+# -------------------------------------------------------
+# PATCH /talleres/mi-ubicacion/actualizar
+# PRIVADO - Solo Taller (A2)
+# Permite a un taller actualizar sus propias coordenadas
+# -------------------------------------------------------
+from pydantic import BaseModel
+from decimal import Decimal
+
+class UbicacionUpdate(BaseModel):
+    latitud_decimal: Decimal
+    longitud_decimal: Decimal
+
+@router.patch("/mi-ubicacion/actualizar", response_model=TallerOut)
+def actualizar_mi_ubicacion(
+    datos: UbicacionUpdate,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user) # Obtenemos quién está logueado
+):
+    # 1. Validar que sea un taller
+    if current_user.rol != TipoRol.taller:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acceso denegado: Solo los talleres pueden actualizar su ubicación."
+        )
+
+    # 2. Buscar el taller que le pertenece a este usuario
+    taller = db.query(Taller).filter(Taller.dueño_id == current_user.id_usuario).first()
+    if not taller:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No se encontró un taller asociado a tu cuenta."
+        )
+
+    # 3. Actualizar coordenadas
+    taller.latitud_decimal = datos.latitud_decimal
+    taller.longitud_decimal = datos.longitud_decimal
+
+    db.commit()
+    db.refresh(taller)
+    
+    return taller_a_schema(taller)
+# -------------------------------------------------------
+# GET /talleres/mi-taller/perfil
+# PRIVADO - Solo Taller (A2)
+# Devuelve los datos del taller autenticado para ver si tiene GPS
+# -------------------------------------------------------
+@router.get("/mi-taller/perfil", response_model=TallerOut)
+def obtener_mi_taller(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    if current_user.rol != TipoRol.taller:
+        raise HTTPException(status_code=403, detail="Acceso denegado.")
+    
+    taller = db.query(Taller).filter(Taller.dueño_id == current_user.id_usuario).first()
+    if not taller:
+        raise HTTPException(status_code=404, detail="Taller no encontrado.")
+    
+    return taller_a_schema(taller)
