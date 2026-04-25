@@ -30,7 +30,7 @@
                   <span class="nombre-bold">{{ tecnico.nombre }}</span>
                 </div>
               </td>
-              <td>{{ tecnico.especialidad || 'General' }}</td>
+              <td>{{ tecnico.especialidad }}</td>
               <td>
                 <label class="switch">
                   <input type="checkbox" [checked]="tecnico.disponible_boolean" (change)="cambiarDisponibilidad(tecnico)">
@@ -38,7 +38,6 @@
                 </label>
               </td>
               <td class="col-acciones">
-                <button class="btn-icono">✏️</button>
                 <button class="btn-icono" (click)="eliminarTecnico(tecnico.id_tecnico)">🗑️</button>
               </td>
             </tr>
@@ -49,9 +48,9 @@
         </table>
       </div>
     </div>
-
   </div>
 </div>
+
 <div class="modal-overlay" *ngIf="mostrarModal">
   <div class="modal-card">
     <div class="modal-header">
@@ -62,7 +61,7 @@
     <div class="modal-body">
       <div class="input-group">
         <label>Nombre del Técnico</label>
-        <input type="text" [(ngModel)]="nuevoTecnico.nombre" placeholder="Ej. Juan Perez">
+        <input type="text" [(ngModel)]="nuevoTecnico.nombre" placeholder="Ej. Marco Alejandro">
       </div>
       <div class="input-group">
         <label>Correo Electrónico</label>
@@ -74,7 +73,12 @@
       </div>
       <div class="input-group">
         <label>Especialidad</label>
-        <input type="text" [(ngModel)]="nuevoTecnico.especialidad" placeholder="Ej. Mecánico, Electricista">
+        <select class="select-moderno" [(ngModel)]="nuevoTecnico.especialidad">
+          <option value="Mecanico">Mecánico</option>
+          <option value="Electricista">Electricista</option>
+          <option value="Mantenimiento">Mantenimiento</option>
+          <option value="Llantero">Llantero</option>
+        </select>
       </div>
     </div>
 

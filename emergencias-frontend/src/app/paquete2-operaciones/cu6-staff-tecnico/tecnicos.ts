@@ -27,7 +27,7 @@ export class TecnicosComponent implements OnInit {
     email: '',
     password: '',
     telefono: '',
-    especialidad: '',
+    especialidad: 'Mecanico',
     taller_id: 0
   };
 
@@ -117,7 +117,7 @@ export class TecnicosComponent implements OnInit {
       email: '',
       password: '',
       telefono: '',
-      especialidad: '',
+      especialidad: 'Mecanico',
       taller_id: this.tallerId
     };
   }
