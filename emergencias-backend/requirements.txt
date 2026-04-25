@@ -9,4 +9,5 @@ bcrypt
 python-jose
 python-multipart
 groq     
-requests   
+requests
+email-validator
