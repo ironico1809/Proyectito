@@ -28,7 +28,7 @@ export class Cu4Perfil implements OnInit {
   }
 
   obtenerDatosCompletos() {
-    this.http.get<any>('http://localhost:8000/usuarios/me').subscribe({
+    this.http.get<any>('https://backend-ixkv.onrender.com/usuarios/me').subscribe({
       next: (res) => this.usuario = res,
       error: (err) => console.error("Error al traer perfil", err)
     });
@@ -36,7 +36,7 @@ export class Cu4Perfil implements OnInit {
 
   actualizar() {
     this.cargando = true;
-    this.http.put('http://localhost:8000/usuarios/me', this.usuario).subscribe({
+    this.http.put('https://backend-ixkv.onrender.com/usuarios/me', this.usuario).subscribe({
       next: () => {
         this.cargando = false;
         this.mensaje = "¡Perfil actualizado! ✅";

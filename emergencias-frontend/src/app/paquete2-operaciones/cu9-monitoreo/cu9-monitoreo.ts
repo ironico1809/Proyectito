@@ -40,7 +40,7 @@ export class Cu9Monitoreo implements OnInit {
   }
 
   cargarSeguimiento() {
-    this.http.get<any[]>('http://localhost:8000/incidentes/en-proceso').subscribe({
+    this.http.get<any[]>('https://backend-ixkv.onrender.com/incidentes/en-proceso').subscribe({
       next: (data) => {
         this.serviciosActivos = data;
         this.cargando = false;
@@ -55,7 +55,7 @@ export class Cu9Monitoreo implements OnInit {
   finalizarServicio(id: number) {
     if (!confirm('¿Confirmas que el servicio ha sido finalizado con éxito?')) return;
 
-    this.http.put(`http://localhost:8000/incidentes/${id}/estado`, {
+    this.http.put(`https://backend-ixkv.onrender.com/incidentes/${id}/estado`, {
       estado_enum: 'atendido',
       comentario: 'Servicio cerrado desde panel web.'
     }).subscribe(() => {
