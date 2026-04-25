@@ -8,5 +8,5 @@ passlib
 bcrypt
 python-jose
 python-multipart
-groq       <-- 🔥 ASEGÚRATE DE QUE ESTA ESTÉ (si usas su librería oficial)
-requests   <-- 🔥 Y ESTA TAMBIÉN
+groq     
+requests   
