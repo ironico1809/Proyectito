@@ -32,7 +32,7 @@ export class EmergenciasComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.tallerId = Number(localStorage.getItem('idTaller')) || 0; 
+    this.tallerId = Number(localStorage.getItem('id_entidad')) || 0; 
     this.cargarPendientes();
 
     this.cronometroSub = interval(1000).subscribe(() => {

@@ -21,10 +21,8 @@ from app.database import get_db
 from app.models.tecnico import Tecnico
 from app.models.taller import Taller
 from app.models.usuario import Usuario, TipoRol
-from app.utils.security import hash_password
 from app.schemas.tecnico import TecnicoCreate, TecnicoUpdate, TecnicoPartial, TecnicoOut
 from app.routers.auth import get_current_user
-from app.models.usuario import Usuario
 
 router = APIRouter(prefix="/tecnicos", tags=["CU6 - Staff Técnico"])
 

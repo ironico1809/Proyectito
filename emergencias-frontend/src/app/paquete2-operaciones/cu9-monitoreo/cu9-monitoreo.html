@@ -8,7 +8,7 @@
         <div class="status-bar">EN RUTA</div>
         <div class="info-body">
           <h3>Emergencia #{{ s.id_incidente }}</h3>
-          <p><strong>Técnico Asignado ID:</strong> {{ s.tecnico_id }}</p>
+          <p><strong>Técnico Asignado:</strong> {{ s.tecnico_id ? 'ID #' + s.tecnico_id : 'Sin asignar' }}</p>
           
           <div style="font-size: 12px; color: gray; margin-bottom: 10px;">
             Siniestro: {{ s.latitud_emergencia }}, {{ s.longitud_emergencia }}<br>

@@ -328,6 +328,9 @@ def responder_solicitud(id_incidente: int, datos: AccionSolicitud, db: Session =
 def asignar_tecnico(id_incidente: int, datos: AsignarTecnico, db: Session = Depends(get_db)):
     incidente = db.query(Incidente).filter(Incidente.id_incidente == id_incidente).first()
     tecnico = db.query(Tecnico).filter(Tecnico.id_tecnico == datos.tecnico_id).first()
+    
+    if not incidente: 
+        raise HTTPException(status_code=404, detail="Incidente no encontrado.") 
 
     if not tecnico or not tecnico.disponible_boolean:
         raise HTTPException(status_code=400, detail="El técnico no está disponible.")
@@ -417,9 +420,8 @@ def obtener_historial_tecnico(
     if not tecnico:
         return [] # Si el usuario no es técnico, devolvemos vacío para no crashear
 
-    incidentes = db.query(Incidente).filter(
-        Incidente.tecnico_id == tecnico.id_tecnico,
-    ).order_by(Incidente.fecha_creacion_timestamp.desc()).all()
+    incidentes = db.query(Incidente).filter( Incidente.tecnico_id == tecnico.id_tecnico,
+                                             Incidente.estado_enum == EstadoIncidente.atendido ).order_by(Incidente.fecha_creacion_timestamp.desc()).all()
 
     resultado = []
     

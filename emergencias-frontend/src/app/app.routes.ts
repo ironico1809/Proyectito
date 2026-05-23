@@ -23,7 +23,6 @@ export const routes: Routes = [
   { path: 'mis-ingresos', component: IngresosTallerComponent },
   { path: 'historial-tecnico', component: HistorialTecnico },
   { path: 'perfil', component: Cu4Perfil },
-  { path: 'monitoreo', component: Cu9Monitoreo },
   { path: 'comisiones', component: Cu14ComisionesComponent }, 
   { path: 'mi-ubicacion', component: UbicacionComponent },
   { path: '', redirectTo: 'login', pathMatch: 'full' },

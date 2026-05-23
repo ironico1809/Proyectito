@@ -26,7 +26,7 @@ export class Sidebar implements OnInit {
   }
 
   cerrarSesion() {
-    localStorage.removeItem('token'); 
+    localStorage.clear();
     this.rolUsuario = localStorage.getItem('rol') || 'taller';
     this.router.navigate(['/login']); 
   }

@@ -19,6 +19,9 @@ def registrar_pago(datos: PagoCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Incidente no válido o sin taller asignado.")
 
     taller = db.query(Taller).filter(Taller.id_taller == incidente.taller_actual_id).first()
+    pago_existente = db.query(Pago).filter(Pago.incidente_id == datos.incidente_id).first()
+    if pago_existente:
+        raise HTTPException(status_code=400, detail="Este incidente ya tiene un pago registrado.")
     
     nuevo_pago = Pago(
         incidente_id=datos.incidente_id,
@@ -26,6 +29,7 @@ def registrar_pago(datos: PagoCreate, db: Session = Depends(get_db)):
         monto_total_decimal=datos.monto_total_decimal,
         metodo_enum=datos.metodo_enum
     )
+    
     db.add(nuevo_pago)
     db.commit()
     db.refresh(nuevo_pago) 

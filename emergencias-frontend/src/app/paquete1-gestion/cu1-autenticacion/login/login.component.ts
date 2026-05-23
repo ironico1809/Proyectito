@@ -60,7 +60,7 @@ export class LoginComponent {
       this.authService.login(this.loginForm.value).subscribe({
         next: (res: any) => {
           localStorage.setItem('token', res.access_token || res.token);
-          localStorage.setItem('rolUsuario', res.rol);
+          localStorage.setItem('rol', res.rol);
           localStorage.setItem('idTaller', res.id_taller || res.id_usuario); 
           
           this.router.navigate(['/inicio']);
