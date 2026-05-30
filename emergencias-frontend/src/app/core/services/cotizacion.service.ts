@@ -8,7 +8,23 @@ export class CotizacionService {
 
   constructor(private http: HttpClient) {}
 
+  // Taller envía una cotización
   enviarCotizacion(datos: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/`, datos);
+  }
+
+  // Cliente ve las cotizaciones de su incidente
+  getCotizaciones(incidenteId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${incidenteId}`);
+  }
+
+  // Cliente acepta una cotización
+  aceptarCotizacion(id: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/aceptar`, {});
+  }
+
+  // Cliente rechaza una cotización
+  rechazarCotizacion(id: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/rechazar`, {});
   }
 }

@@ -211,4 +211,45 @@ export class EmergenciasComponent implements OnInit, OnDestroy {
         }
       });
   }
+  // CU20 — Variables del modal de excepción
+  mostrarModalExcepcion: boolean = false;
+  incidenteExcepcion: any = null;
+  tipoExcepcion: string = '';
+  motivoExcepcion: string = '';
+  compensacionTaller: number = 0;
+
+  abrirModalExcepcion(incidente: any): void {
+    this.incidenteExcepcion = incidente;
+    this.tipoExcepcion = '';
+    this.motivoExcepcion = '';
+    this.compensacionTaller = 0;
+    this.mostrarModalExcepcion = true;
+  }
+
+  cerrarModalExcepcion(): void {
+    this.mostrarModalExcepcion = false;
+    this.incidenteExcepcion = null;
+  }
+
+  confirmarExcepcion(): void {
+    if (!this.tipoExcepcion) return;
+
+    const payload = {
+      tipo_excepcion: this.tipoExcepcion,
+      motivo: this.motivoExcepcion,
+      compensacion_taller: this.compensacionTaller
+    };
+
+    this.incidenteService.reportarExcepcion(
+      this.incidenteExcepcion.id_incidente,
+      payload
+    ).subscribe({
+      next: () => {
+        alert('Excepción registrada correctamente.');
+        this.cerrarModalExcepcion();
+        this.cargarPendientes();
+      },
+      error: () => alert('Error al registrar la excepción.')
+    });
+  }
 }

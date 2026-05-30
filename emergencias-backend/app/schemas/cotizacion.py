@@ -10,7 +10,7 @@ class CotizacionCreate(BaseModel):
     descripcion: Optional[str] = None
 
 class CotizacionResponse(BaseModel):
-    id: int
+    id_cotizacion: int
     incidente_id: int
     taller_id: int
     precio_estimado: Decimal

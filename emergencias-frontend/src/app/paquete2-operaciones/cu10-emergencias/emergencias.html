@@ -58,7 +58,12 @@
             </button>
 
             <button class="btn-rechazar" (click)="responder(em, 'rechazar')">Rechazar</button>
-            
+            <button class="btn-secundario"
+                    style="background-color: #854F0B; color: white;"
+                    (click)="abrirModalExcepcion(em)"
+                    *ngIf="esMiTurnoPrioritario(em)">
+              ⚠️ Excepción
+            </button>
             <button class="btn-aceptar" 
                     (click)="responder(em, 'aceptar')"
                     [disabled]="!esMiTurnoPrioritario(em) && !estaExpirado(em)"
@@ -108,8 +113,47 @@
         <button class="btn-primario-modal" (click)="confirmarAsignacion()" [disabled]="!tecnicoSeleccionadoId || cargandoAsignacion">
             {{ cargandoAsignacion ? 'Asignando...' : 'Confirmar Despacho' }}
         </button>
+        
         </div>
 
+    </div>
+  </div>
+  <!-- MODAL CU20 — Excepción Operativa -->
+  <div class="modal-overlay" *ngIf="mostrarModalExcepcion">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2>Reportar Excepción Operativa</h2>
+        <button class="btn-cerrar-modal" (click)="cerrarModalExcepcion()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-instruccion">Seleccioná el motivo de la excepción:</p>
+        <div class="form-grupo">
+          <select class="form-select" [(ngModel)]="tipoExcepcion">
+            <option value="" disabled selected>-- Seleccionar motivo --</option>
+            <option value="cancelacion_cliente">El cliente canceló por espera</option>
+            <option value="llego_seguro_primero">Llegó el seguro antes</option>
+            <option value="llegaron_ambos">Llegamos ambos (taller + seguro)</option>
+          </select>
+          <textarea class="form-control mt-2"
+                    [(ngModel)]="motivoExcepcion"
+                    placeholder="Detalle adicional (opcional)"
+                    rows="3">
+          </textarea>
+          <input *ngIf="tipoExcepcion === 'llegaron_ambos'"
+                type="number"
+                class="form-control mt-2"
+                [(ngModel)]="compensacionTaller"
+                placeholder="Compensación por desplazamiento (Bs.)">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secundario" (click)="cerrarModalExcepcion()">Cancelar</button>
+        <button class="btn-primario-modal"
+                (click)="confirmarExcepcion()"
+                [disabled]="!tipoExcepcion">
+          Confirmar Excepción
+        </button>
+      </div>
     </div>
   </div>
 </div>

@@ -13,7 +13,7 @@ from app.models import bitacora
 from app.routers import auth, usuarios, talleres, vehiculos, tecnicos, incidentes, ia, notificaciones, pagos, websocket_incidente, cotizaciones
 app = FastAPI(
     title="Plataforma Inteligente de Emergencias Vehiculares",
-    description="API REST - Sistema de Información 2 | UAGRM Grupo 25", # <-- Decía Grupo 25
+    description="API REST - Sistema de Información 2 | UAGRM Grupo 30", 
     version="1.0.0"
 )
 

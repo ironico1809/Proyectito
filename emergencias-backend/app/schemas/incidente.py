@@ -25,7 +25,8 @@ class IncidenteCreate(BaseModel):
     longitud_emergencia: Decimal
     descripcion_texto:   Optional[str] = None
     evidencias:          List[EvidenciaCreate] = [] # Soporta múltiples fotos/audios
-
+    uuid_offline:        Optional[str] = None 
+    
 class AccionSolicitud(BaseModel):
     accion:     str  # Solo debe ser "aceptar" o "rechazar"
     comentario: Optional[str] = None

@@ -20,6 +20,7 @@ from app.routers.auth import get_current_user
 from app.routers.notificaciones import crear_notificacion_interna
 from app.utils.bitacora import registrar_evento  # CU21 — helper de bitácora
 from apscheduler.schedulers.background import BackgroundScheduler
+from app.models.excepcion import ExcepcionOperativa
 
 router = APIRouter(prefix="/incidentes", tags=["Gestion Inteligente de Incidentes"])
 
@@ -486,7 +487,6 @@ def registrar_excepcion(
         raise HTTPException(status_code=400, detail=f"Tipo de excepción inválido. Usa: {tipos_validos}")
 
     # Insertar en la tabla excepciones_operativas
-    from app.models.excepcion import ExcepcionOperativa
     nueva_excepcion = ExcepcionOperativa(
         incidente_id=id_incidente,
         tipo_excepcion=datos.tipo_excepcion,

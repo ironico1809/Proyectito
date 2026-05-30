@@ -28,4 +28,8 @@ export class IncidenteService {
   asignarTecnico(idIncidente: number, tecnicoId: number): Observable<any> {
     return this.http.post(`${this.apiUrl}/${idIncidente}/asignar`, { tecnico_id: tecnicoId });
   }
+
+  reportarExcepcion(id: number, datos: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${id}/excepcion`, datos);
+  }
 }
