@@ -9,10 +9,11 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, usuarios, talleres, vehiculos, tecnicos, incidentes, ia, notificaciones, pagos
+from app.models import bitacora
+from app.routers import auth, usuarios, talleres, vehiculos, tecnicos, incidentes, ia, notificaciones, pagos, websocket_incidente, cotizaciones
 app = FastAPI(
     title="Plataforma Inteligente de Emergencias Vehiculares",
-    description="API REST - Sistema de Información 2 | UAGRM Grupo 25",
+    description="API REST - Sistema de Información 2 | UAGRM Grupo 25", # <-- Decía Grupo 25
     version="1.0.0"
 )
 
@@ -41,6 +42,8 @@ app.include_router(incidentes.router)     # CU7, CU10, CU11 - /incidentes
 app.include_router(ia.router)             # CU8 - /ia
 app.include_router(notificaciones.router) # CU15 - /notificaciones
 app.include_router(pagos.router)
+app.include_router(websocket_incidente.router)
+app.include_router(cotizaciones.router)
 # -------------------------------------------------------
 # Endpoint raíz: verifica que el servidor esté corriendo
 # -------------------------------------------------------

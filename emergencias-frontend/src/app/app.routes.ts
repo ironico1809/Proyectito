@@ -11,6 +11,7 @@ import { Cu14ComisionesComponent } from './paquete5-finanzas/cu14-comisiones/cu1
 import { Cu4Perfil } from './paquete1-gestion/cu4-perfil/cu4-perfil';
 import { HistorialTecnico } from './paquete2-operaciones/historial-tecnico/historial-tecnico';
 import { UbicacionComponent } from './paquete2-operaciones/ubicacion/ubicacion';
+import { Cu18Cotizaciones } from './paquete1-arquitectura/cu18-cotizaciones/cu18-cotizaciones';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -25,6 +26,7 @@ export const routes: Routes = [
   { path: 'perfil', component: Cu4Perfil },
   { path: 'comisiones', component: Cu14ComisionesComponent }, 
   { path: 'mi-ubicacion', component: UbicacionComponent },
+  { path: 'cotizaciones', component: Cu18Cotizaciones },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' }
 ];
