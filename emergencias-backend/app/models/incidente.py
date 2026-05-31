@@ -20,10 +20,17 @@ import enum
 # Evitan que entren datos basura a la base de datos
 # -------------------------------------------------------
 class EstadoIncidente(str, enum.Enum):
-    pendiente  = "pendiente"
-    en_proceso = "en_proceso"
-    atendido   = "atendido"
-    cancelado  = "cancelado"
+    # Estados originales (Ciclos 1-3)
+    pendiente       = "pendiente"
+    en_proceso      = "en_proceso"
+    atendido        = "atendido"
+    cancelado       = "cancelado"
+    # Estados nuevos Ciclo 4 — CU17 WebSocket
+    buscando_taller = "buscando_taller"
+    taller_asignado = "taller_asignado"
+    en_camino       = "en_camino"
+    en_atencion     = "en_atencion"
+    finalizado      = "finalizado"
 
 class PrioridadIncidente(str, enum.Enum):
     baja     = "baja"
@@ -57,8 +64,9 @@ class Incidente(Base):
     costo_final_decimal = Column(DECIMAL(10, 2), nullable=True)
     latitud_emergencia       = Column(DECIMAL(12, 8))
     longitud_emergencia      = Column(DECIMAL(12, 8))
-    latitud_tecnico = Column(Numeric(10, 6), nullable=True)
+    latitud_tecnico  = Column(Numeric(10, 6), nullable=True)
     longitud_tecnico = Column(Numeric(10, 6), nullable=True)
+    uuid_offline     = Column(String(36), unique=True, nullable=True)  # CU19 — deduplicación offline
 
     evidencias = relationship("EvidenciaIA", back_populates="incidente", cascade="all, delete")
     historial  = relationship("HistorialEstado", back_populates="incidente", cascade="all, delete")

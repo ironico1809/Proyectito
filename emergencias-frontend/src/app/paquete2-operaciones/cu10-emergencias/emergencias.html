@@ -130,20 +130,14 @@
         <div class="form-grupo">
           <select class="form-select" [(ngModel)]="tipoExcepcion">
             <option value="" disabled selected>-- Seleccionar motivo --</option>
-            <option value="cancelacion_cliente">El cliente canceló por espera</option>
-            <option value="llego_seguro_primero">Llegó el seguro antes</option>
-            <option value="llegaron_ambos">Llegamos ambos (taller + seguro)</option>
+            <option value="cancelacion_cliente">Falla operativa del taller (grúa, técnico)</option>
+            <option value="llego_seguro_primero">No pudimos llegar a tiempo</option>
           </select>
           <textarea class="form-control mt-2"
                     [(ngModel)]="motivoExcepcion"
                     placeholder="Detalle adicional (opcional)"
                     rows="3">
           </textarea>
-          <input *ngIf="tipoExcepcion === 'llegaron_ambos'"
-                type="number"
-                class="form-control mt-2"
-                [(ngModel)]="compensacionTaller"
-                placeholder="Compensación por desplazamiento (Bs.)">
         </div>
       </div>
       <div class="modal-footer">

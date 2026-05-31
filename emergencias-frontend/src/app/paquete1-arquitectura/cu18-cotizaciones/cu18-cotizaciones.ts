@@ -8,7 +8,8 @@ import { IncidenteService } from '../../core/services/incidente';
   selector: 'app-cu18-cotizaciones',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './cu18-cotizaciones.html'
+  templateUrl: './cu18-cotizaciones.html',
+  styleUrls: ['./cu18-cotizaciones.css'] 
 })
 export class Cu18Cotizaciones {
   incidentesPendientes: any[] = [];

@@ -10,6 +10,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.models import bitacora
+from app.models import taller_rechazo
 from app.routers import auth, usuarios, talleres, vehiculos, tecnicos, incidentes, ia, notificaciones, pagos, websocket_incidente, cotizaciones
 app = FastAPI(
     title="Plataforma Inteligente de Emergencias Vehiculares",

@@ -18,6 +18,7 @@ from app.models.incidente import Incidente, EvidenciaIA, HistorialEstado, Estado
 from app.schemas.incidente import IncidenteCreate, IncidenteOut, AccionSolicitud, AsignarTecnico, ActualizarEstado
 from app.routers.auth import get_current_user
 from app.routers.notificaciones import crear_notificacion_interna
+from app.models.taller_rechazo import TallerRechazo
 from app.utils.bitacora import registrar_evento  # CU21 — helper de bitácora
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.models.excepcion import ExcepcionOperativa
@@ -124,18 +125,29 @@ def calcular_distancia(lat1, lon1, lat2, lon2):
     a = math.sin(dlat/2)**2 + math.cos(math.radians(float(lat1))) * math.cos(math.radians(float(lat2))) * math.sin(dlon/2)**2
     return R * (2 * math.atan2(math.sqrt(a), math.sqrt(1 - a)))
 
-def buscar_taller_disponible(db: Session, lat_emergencia, lon_emergencia, incidente_id: int = None):
-    excluidos = []
+def buscar_taller_disponible(db, lat_emergencia, lon_emergencia, incidente_id=None):
+    excluidos_ids = []
     if incidente_id:
-        historial = db.query(HistorialEstado.comentario_texto).filter(HistorialEstado.incidente_id == incidente_id).all()
-        excluidos = [h[0] for h in historial if h[0] and "Taller ID:" in h[0]]
+        rechazos = db.query(TallerRechazo.taller_id).filter(
+            TallerRechazo.incidente_id == incidente_id
+        ).all()
+        excluidos_ids = [r[0] for r in rechazos]
+
     talleres = db.query(Taller).all()
     mejor_taller, dist_min = None, float('inf')
+
     for t in talleres:
-        if f"Taller ID: {t.id_taller}" in str(excluidos): continue
-        if db.query(Tecnico).filter(Tecnico.taller_id == t.id_taller, Tecnico.disponible_boolean == True).first():
-            d = calcular_distancia(lat_emergencia, lon_emergencia, t.latitud_decimal, t.longitud_decimal)
-            if d < dist_min: dist_min, mejor_taller = d, t
+        if t.id_taller in excluidos_ids:
+            continue
+        if db.query(Tecnico).filter(
+            Tecnico.taller_id == t.id_taller,
+            Tecnico.disponible_boolean == True
+        ).first():
+            d = calcular_distancia(lat_emergencia, lon_emergencia,
+                                   t.latitud_decimal, t.longitud_decimal)
+            if d < dist_min:
+                dist_min, mejor_taller = d, t
+
     return mejor_taller, dist_min
 
 def robot_reasignacion_automatica():
@@ -329,6 +341,12 @@ def responder_solicitud(
         )
 
     elif datos.accion == "rechazar":
+        db.add(TallerRechazo(
+            incidente_id=id_incidente,
+            taller_id=incidente.taller_actual_id,
+            motivo=datos.comentario or "Sin motivo."
+        ))
+        db.flush()
         nuevo_taller, dist = buscar_taller_disponible(db, incidente.latitud_emergencia, incidente.longitud_emergencia, id_incidente)
         if nuevo_taller:
             incidente.taller_actual_id = nuevo_taller.id_taller
@@ -484,9 +502,9 @@ def registrar_excepcion(
     # Verificar tipo de excepción válido
     tipos_validos = ["cancelacion_cliente", "llego_seguro_primero", "llegaron_ambos"]
     if datos.tipo_excepcion not in tipos_validos:
-        raise HTTPException(status_code=400, detail=f"Tipo de excepción inválido. Usa: {tipos_validos}")
-
-    # Insertar en la tabla excepciones_operativas
+        raise HTTPException(status_code=400, detail=f"Tipo inválido. Usa: {tipos_validos}")
+    
+    # Insertar en excepciones_operativas
     nueva_excepcion = ExcepcionOperativa(
         incidente_id=id_incidente,
         tipo_excepcion=datos.tipo_excepcion,
@@ -494,48 +512,108 @@ def registrar_excepcion(
         compensacion_taller=datos.compensacion_taller or 0.00
     )
     db.add(nueva_excepcion)
-
+    
     # Cancelar el incidente en todos los casos
     incidente.estado_enum = EstadoIncidente.cancelado
-
+    
     # Liberar al técnico si estaba asignado
     if incidente.tecnico_id:
-        tecnico = db.query(Tecnico).filter(Tecnico.id_tecnico == incidente.tecnico_id).first()
+        tecnico = db.query(Tecnico).filter(
+            Tecnico.id_tecnico == incidente.tecnico_id
+        ).first()
         if tecnico:
             tecnico.disponible_boolean = True
-
-    # Guardar historial con el motivo
+            
+    # Guardar historial
     db.add(HistorialEstado(
         incidente_id=id_incidente,
         estado_enum=EstadoIncidente.cancelado,
         comentario_texto=f"Excepción: {datos.tipo_excepcion}. {datos.motivo or ''}"
     ))
-
-    # Notificar al cliente
-    mensajes_notificacion = {
-        "cancelacion_cliente":  "Tu solicitud fue cancelada.",
+    
+    # ============================================================
+    # COMPENSACIÓN AL TALLER — solo si llegaron ambos o seguro
+    # Se genera un pago especial con estado "compensacion"
+    # La BD no acepta montos de 0, así que solo se crea si hay monto real
+    # ============================================================
+    if datos.tipo_excepcion in ["llegaron_ambos", "llego_seguro_primero"]:
+        monto_compensacion = datos.compensacion_taller or 0.00
+        if monto_compensacion > 0 and incidente.taller_actual_id:
+            from app.models.pago import Pago, MetodoPago
+            taller = db.query(Taller).filter(
+                Taller.id_taller == incidente.taller_actual_id
+            ).first()
+            # Verificar que no exista ya un pago para este incidente
+            pago_existente = db.query(Pago).filter(
+                Pago.incidente_id == id_incidente
+            ).first()
+            if taller and not pago_existente:
+                pago_compensacion = Pago(
+                    incidente_id=id_incidente,
+                    dueño_taller_id=taller.dueño_id,
+                    monto_total_decimal=monto_compensacion,
+                    metodo_enum=MetodoPago.transferencia,  # compensación interna
+                    estado_pago_enum="compensacion"        # estado especial, distinto de "completado"
+                )
+                db.add(pago_compensacion)
+                crear_notificacion_interna(
+                    db, taller.dueño_id,
+                    "💰 Compensación por Desplazamiento",
+                    f"Recibiste {monto_compensacion} Bs. por el incidente #{id_incidente}."
+                )
+            # CU21 — registrar compensación en bitácora
+            registrar_evento(
+                db, id_incidente,
+                "COMPENSACION_TALLER",
+                f"Compensación de {monto_compensacion} Bs. generada para taller ID {incidente.taller_actual_id}.",
+                current_user.id_usuario
+            )
+        else:
+            # Llegaron ambos pero no se indicó monto — notificar igualmente
+            if incidente.taller_actual_id:
+                taller = db.query(Taller).filter(
+                    Taller.id_taller == incidente.taller_actual_id
+                ).first()
+                if taller:
+                    crear_notificacion_interna(
+                        db, taller.dueño_id,
+                        "ℹ️ Caso Cerrado",
+                        f"El incidente #{id_incidente} fue cerrado. "
+                        f"Motivo: {datos.tipo_excepcion}. Sin compensación registrada."
+                    )
+                    
+    # Notificar al cliente según el tipo
+    mensajes_cliente = {
+        "cancelacion_cliente":  "Tu solicitud fue cancelada correctamente.",
         "llego_seguro_primero": "El caso fue cerrado porque llegó tu seguro primero.",
         "llegaron_ambos":       "El caso fue cerrado. El taller recibirá compensación por desplazamiento."
     }
     crear_notificacion_interna(
         db, incidente.cliente_id,
         "Servicio Cancelado",
-        mensajes_notificacion.get(datos.tipo_excepcion, "El servicio fue cancelado.")
+        mensajes_cliente.get(datos.tipo_excepcion, "El servicio fue cancelado.")
     )
-
+    
     # CU21 — registrar excepción en bitácora
     registrar_evento(
         db, id_incidente,
         "EXCEPCION",
-        f"Tipo: {datos.tipo_excepcion}. Motivo: {datos.motivo or 'Sin motivo'}. Compensación: {datos.compensacion_taller or 0} Bs.",
+        f"Tipo: {datos.tipo_excepcion}. Motivo: {datos.motivo or 'Sin motivo'}. "
+        f"Compensación: {datos.compensacion_taller or 0} Bs.",
         current_user.id_usuario
     )
-
+    
     db.commit()
+    
     return {
         "status": "ok",
-        "mensaje": f"Excepción registrada. Incidente cancelado.",
-        "tipo": datos.tipo_excepcion
+        "mensaje": "Excepción registrada. Incidente cancelado.",
+        "tipo": datos.tipo_excepcion,
+        "compensacion_generada": (
+            datos.compensacion_taller > 0
+            if datos.tipo_excepcion in ["llegaron_ambos", "llego_seguro_primero"]
+            else False
+        )
     }
 
 # ===================================================================

@@ -1,0 +1,25 @@
+/* Hereda el layout y estilos de emergencias.css */
+.layout-principal  { display: flex; min-height: 100vh; background-color: #f8fafc; }
+.contenido-derecha { flex: 1; padding: 24px; font-family: 'Segoe UI', sans-serif; }
+.header-seccion    { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.titulo-pagina     { font-size: 24px; color: #1e293b; margin: 0 0 4px; font-weight: 600; }
+.subtitulo-pagina  { color: #64748b; font-size: 14px; margin: 0; }
+.btn-refrescar     { background: white; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+.btn-refrescar:hover { background: #f1f5f9; }
+.grid-tarjetas     { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+.card-emergencia   { background: white; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+.card-header       { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; }
+.badge-prioridad   { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.prioridad-alta    { background: #fee2e2; color: #991b1b; }
+.prioridad-media   { background: #fef3c7; color: #92400e; }
+.prioridad-baja    { background: #d1fae5; color: #065f46; }
+.prioridad-incierto { background: #e2e8f0; color: #475569; }
+.fecha             { font-size: 12px; color: #94a3b8; }
+.card-body         { padding: 16px; flex-grow: 1; }
+.diagnostico       { font-size: 16px; font-weight: 700; color: #0f172a; margin: 0 0 6px; }
+.descripcion       { color: #475569; font-size: 13px; font-style: italic; margin-bottom: 12px; }
+.ubicacion         { font-size: 12px; background: #f8fafc; padding: 8px; border-radius: 6px; }
+.card-footer       { padding: 14px 16px; background: #f8fafc; border-top: 1px solid #f1f5f9; }
+.btn-aceptar       { background: #10b981; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.btn-aceptar:hover { background: #059669; }
+.estado-vacio      { text-align: center; padding: 80px 20px; color: #64748b; }

@@ -1,31 +1,84 @@
-<div class="container mt-4">
-  <h2 class="mb-4 text-primary">Gestión de Cotizaciones (Paquete 1)</h2>
-  <p class="text-muted">Incidentes en la red esperando asignación de taller.</p>
-  
-  <div class="row">
-    <div class="col-md-6 mb-3" *ngFor="let inc of incidentesPendientes">
-      <div class="card shadow-sm border-left-primary">
+<div class="layout-principal">
+  <div class="contenido-derecha">
+
+    <div class="header-seccion">
+      <div>
+        <h1 class="titulo-pagina">Cotizaciones (CU18)</h1>
+        <p class="subtitulo-pagina">Enviá tu propuesta económica a los incidentes pendientes.</p>
+      </div>
+      <button class="btn-refrescar" (click)="cargarIncidentes()">🔄 Actualizar</button>
+    </div>
+
+    <div *ngIf="incidentesPendientes.length === 0" class="estado-vacio">
+      <span style="font-size:48px">📋</span>
+      <h2>Sin incidentes pendientes</h2>
+      <p>No hay solicitudes esperando cotización en este momento.</p>
+    </div>
+
+    <div class="grid-tarjetas">
+      <div class="card-emergencia" *ngFor="let inc of incidentesPendientes">
+
+        <div class="card-header">
+          <span class="badge-prioridad" [ngClass]="'prioridad-' + (inc.prioridad_enum || 'incierto')">
+            {{ (inc.prioridad_enum || 'incierto') | uppercase }}
+          </span>
+          <span class="fecha">
+            {{ inc.fecha_creacion_timestamp | date:'shortTime' }}
+          </span>
+        </div>
+
         <div class="card-body">
-          <h5 class="card-title text-dark">Incidente #{{ inc.id_incidente }}</h5>
-          <p class="card-text"><strong>Descripción:</strong> {{ inc.descripcion_texto || 'Sin descripción detallada' }}</p>
-          <hr>
-          
-          <div class="mt-3">
-            <label class="form-label">Propuesta Económica e Inversión de Tiempo</label>
-            <input type="number" [(ngModel)]="nuevaCotizacion.precio_estimado" placeholder="Precio ($us)" class="form-control mb-2">
-            <input type="number" [(ngModel)]="nuevaCotizacion.tiempo_estimado_min" placeholder="Tiempo estimado de llegada (Minutos)" class="form-control mb-2">
-            <textarea [(ngModel)]="nuevaCotizacion.descripcion" placeholder="Detalles de la propuesta (Ej. Incluye grúa)" class="form-control mb-3"></textarea>
-            
-            <button class="btn btn-success w-100" (click)="enviarCotizacion(inc.id_incidente)">
-              Enviar Propuesta
-            </button>
+          <h3 class="diagnostico">Incidente #{{ inc.id_incidente }}</h3>
+          <p class="descripcion">
+            "{{ inc.descripcion_texto || 'Sin descripción del cliente.' }}"
+          </p>
+          <div class="ubicacion">
+            <a href="https://www.google.com/maps/search/?api=1&query={{ inc.latitud_emergencia }},{{ inc.longitud_emergencia }}"
+               target="_blank"
+               style="color:#E24B4A; text-decoration:none; font-weight:bold;">
+              🗺️ Ver ubicación en Maps
+            </a>
+          </div>
+
+          <!-- Formulario de cotización -->
+          <div style="margin-top:16px; display:flex; flex-direction:column; gap:8px;">
+            <label style="font-size:12px; font-weight:600; color:#334155;">
+              Precio estimado (Bs.)
+            </label>
+            <input type="number"
+                   [(ngModel)]="nuevaCotizacion.precio_estimado"
+                   placeholder="Ej: 150"
+                   style="padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
+
+            <label style="font-size:12px; font-weight:600; color:#334155;">
+              Tiempo estimado de llegada (minutos)
+            </label>
+            <input type="number"
+                   [(ngModel)]="nuevaCotizacion.tiempo_estimado_min"
+                   placeholder="Ej: 30"
+                   style="padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
+
+            <label style="font-size:12px; font-weight:600; color:#334155;">
+              Detalle de la propuesta
+            </label>
+            <textarea [(ngModel)]="nuevaCotizacion.descripcion"
+                      placeholder="Ej: Incluye grúa y revisión inicial"
+                      rows="2"
+                      style="padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px; resize:none;">
+            </textarea>
           </div>
         </div>
+
+        <div class="card-footer">
+          <button class="btn-aceptar"
+                  style="width:100%"
+                  (click)="enviarCotizacion(inc.id_incidente)">
+            💰 Enviar Propuesta
+          </button>
+        </div>
+
       </div>
     </div>
-  </div>
 
-  <div *ngIf="incidentesPendientes.length === 0" class="alert alert-info">
-    No hay incidentes pendientes de cotización en este momento.
   </div>
 </div>

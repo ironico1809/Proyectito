@@ -9,14 +9,14 @@ class PagoCreate(BaseModel):
     metodo_enum: MetodoPago
 
 class PagoOut(BaseModel):
-    id_pago: int
-    incidente_id: int
-    dueño_taller_id: int 
-    monto_total_decimal: Decimal
+    id_pago:                    int
+    incidente_id:               int
+    dueño_taller_id:            int
+    monto_total_decimal:        Decimal
     comision_plataforma_decimal: Decimal
-    metodo_enum: MetodoPago
-    estado_pago_enum: str
-    fecha_pago_timestamp: datetime
+    metodo_enum:                MetodoPago
+    estado_pago_enum:           str  # "completado" o "compensacion"
+    fecha_pago_timestamp:       datetime
 
     class Config:
         from_attributes = True
