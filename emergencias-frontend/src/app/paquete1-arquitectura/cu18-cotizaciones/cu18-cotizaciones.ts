@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CotizacionService } from '../../core/services/cotizacion.service';
@@ -11,47 +11,63 @@ import { IncidenteService } from '../../core/services/incidente';
   templateUrl: './cu18-cotizaciones.html',
   styleUrls: ['./cu18-cotizaciones.css'] 
 })
-export class Cu18Cotizaciones {
+export class Cu18Cotizaciones implements OnInit {
   incidentesPendientes: any[] = [];
-  nuevaCotizacion = { 
-    incidente_id: null, 
-    precio_estimado: null, 
-    tiempo_estimado_min: null, 
-    descripcion: '' 
-  };
+  cargando = false;
+
+  // Un formulario independiente por incidente
+  formularios: { [incidenteId: number]: any } = {};
 
   constructor(
     private cotizacionService: CotizacionService,
     private incidenteService: IncidenteService
-  ) {
-    this.cargarIncidentes();
-  }
+  ) {}
+
+  ngOnInit() { this.cargarIncidentes(); }
 
   cargarIncidentes() {
-    // Aquí usamos el servicio que ya tenían para traer los incidentes pendientes
-    this.incidenteService.getPendientes().subscribe(data => {
-      this.incidentesPendientes = data;
+    this.cargando = true;
+    this.incidenteService.getPendientes().subscribe({
+      next: (data) => {
+        this.incidentesPendientes = data;
+        // Inicializar formulario vacío para cada incidente
+        data.forEach((inc: any) => {
+          if (!this.formularios[inc.id_incidente]) {
+            this.formularios[inc.id_incidente] = {
+              precio_estimado: null,
+              tiempo_estimado_min: null,
+              descripcion: ''
+            };
+          }
+        });
+        this.cargando = false;
+      },
+      error: () => this.cargando = false
     });
   }
 
   enviarCotizacion(incidenteId: number) {
-    if (!this.nuevaCotizacion.precio_estimado || !this.nuevaCotizacion.tiempo_estimado_min) {
-      alert('Por favor, ingresa un precio y tiempo estimado válidos.');
+    const form = this.formularios[incidenteId];
+    if (!form?.precio_estimado || !form?.tiempo_estimado_min) {
+      alert('Ingresá un precio y tiempo estimado válidos.');
       return;
     }
-
-    this.nuevaCotizacion.incidente_id = incidenteId as any;
-    
-    this.cotizacionService.enviarCotizacion(this.nuevaCotizacion).subscribe({
+    const payload = {
+      incidente_id:         incidenteId,
+      precio_estimado:      form.precio_estimado,
+      tiempo_estimado_min:  form.tiempo_estimado_min,
+      descripcion:          form.descripcion
+    };
+    this.cotizacionService.enviarCotizacion(payload).subscribe({
       next: () => {
-        alert('Cotización enviada con éxito');
-        this.nuevaCotizacion = { incidente_id: null, precio_estimado: null, tiempo_estimado_min: null, descripcion: '' };
-        this.cargarIncidentes(); // Recargar la lista para quitar el incidente o actualizar vista
+        alert('✅ Cotización enviada con éxito.');
+        // Limpiar solo el formulario de ese incidente
+        this.formularios[incidenteId] = {
+          precio_estimado: null, tiempo_estimado_min: null, descripcion: ''
+        };
+        this.cargarIncidentes();
       },
-      error: (err) => {
-        console.error('Error al enviar la cotización', err);
-        alert('Hubo un error al enviar la cotización.');
-      }
+      error: () => alert('Error al enviar la cotización.')
     });
   }
 }

@@ -307,9 +307,35 @@ def registrar_emergencia(
 # CU10: LISTAR EMERGENCIAS PENDIENTES (para el taller en Angular)
 # ===================================================================
 @router.get("/pendientes", response_model=List[IncidenteOut])
-def listar_solicitudes_pendientes(db: Session = Depends(get_db)):
-    return db.query(Incidente).filter(Incidente.estado_enum == EstadoIncidente.pendiente).all()
+def listar_solicitudes_pendientes(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    # Buscar el taller del usuario autenticado
+    taller = db.query(Taller).filter(
+        Taller.dueño_id == current_user.id_usuario
+    ).first()
 
+    if not taller:
+        # Si es admin devuelve todos
+        if current_user.rol.value == "admin":
+            return db.query(Incidente).filter(
+                Incidente.estado_enum == EstadoIncidente.pendiente
+            ).all()
+        return []
+
+    # Obtener IDs de incidentes que este taller ya rechazó
+    rechazados = db.query(TallerRechazo.incidente_id).filter(
+        TallerRechazo.taller_id == taller.id_taller
+    ).all()
+    ids_rechazados = [r[0] for r in rechazados]
+
+    # Solo ver el incidente asignado a este taller y que no haya rechazado
+    return db.query(Incidente).filter(
+        Incidente.estado_enum == EstadoIncidente.pendiente,
+        Incidente.taller_actual_id == taller.id_taller,
+        Incidente.id_incidente.notin_(ids_rechazados)
+    ).all()
 # ===================================================================
 # CU10: ACEPTAR O RECHAZAR SOLICITUD (taller responde)
 # ===================================================================

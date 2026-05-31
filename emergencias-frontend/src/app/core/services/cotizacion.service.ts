@@ -18,12 +18,10 @@ export class CotizacionService {
     return this.http.get<any[]>(`${this.apiUrl}/${incidenteId}`);
   }
 
-  // Cliente acepta una cotización
   aceptarCotizacion(id: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}/aceptar`, {});
   }
 
-  // Cliente rechaza una cotización
   rechazarCotizacion(id: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}/rechazar`, {});
   }

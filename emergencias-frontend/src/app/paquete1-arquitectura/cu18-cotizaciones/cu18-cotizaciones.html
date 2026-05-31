@@ -46,7 +46,7 @@
               Precio estimado (Bs.)
             </label>
             <input type="number"
-                   [(ngModel)]="nuevaCotizacion.precio_estimado"
+                   [(ngModel)]="formularios[inc.id_incidente].precio_estimado"
                    placeholder="Ej: 150"
                    style="padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
 
@@ -54,14 +54,14 @@
               Tiempo estimado de llegada (minutos)
             </label>
             <input type="number"
-                   [(ngModel)]="nuevaCotizacion.tiempo_estimado_min"
+                   [(ngModel)]="formularios[inc.id_incidente].tiempo_estimado_min"
                    placeholder="Ej: 30"
                    style="padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px;">
 
             <label style="font-size:12px; font-weight:600; color:#334155;">
               Detalle de la propuesta
             </label>
-            <textarea [(ngModel)]="nuevaCotizacion.descripcion"
+            <textarea [(ngModel)]="formularios[inc.id_incidente].descripcion"
                       placeholder="Ej: Incluye grúa y revisión inicial"
                       rows="2"
                       style="padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-size:14px; resize:none;">
