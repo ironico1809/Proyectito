@@ -76,6 +76,24 @@ async def obtener_cotizaciones(
     cotizaciones = db.query(Cotizacion).filter(
         Cotizacion.incidente_id == incidente_id
     ).order_by(Cotizacion.fecha_envio.asc()).all()
+    incidente = db.query(Incidente).filter(
+        Incidente.id_incidente == incidente_id
+    ).first()
+    if not incidente:
+        raise HTTPException(status_code=404, detail="Incidente no encontrado.")
+
+    # Solo el cliente dueño del incidente puede ver sus cotizaciones
+    if incidente.cliente_id != current_user.id_usuario:
+        # Permitir también al taller que tiene el incidente asignado
+        from app.models.taller import Taller
+        taller = db.query(Taller).filter(
+            Taller.dueño_id == current_user.id_usuario
+        ).first()
+        if not taller:
+            raise HTTPException(
+                status_code=403,
+                detail="No tenés permiso para ver estas cotizaciones."
+            )
     return cotizaciones
 
 # ===================================================================

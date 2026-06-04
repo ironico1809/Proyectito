@@ -730,3 +730,4 @@ def obtener_historial_tecnico(
             "vehiculo_modelo":         f"{vehiculo.marca} {vehiculo.modelo}" if vehiculo else "Sin registrar"
         })
     return resultado
+

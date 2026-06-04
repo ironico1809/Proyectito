@@ -72,9 +72,8 @@
 
 /* Tarjeta resaltada cuando es el turno del taller */
 .tarjeta-prioridad {
-  border: 2px solid #ef4444; /* Rojo fuerte */
+  border: 2px solid #ef4444;
   box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
-  transform: scale(1.02);
   transition: all 0.3s ease;
 }
 

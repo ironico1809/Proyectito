@@ -23,3 +23,31 @@
 .btn-aceptar       { background: #10b981; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
 .btn-aceptar:hover { background: #059669; }
 .estado-vacio      { text-align: center; padding: 80px 20px; color: #64748b; }
+/* Responsivo — pantallas pequeñas */
+@media (max-width: 768px) {
+  .grid-tarjetas {
+    grid-template-columns: 1fr;
+  }
+  .contenido-derecha {
+    padding: 12px;
+  }
+  .header-seccion {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+/* Input con foco */
+.card-body input:focus,
+.card-body textarea:focus {
+  outline: none;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Botón deshabilitado */
+.btn-aceptar:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}

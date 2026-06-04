@@ -61,11 +61,12 @@ export class Cu18Cotizaciones implements OnInit {
     this.cotizacionService.enviarCotizacion(payload).subscribe({
       next: () => {
         alert('✅ Cotización enviada con éxito.');
-        // Limpiar solo el formulario de ese incidente
         this.formularios[incidenteId] = {
           precio_estimado: null, tiempo_estimado_min: null, descripcion: ''
         };
-        this.cargarIncidentes();
+        // Ocultar el incidente de la lista — ya tiene cotización de este taller
+        this.incidentesPendientes = this.incidentesPendientes
+          .filter(i => i.id_incidente !== incidenteId);
       },
       error: () => alert('Error al enviar la cotización.')
     });

@@ -98,8 +98,9 @@ export class EmergenciasComponent implements OnInit, OnDestroy {
     this.incidenteService.responderSolicitud(incidente.id_incidente, accion).subscribe({
       next: () => {
         this.emergencias = this.emergencias.filter(e => e.id_incidente !== incidente.id_incidente);
-        
         if (accion === 'aceptar') {
+          // Guardar ID para que el WebSocket de monitoreo se conecte a la sala correcta
+          localStorage.setItem('incidente_activo_id', incidente.id_incidente.toString());
           this.abrirModalAsignacion(incidente);
         }
       },
