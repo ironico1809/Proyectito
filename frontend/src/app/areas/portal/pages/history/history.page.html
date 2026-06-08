@@ -1,0 +1,59 @@
+<div class="page animate-in">
+  <header class="page-head">
+    <div>
+      <h1 class="page-title">Historial de Auxilios</h1>
+      <p class="page-sub">Bitácora de todos los servicios completados por tu taller</p>
+    </div>
+    
+    <div class="head-actions">
+      <div class="search-box">
+        <span class="material-symbols-rounded">search</span>
+        <input type="text" placeholder="Buscar placa o código...">
+      </div>
+      <button class="btn btn-secondary">
+        <span class="material-symbols-rounded">filter_list</span> Filtrar
+      </button>
+    </div>
+  </header>
+
+  <!-- LISTA ESTILO TARJETAS / TIMELINE EN VEZ DE TABLA -->
+  <div class="cards-grid">
+    <div class="history-card" *ngFor="let item of records">
+      <div class="card-header">
+        <div class="service-id">{{ item.id }}</div>
+        <div class="service-date">
+          <span class="material-symbols-rounded">calendar_month</span>
+          {{ item.date }}
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <div class="info-block">
+          <span class="info-label">Cliente</span>
+          <span class="info-value">{{ item.client }}</span>
+        </div>
+        <div class="info-block">
+          <span class="info-label">Vehículo</span>
+          <span class="info-value text-accent">{{ item.vehicle }}</span>
+        </div>
+        <div class="info-block">
+          <span class="info-label">Mecánico Asignado</span>
+          <div class="mechanic-info">
+            <img src="https://ui-avatars.com/api/?name={{ item.mechanic }}&background=1e293b&color=fff" alt="Avatar" class="avatar-sm">
+            <span>{{ item.mechanic }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <span class="badge badge-success">
+          <span class="material-symbols-rounded">check_circle</span>
+          {{ item.status }}
+        </span>
+        <button class="btn-icon" title="Ver detalles">
+          <span class="material-symbols-rounded">arrow_forward</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

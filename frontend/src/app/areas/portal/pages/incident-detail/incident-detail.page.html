@@ -1,0 +1,305 @@
+<ng-container *ngIf="monitoreo$ | async as m; else loading">
+  <div class="page" *ngIf="m">
+    <header class="page__head">
+      <div>
+        <div class="page__bread">
+          <a routerLink="/panel/incidentes" class="page__back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Incidentes
+          </a>
+          <span class="page__sep">/</span>
+          <code class="page__code">#{{ m.id_incidente }}</code>
+        </div>
+        <h1 class="page__title">Incidente #{{ m.id_incidente }}</h1>
+      </div>
+      <span class="page__badge" [style]="{ background: m.prioridad_enum === 'alta' ? 'var(--danger-bg)' : 'color-mix(in srgb, var(--amber-500) 15%, transparent)', color: m.prioridad_enum === 'alta' ? 'var(--danger)' : 'var(--amber-500)' }">
+        {{ m.prioridad_enum | uppercase }}
+      </span>
+      <span class="ws-pill" title="Actualizaciones en tiempo real activas">
+        <span class="ws-dot"></span> EN VIVO
+      </span>
+    </header>
+
+    <div class="detail-grid">
+      <!-- INFO -->
+      <section class="card">
+        <div class="card__head">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          <h3>Información</h3>
+        </div>
+        <div class="card__body">
+          <div class="info-row">
+            <span class="info-label">Estado</span>
+            <span class="info-value info-value--status" [ngStyle]="getEstadoStyle(m.estado_enum)">{{ getEstadoLabel(m.estado_enum) }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Descripción</span>
+            <span class="info-value">{{ m.descripcion_texto || 'Sin descripción' }}</span>
+          </div>
+          <div class="info-row" *ngIf="m.clasificacion_ia && m.clasificacion_ia !== 'Sin procesar'">
+            <span class="info-label">Diagnóstico IA</span>
+            <span class="info-value" style="color: var(--indigo-400); font-weight: 600; text-align: right;">{{ m.clasificacion_ia }}</span>
+          </div>
+          <div class="info-row" *ngIf="m.tecnico_nombre">
+            <span class="info-label">Técnico</span>
+            <span class="info-value" style="color: var(--amber-500); font-weight: 600; text-align: right;">
+              {{ m.tecnico_nombre }}
+              <span *ngIf="m.tecnico_especialidad" style="font-size: 0.8rem; color: var(--text-muted); display: block; font-weight: 400;">
+                {{ m.tecnico_especialidad }}
+              </span>
+              <span *ngIf="m.tecnico_telefono" style="font-size: 0.8rem; color: var(--text-muted); display: block; font-weight: 400;">
+                📞 {{ m.tecnico_telefono }}
+              </span>
+            </span>
+          </div>
+          <div class="info-row" *ngIf="m.cliente_nombre">
+            <span class="info-label">Cliente</span>
+            <span class="info-value">{{ m.cliente_nombre }}</span>
+          </div>
+          <div class="info-row" *ngIf="m.vehiculo_placa">
+            <span class="info-label">Vehículo</span>
+            <span class="info-value">{{ m.vehiculo_placa }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Coordenadas</span>
+            <span class="info-value info-value--mono">{{ m.latitud_emergencia }}, {{ m.longitud_emergencia }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Creado</span>
+            <span class="info-value">{{ m.fecha_creacion_timestamp | date:'medium' }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ACCIONES -->
+      <section class="card">
+        <div class="card__head">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+          </svg>
+          <h3>Acciones</h3>
+        </div>
+
+        <div class="card__body">
+          <!-- Aceptar/Rechazar -->
+          <ng-container *ngIf="m.estado_enum === 'pendiente'">
+            <p class="card__hint">Responder solicitud de auxilio</p>
+            <div class="action-row">
+              <button class="btn btn--success" (click)="responderIncidente(m.id_incidente, 'aceptar')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Aceptar
+              </button>
+              <button class="btn btn--danger-outline" (click)="responderIncidente(m.id_incidente, 'rechazar')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                Rechazar
+              </button>
+            </div>
+          </ng-container>
+
+          <!-- Asignar técnico -->
+          <ng-container *ngIf="m.estado_enum !== 'pendiente' && m.estado_enum !== 'finalizado' && m.estado_enum !== 'atendido' && m.estado_enum !== 'cancelado'">
+            <p class="card__hint">Asignar técnico</p>
+            <select class="field__input" (change)="asignarTecnico(m.id_incidente, $event)" *ngIf="tecnicos$ | async as tecs">
+              <option value="">Seleccionar técnico...</option>
+              <option *ngFor="let t of tecs" [value]="t.id_tecnico" [selected]="t.id_tecnico === m.tecnico_id">
+                {{ t.nombre }} {{ t.disponible_boolean ? '' : '(ocupado)' }}
+              </option>
+            </select>
+          </ng-container>
+
+          <!-- Actualizar estado -->
+          <ng-container *ngIf="m.estado_enum !== 'pendiente' && m.estado_enum !== 'finalizado' && m.estado_enum !== 'atendido' && m.estado_enum !== 'cancelado'">
+            <p class="card__hint" style="margin-top: 12px;">Actualizar estado</p>
+            <select class="field__input" (change)="actualizarEstado(m.id_incidente, $event)">
+              <option value="">Cambiar estado...</option>
+              <option value="en_proceso">En proceso</option>
+              <option value="en_camino">En camino</option>
+              <option value="en_atencion">En atención</option>
+              <option value="finalizado">Finalizado</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </ng-container>
+
+          <!-- Excepción -->
+          <ng-container *ngIf="m.estado_enum !== 'pendiente' && m.estado_enum !== 'finalizado' && m.estado_enum !== 'atendido' && m.estado_enum !== 'cancelado'">
+            <p class="card__hint" style="margin-top: 12px;">Reportar excepción</p>
+            <button class="btn btn--sm btn--muted" (click)="openExceptionForm()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              Reportar excepción
+            </button>
+          </ng-container>
+        </div>
+      </section>
+
+      <!-- EVIDENCIAS -->
+      <section class="card" *ngIf="m.evidencias?.length">
+        <div class="card__head">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <h3>Evidencias</h3>
+        </div>
+        <div class="card__body" style="display: flex; flex-direction: column; gap: 16px;">
+          <div class="ev-detail-item" *ngFor="let ev of m.evidencias" style="padding: 12px; background: var(--slate-900); border-radius: var(--r-md); border: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span class="ev-item__type" style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary);">{{ ev.tipo }}</span>
+              <code class="ev-item__id" style="font-size: 0.75rem;">#{{ ev.id_evidencia }}</code>
+            </div>
+            
+            <!-- Render based on type -->
+            <div *ngIf="ev.tipo === 'imagen'" style="margin-bottom: 8px;">
+              <img [src]="ev.url" style="max-width: 100%; max-height: 250px; border-radius: var(--r-sm); object-fit: contain; background: var(--slate-950); display: block; border: 1px solid var(--border);" />
+              <div *ngIf="ev.clasificacion" class="ev-ia-info" style="font-size: 0.82rem; padding: 8px 12px; background: color-mix(in srgb, var(--indigo-500) 10%, transparent); border-radius: 6px; border-left: 3px solid var(--indigo-400); margin-top: 8px; color: var(--text-primary); text-align: left;">
+                <strong>Análisis IA:</strong> {{ ev.clasificacion }}
+              </div>
+            </div>
+            
+            <div *ngIf="ev.tipo === 'audio'" style="margin-bottom: 8px;">
+              <audio [src]="ev.url" controls style="width: 100%; border-radius: var(--r-sm); margin-bottom: 8px;"></audio>
+              <div *ngIf="ev.transcripcion" class="ev-ia-info" style="font-size: 0.82rem; padding: 8px 12px; background: color-mix(in srgb, var(--amber-500) 10%, transparent); border-radius: 6px; border-left: 3px solid var(--amber-500); margin-top: 4px; color: var(--text-primary); text-align: left;">
+                <strong>Transcripción IA:</strong> "{{ ev.transcripcion }}"
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- HISTORIAL -->
+      <section class="card" *ngIf="m.historial_estados?.length">
+        <div class="card__head">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <h3>Historial de estados</h3>
+        </div>
+        <div class="card__body hist-list">
+          <div class="hist-item" *ngFor="let h of m.historial_estados">
+            <span class="hist-dot"></span>
+            <span class="hist-state">{{ h.estado }}</span>
+            <span class="hist-date">{{ h.fecha | date:'short' }}</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- COTIZACIONES -->
+    <section class="card sec-cotizaciones">
+      <div class="card__head">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+        <h3>Cotizaciones</h3>
+        <button class="btn btn--sm btn--primary" (click)="cargarCotizaciones(m.id_incidente); openQuotationForm(m.taller_actual_id || 0)" *ngIf="m.taller_actual_id">
+          + Nueva cotización
+        </button>
+      </div>
+      <div class="card__body">
+        <div class="quote-list" *ngIf="cotizaciones.length > 0">
+          <div class="quote-row" *ngFor="let q of cotizaciones">
+            <div class="quote-row__info">
+              <code class="quote-row__id">#{{ q.id_cotizacion }}</code>
+              <span class="quote-row__desc">{{ q.descripcion || '—' }}</span>
+            </div>
+            <div class="quote-row__price">{{ q.precio_estimado }} Bs</div>
+            <div class="quote-row__time">{{ q.tiempo_estimado_min }} min</div>
+            <span class="quote-row__estado" [style.color]="getEstadoColor(q.estado)">{{ q.estado }}</span>
+            <div class="quote-row__actions" *ngIf="q.estado === 'pendiente'">
+              <button class="btn btn--xs btn--success" (click)="aceptarCotizacion(q.id_cotizacion, m.id_incidente)" title="Aceptar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </button>
+              <button class="btn btn--xs btn--danger-outline" (click)="rechazarCotizacion(q.id_cotizacion, m.id_incidente)" title="Rechazar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <p class="card__empty-state" *ngIf="cotizaciones.length === 0">Sin cotizaciones aún</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal excepción -->
+  <div class="modal-overlay" *ngIf="showExceptionForm" (click)="closeExceptionForm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal__head">
+        <h3>Reportar excepción</h3>
+        <button class="modal__close" (click)="closeExceptionForm()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal__body">
+        <div class="field">
+          <label class="field__label">Tipo de excepción</label>
+          <select class="field__input" [(ngModel)]="exceptionForm.tipo_excepcion">
+            <option value="cancelacion_cliente">Cancelación del cliente</option>
+            <option value="llegada_seguro">Llegada del seguro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field__label">Motivo</label>
+          <textarea class="field__input field__input--area" rows="3" [(ngModel)]="exceptionForm.motivo" placeholder="Describa el motivo..."></textarea>
+        </div>
+      </div>
+      <div class="modal__foot">
+        <button class="btn btn--ghost" (click)="closeExceptionForm()">Cancelar</button>
+        <button class="btn btn--primary" (click)="reportarExcepcion(m!.id_incidente)">Reportar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal cotización -->
+  <div class="modal-overlay" *ngIf="showQuotationForm" (click)="closeQuotationForm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal__head">
+        <h3>Nueva cotización</h3>
+        <button class="modal__close" (click)="closeQuotationForm()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal__body">
+        <div class="field">
+          <label class="field__label">Precio estimado (Bs)</label>
+          <input class="field__input" type="number" min="0" [(ngModel)]="quotationForm.precio_estimado" placeholder="0.00">
+        </div>
+        <div class="field">
+          <label class="field__label">Tiempo estimado (minutos)</label>
+          <input class="field__input" type="number" min="0" [(ngModel)]="quotationForm.tiempo_estimado_min" placeholder="60">
+        </div>
+        <div class="field">
+          <label class="field__label">Descripción</label>
+          <textarea class="field__input field__input--area" rows="3" [(ngModel)]="quotationForm.descripcion" placeholder="Describe los servicios incluidos..."></textarea>
+        </div>
+      </div>
+      <div class="modal__foot">
+        <button class="btn btn--ghost" (click)="closeQuotationForm()">Cancelar</button>
+        <button class="btn btn--primary" (click)="createQuotation(m!.id_incidente)">Crear cotización</button>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #loading>
+  <div class="page page--loading">
+    <div class="loading-spinner"></div>
+    <p>Cargando incidente...</p>
+  </div>
+</ng-template>

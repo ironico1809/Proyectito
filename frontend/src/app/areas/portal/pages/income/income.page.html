@@ -1,0 +1,91 @@
+<div class="page animate-in">
+  <header class="page-head">
+    <div>
+      <h1 class="page-title">Billetera de Ingresos</h1>
+      <p class="page-sub">Gestión de tus ganancias netas como taller afiliado</p>
+    </div>
+    
+    <button class="btn btn-primary">
+      <span class="material-symbols-rounded">account_balance_wallet</span>
+      Retirar Fondos
+    </button>
+  </header>
+
+  <div class="wallet-layout">
+    
+    <!-- LADO IZQUIERDO: TARJETA Y BALANCE -->
+    <div class="wallet-left">
+      
+      <!-- CREDIT CARD STYLE -->
+      <div class="credit-card">
+        <div class="card-top">
+          <span class="material-symbols-rounded">contactless</span>
+          <span class="card-brand">EMERGENCIA VIAL</span>
+        </div>
+        <div class="card-middle">
+          <span class="balance-label">BALANCE DISPONIBLE (NETO)</span>
+          <span class="balance-amount">Bs. {{ totalNet | number:'1.2-2' }}</span>
+        </div>
+        <div class="card-bottom">
+          <div class="card-info">
+            <span>TALLER ASOCIADO</span>
+            <strong>AutoService Center</strong>
+          </div>
+          <div class="card-info">
+            <span>ID</span>
+            <strong>#8492</strong>
+          </div>
+        </div>
+        
+        <!-- DECORATION -->
+        <div class="card-glow"></div>
+      </div>
+
+      <!-- METRICAS DE DESCUENTO -->
+      <div class="discount-metrics">
+        <div class="metric-box">
+          <div class="box-icon bg-slate"><span class="material-symbols-rounded">payments</span></div>
+          <div class="box-info">
+            <span>Total Facturado</span>
+            <strong>Bs. {{ totalGross | number:'1.2-2' }}</strong>
+          </div>
+        </div>
+        <div class="metric-box box-danger">
+          <div class="box-icon bg-danger-light"><span class="material-symbols-rounded text-danger">percent</span></div>
+          <div class="box-info">
+            <span class="text-danger">Descuento Plataforma (10%)</span>
+            <strong class="text-danger">- Bs. {{ totalCommissions | number:'1.2-2' }}</strong>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- LADO DERECHO: TRANSACCIONES RECIENTES -->
+    <div class="wallet-right">
+      <div class="transactions-panel">
+        <div class="panel-head">
+          <h3>Historial de Pagos</h3>
+          <a href="#" class="link-muted">Ver todo</a>
+        </div>
+        
+        <div class="transaction-list">
+          <div class="tx-item" *ngFor="let item of payments">
+            <div class="tx-icon">
+              <span class="material-symbols-rounded">monetization_on</span>
+            </div>
+            <div class="tx-details">
+              <span class="tx-title">Liquidación {{ item.period }}</span>
+              <span class="tx-sub">Transferencia Bancaria</span>
+            </div>
+            <div class="tx-amounts">
+              <span class="tx-net">+ Bs. {{ item.net | number:'1.2-2' }}</span>
+              <span class="tx-gross">De Bs. {{ item.gross | number:'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,144 @@
+<div class="page" *ngIf="taller$ | async as t">
+  <header class="page__head">
+    <div>
+      <h1 class="page__title">Mi Taller</h1>
+      <p class="page__sub">Información y configuración de tu taller</p>
+    </div>
+    <button class="page__btn" *ngIf="!editing" (click)="startEdit(t)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+        <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/>
+      </svg>
+      Editar taller
+    </button>
+  </header>
+
+  <!-- Toast -->
+  <div class="toast toast--success" *ngIf="saved">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    Taller actualizado correctamente
+  </div>
+
+  <div class="workshop-card">
+    <div class="workshop-hero">
+      <div class="workshop-avatar">{{ t.nombre_taller.charAt(0).toUpperCase() }}</div>
+      <div class="workshop-hero__info">
+        <h2 class="workshop-hero__name">{{ t.nombre_taller }}</h2>
+        <span class="workshop-hero__badge">Taller</span>
+      </div>
+    </div>
+    <div class="workshop-divider"></div>
+
+    <ng-container *ngIf="!editing; else editMode">
+      <div class="workshop-section">
+        <div class="info-row">
+          <span class="info-label">Dueño</span>
+          <span class="info-value">{{ t.nombre_dueno }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ t.email_dueno }}</span>
+        </div>
+        <div class="info-row" *ngIf="t.telefono_dueno">
+          <span class="info-label">Teléfono</span>
+          <span class="info-value">{{ t.telefono_dueno }}</span>
+        </div>
+        <div class="info-row" *ngIf="t.direccion">
+          <span class="info-label">Dirección</span>
+          <span class="info-value">{{ t.direccion }}</span>
+        </div>
+        <div class="info-row" *ngIf="t.nit">
+          <span class="info-label">NIT</span>
+          <span class="info-value">{{ t.nit }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Coordenadas</span>
+          <span class="info-value info-value--mono">{{ t.latitud_decimal || '—' }}, {{ t.longitud_decimal || '—' }}</span>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #editMode>
+      <div class="workshop-section">
+        <div class="field">
+          <label class="field__label">Nombre del taller</label>
+          <input class="field__input" type="text" [(ngModel)]="formData.nombre_taller">
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label class="field__label">Nombre del dueño</label>
+            <input class="field__input" type="text" [(ngModel)]="formData.nombre_dueno">
+          </div>
+          <div class="field">
+            <label class="field__label">Teléfono</label>
+            <input class="field__input" type="text" [(ngModel)]="formData.telefono_dueno">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field__label">Dirección</label>
+          <input class="field__input" type="text" [(ngModel)]="formData.direccion">
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label class="field__label">NIT</label>
+            <input class="field__input" type="text" [(ngModel)]="formData.nit">
+          </div>
+          <div class="field">
+            <label class="field__label">Latitud</label>
+            <input class="field__input" type="text" [(ngModel)]="ubicacion.latitud">
+          </div>
+          <div class="field">
+            <label class="field__label">Longitud</label>
+            <input class="field__input" type="text" [(ngModel)]="ubicacion.longitud">
+          </div>
+        </div>
+      </div>
+      <div class="workshop-footer">
+        <button class="btn btn--ghost" (click)="cancelEdit()">Cancelar</button>
+        <button class="btn btn--primary" [disabled]="saving" (click)="saveEdit(t)">
+          <span class="btn__spinner" *ngIf="saving"></span>
+          {{ saving ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+      </div>
+    </ng-template>
+  </div>
+
+  <div class="workshop-card info-card" *ngIf="!editing">
+    <div class="info-card__header">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+      </svg>
+      <span>Enlaces rápidos</span>
+    </div>
+    <div class="info-card__body">
+      <a class="quick-link" routerLink="/panel/tecnicos">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Gestionar técnicos
+      </a>
+      <a class="quick-link" routerLink="/panel/incidentes">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        Incidentes activos
+      </a>
+      <a class="quick-link" routerLink="/panel/cotizaciones">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+        Cotizaciones
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="page page--loading" *ngIf="(taller$ | async) === null">
+  <div class="loading-spinner"></div>
+  <p>Cargando información del taller...</p>
+</div>

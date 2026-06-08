@@ -1,0 +1,215 @@
+.radar-container {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 120px);
+  min-height: 600px;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border);
+}
+
+.radar-map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  filter: contrast(1.1) brightness(0.9); /* Un toque más dramático al mapa */
+}
+
+/* ── HUD FLOTANTE (Glassmorphism) ── */
+.hud-panel {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  z-index: 10;
+  width: 380px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--r-xl);
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.hud-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.radar-icon-wrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+
+.radar-icon-wrap .material-symbols-rounded {
+  font-size: 28px;
+  color: white;
+}
+
+.spinning {
+  animation: spinRadar 2s linear infinite;
+}
+
+@keyframes spinRadar {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.hud-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin: 0 0 4px 0;
+}
+
+.hud-sub {
+  font-size: 0.85rem;
+  color: var(--slate-400);
+  margin: 0;
+}
+
+.hud-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── BADGE DE ESTADO ── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--r-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  align-self: flex-start;
+}
+
+.badge-idle {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--slate-400);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.badge-active {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--success);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--success);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--success);
+  animation: blink 1s infinite alternate;
+}
+
+@keyframes blink {
+  0% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+/* ── COORDENADAS ── */
+.coords-display {
+  display: flex;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.coord-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.coord-divider {
+  width: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 16px;
+}
+
+.coord-label {
+  font-size: 0.7rem;
+  color: var(--slate-400);
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.coord-value {
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary-light);
+}
+
+/* ── FOOTER ── */
+.hud-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.last-sync {
+  font-size: 0.8rem;
+  color: var(--slate-500);
+  margin: 0;
+}
+
+.btn-radar {
+  background: var(--primary-color);
+  color: white;
+  padding: 10px 20px;
+  font-weight: 600;
+  border-radius: var(--r-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.btn-radar:hover:not(:disabled) {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.btn-radar:disabled {
+  background: var(--slate-700);
+  color: var(--slate-400);
+  box-shadow: none;
+  cursor: wait;
+}
+
+@media (max-width: 768px) {
+  .hud-panel {
+    top: auto;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    width: auto;
+  }
+}

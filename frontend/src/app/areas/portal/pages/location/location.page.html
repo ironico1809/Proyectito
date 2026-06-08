@@ -1,0 +1,81 @@
+<div class="radar-container animate-in">
+  
+  <!-- MAPA DE FONDO (FULL SCREEN) -->
+  <iframe
+    *ngIf="mapaUrlSegura"
+    [src]="mapaUrlSegura"
+    class="radar-map"
+    frameborder="0"
+    scrolling="no">
+  </iframe>
+
+  <!-- CAPA DE CRISTAL (HUD FLOTANTE) -->
+  <div class="hud-panel">
+    <div class="hud-header">
+      <div class="radar-icon-wrap">
+        <span class="material-symbols-rounded" [class.spinning]="isTracking || isSharing">radar</span>
+      </div>
+      <div>
+        <h1 class="hud-title">Radar de Asistencia</h1>
+        <p class="hud-sub">Centro de Localización Satelital</p>
+      </div>
+    </div>
+
+    <div class="hud-body">
+      <!-- Selección de Incidente Activo -->
+      <div class="incident-selector-wrap" style="margin-bottom: 12px;">
+        <label style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">
+          Incidente para transmitir GPS
+        </label>
+        <select class="field__input" style="width: 100%; border-radius: 8px; padding: 10px; background: rgba(30, 41, 59, 0.9); color: white; border: 1px solid rgba(255, 255, 255, 0.1);" [(ngModel)]="selectedIncidentId" [disabled]="isSharing">
+          <option *ngIf="incidentes.length === 0" [value]="null">Sin incidentes activos</option>
+          <option *ngFor="let inc of incidentes" [value]="inc.id_incidente">
+            Emergencia #{{ inc.id_incidente }} ({{ inc.cliente_nombre || 'Cliente' }})
+          </option>
+        </select>
+      </div>
+
+      <div class="status-badge" [ngClass]="isSharing ? 'badge-active' : 'badge-idle'">
+        <span class="pulse-dot" *ngIf="isSharing"></span>
+        {{ isSharing ? 'Transmitiendo GPS...' : 'Señal GPS en reposo' }}
+      </div>
+
+      <div class="coords-display">
+        <div class="coord-item">
+          <span class="coord-label">LATITUD</span>
+          <span class="coord-value">{{ coordinates.lat | number:'1.4-4' }}</span>
+        </div>
+        <div class="coord-divider"></div>
+        <div class="coord-item">
+          <span class="coord-label">LONGITUD</span>
+          <span class="coord-value">{{ coordinates.lng | number:'1.4-4' }}</span>
+        </div>
+      </div>
+
+      <div class="hud-footer" style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+          <p class="last-sync">Última sinc. {{ lastUpdated || '--:--:--' }}</p>
+          <button class="btn btn--sm btn--muted" (click)="cargarIncidentes()" [disabled]="isSharing" style="padding: 4px 8px; font-size: 0.75rem; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;">
+            Actualizar Lista
+          </button>
+        </div>
+        
+        <div style="display: flex; gap: 10px; width: 100%;">
+          <button class="btn-radar" style="flex: 1; justify-content: center;" (click)="updateLocation()" [disabled]="isTracking || isSharing">
+            <span class="material-symbols-rounded">satellite_alt</span>
+            {{ isTracking ? 'Ubicando...' : 'Obtener GPS' }}
+          </button>
+          
+          <button class="btn" style="flex: 1; border-radius: 100px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; cursor: pointer;" 
+                  [style.background]="isSharing ? 'var(--danger)' : 'var(--success)'"
+                  [style.color]="'white'"
+                  (click)="toggleSharing()" [disabled]="incidentes.length === 0 || !selectedIncidentId">
+            <span class="material-symbols-rounded">{{ isSharing ? 'location_off' : 'share_location' }}</span>
+            {{ isSharing ? 'Detener' : 'Compartir' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,342 @@
+<div class="kpi-page animate-in">
+
+  <!-- HEADER -->
+  <header class="kpi-header">
+    <div>
+      <h1 class="kpi-title">Analítica Operacional</h1>
+      <p class="kpi-subtitle">Métricas en tiempo real del rendimiento de la red de auxilio</p>
+    </div>
+    <button class="btn btn-primary" (click)="cargarDatos()" [disabled]="isLoading">
+      <span class="material-symbols-rounded" [class.spin]="isLoading">sync</span>
+      Actualizar
+    </button>
+  </header>
+
+  <!-- LOADING -->
+  <ng-template #loadingTpl>
+    <div class="loading-state">
+      <span class="material-symbols-rounded spin loading-icon">progress_activity</span>
+      <p>Cargando métricas desde el motor de base de datos...</p>
+    </div>
+  </ng-template>
+
+  <!-- ERROR -->
+  <ng-template #errorTpl>
+    <div class="error-state">
+      <span class="material-symbols-rounded error-icon">cloud_off</span>
+      <h3>No se pudieron cargar las analíticas</h3>
+      <p>Verifica que el backend esté corriendo en <code>http://127.0.0.1:8000</code></p>
+      <button class="btn btn-primary" (click)="cargarDatos()">
+        <span class="material-symbols-rounded">refresh</span>
+        Reintentar
+      </button>
+    </div>
+  </ng-template>
+
+  <ng-container *ngIf="!isLoading; else loadingTpl">
+    <ng-container *ngIf="!error; else errorTpl">
+
+      <!-- ═══ KPI TOP CARDS ═══ -->
+      <div class="kpi-top-grid">
+        <div class="kpi-metric glass" style="--accent: #3b82f6">
+          <div class="kpi-metric-icon"><span class="material-symbols-rounded">emergency</span></div>
+          <div class="kpi-metric-body">
+            <span class="kpi-metric-value">{{ resumen?.total_incidentes || 0 }}</span>
+            <span class="kpi-metric-label">Total Incidentes</span>
+          </div>
+          <div class="kpi-trend up">
+            <span class="material-symbols-rounded">trending_up</span>
+            {{ resumen?.tasa_exito || 0 }}% éxito
+          </div>
+        </div>
+
+        <div class="kpi-metric glass" style="--accent: #f59e0b">
+          <div class="kpi-metric-icon"><span class="material-symbols-rounded">engineering</span></div>
+          <div class="kpi-metric-body">
+            <span class="kpi-metric-value">{{ resumen?.tecnicos_disponibles || 0 }}/{{ resumen?.tecnicos_total || 0 }}</span>
+            <span class="kpi-metric-label">Técnicos Disponibles</span>
+          </div>
+          <div class="kpi-trend mid">
+            <span class="material-symbols-rounded">group</span>
+            Staff operativo
+          </div>
+        </div>
+
+        <div class="kpi-metric glass" style="--accent: #10b981">
+          <div class="kpi-metric-icon"><span class="material-symbols-rounded">payments</span></div>
+          <div class="kpi-metric-body">
+            <span class="kpi-metric-value">{{ (resumen?.ingresos_totales || 0) | number:'1.2-2' }}</span>
+            <span class="kpi-metric-label">Ingresos Totales</span>
+          </div>
+          <div class="kpi-trend up">
+            <span class="material-symbols-rounded">account_balance</span>
+            Bs / USD
+          </div>
+        </div>
+
+        <div class="kpi-metric glass" style="--accent: #8b5cf6">
+          <div class="kpi-metric-icon"><span class="material-symbols-rounded">star</span></div>
+          <div class="kpi-metric-body">
+            <span class="kpi-metric-value">{{ (resumen?.calificacion_promedio || 0) | number:'1.1-1' }}</span>
+            <span class="kpi-metric-label">Calificación Promedio</span>
+          </div>
+          <div class="kpi-trend up">
+            <span class="material-symbols-rounded">reviews</span>
+            / 5.0
+          </div>
+        </div>
+
+        <div class="kpi-metric glass" style="--accent: #06b6d4">
+          <div class="kpi-metric-icon"><span class="material-symbols-rounded">timer</span></div>
+          <div class="kpi-metric-body">
+            <span class="kpi-metric-value">{{ (tiempoAsignacion?.avg_minutos || 0) | number:'1.1-1' }} <small>min</small></span>
+            <span class="kpi-metric-label">Tiempo Asignación</span>
+          </div>
+          <div class="kpi-trend mid">
+            <span class="material-symbols-rounded">speed</span>
+            Promedio
+          </div>
+        </div>
+
+        <div class="kpi-metric glass" style="--accent: #f97316">
+          <div class="kpi-metric-icon"><span class="material-symbols-rounded">route</span></div>
+          <div class="kpi-metric-body">
+            <span class="kpi-metric-value">{{ (tiempoLlegada?.avg_minutos || 0) | number:'1.1-1' }} <small>min</small></span>
+            <span class="kpi-metric-label">Tiempo Llegada</span>
+          </div>
+          <div class="kpi-trend mid">
+            <span class="material-symbols-rounded">pin_drop</span>
+            Al lugar
+          </div>
+        </div>
+
+        <div class="kpi-metric glass" style="--accent: #22c55e">
+          <div class="kpi-metric-icon"><span class="material-symbols-rounded">verified</span></div>
+          <div class="kpi-metric-body">
+            <span class="kpi-metric-value">{{ sla?.porcentaje_cumplimiento || 0 | number:'1.1-1' }}%</span>
+            <span class="kpi-metric-label">Cumplimiento SLA</span>
+          </div>
+          <div class="kpi-trend up">
+            <span class="material-symbols-rounded">check_circle</span>
+            {{ sla?.dentro_sla || 0 }}/{{ sla?.total_finalizados || 0 }}
+          </div>
+        </div>
+
+        <div class="kpi-metric glass" style="--accent: #ef4444">
+          <div class="kpi-metric-icon"><span class="material-symbols-rounded">pending</span></div>
+          <div class="kpi-metric-body">
+            <span class="kpi-metric-value">{{ resumen?.incidentes_activos || 0 }}</span>
+            <span class="kpi-metric-label">Activos / En Proceso</span>
+          </div>
+          <div class="kpi-trend down">
+            <span class="material-symbols-rounded">emergency_home</span>
+            En curso
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ CHARTS ROW ═══ -->
+      <div class="charts-row">
+
+        <!-- BAR CHART: Incidentes por Mes -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="material-symbols-rounded">bar_chart</span>
+            <h3>Incidentes por Mes</h3>
+          </div>
+          <div class="chart-body">
+            <div class="bar-chart">
+              <div class="bar-item" *ngFor="let m of incidentesPorMes">
+                <div class="bar-col">
+                  <div class="bar-fill" [style.height.%]="(m.total / maxMes) * 100" [style.--bar-color]="'#3b82f6'"></div>
+                </div>
+                <span class="bar-val">{{ m.total }}</span>
+                <span class="bar-label">{{ m.mes }}</span>
+              </div>
+            </div>
+            <div class="chart-empty" *ngIf="!incidentesPorMes.length">
+              <span class="material-symbols-rounded">info</span>
+              <p>No hay datos de incidentes por mes</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- DONUT CHART: Por Estado -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="material-symbols-rounded">donut_large</span>
+            <h3>Distribución por Estado</h3>
+          </div>
+          <div class="chart-body donut-body">
+            <div class="donut-container" *ngIf="donutData().length">
+              <div class="donut-ring">
+                <svg viewBox="0 0 36 36" class="donut-svg">
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="var(--slate-800)" stroke-width="2.5"/>
+                </svg>
+                <div class="donut-label">
+                  <span class="donut-label-total">{{ resumen?.total_incidentes || 0 }}</span>
+                  <span class="donut-label-sub">Total</span>
+                </div>
+              </div>
+              <div class="donut-legend">
+                <div class="legend-item" *ngFor="let d of donutData()">
+                  <span class="legend-dot" [style.background]="d.color"></span>
+                  <span class="legend-label">{{ d.label }}</span>
+                  <span class="legend-value">{{ d.value }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="chart-empty" *ngIf="!donutData().length">
+              <span class="material-symbols-rounded">info</span>
+              <p>No hay datos de distribución</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══ SECOND ROW ═══ -->
+      <div class="charts-row">
+
+        <!-- Prioridad Bars -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="material-symbols-rounded">priority_high</span>
+            <h3>Distribución por Prioridad</h3>
+          </div>
+          <div class="chart-body">
+            <div class="horiz-bars" *ngIf="porPrioridad.length">
+              <div class="hbar-item" *ngFor="let p of porPrioridad">
+                <div class="hbar-head">
+                  <span class="hbar-prio" [class]="'prio-' + p.prioridad">{{ p.prioridad | titlecase }}</span>
+                  <span class="hbar-val">{{ p.total }}</span>
+                </div>
+                <div class="hbar-track">
+                  <div class="hbar-fill" [style.width.%]="(p.total / (resumen?.total_incidentes || 1)) * 100" [style.--bar-color]="prioridadColors[p.prioridad] || '#64748b'"></div>
+                </div>
+              </div>
+            </div>
+            <div class="chart-empty" *ngIf="!porPrioridad.length">
+              <span class="material-symbols-rounded">info</span>
+              <p>No hay datos de prioridades</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tipos de Incidente -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="material-symbols-rounded">category</span>
+            <h3>Incidentes por Tipo (IA)</h3>
+          </div>
+          <div class="chart-body">
+            <div class="tipo-grid" *ngIf="porTipo.length">
+              <div class="tipo-card" *ngFor="let t of porTipo" [style.--t-color]="tipoColors[t.tipo] || '#64748b'">
+                <div class="tipo-icon">
+                  <span class="material-symbols-rounded">{{ tipoIcons[t.tipo] || 'help' }}</span>
+                </div>
+                <div class="tipo-info">
+                  <span class="tipo-name">{{ t.tipo | titlecase }}</span>
+                  <span class="tipo-count">{{ t.total }} incidentes</span>
+                </div>
+                <div class="tipo-pct">{{ (t.total / (resumen?.total_incidentes || 1)) * 100 | number:'1.0-0' }}%</div>
+              </div>
+            </div>
+            <div class="chart-empty" *ngIf="!porTipo.length">
+              <span class="material-symbols-rounded">info</span>
+              <p>No hay clasificación por tipo IA</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══ THIRD ROW: Ranking + SLA ═══ -->
+      <div class="charts-row">
+
+        <!-- Talleres Ranking -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="material-symbols-rounded">leaderboard</span>
+            <h3>Top Talleres por Rendimiento</h3>
+          </div>
+          <div class="chart-body">
+            <div class="ranking-list" *ngIf="talleresRanking.length">
+              <div class="rank-item" *ngFor="let t of talleresRanking; let i = index">
+                <div class="rank-pos" [class.rank-gold]="i === 0" [class.rank-silver]="i === 1" [class.rank-bronze]="i === 2">
+                  <ng-container *ngIf="i < 3; else numRank">
+                    <span class="material-symbols-rounded">emoji_events</span>
+                  </ng-container>
+                  <ng-template #numRank><span>#{{ i + 1 }}</span></ng-template>
+                </div>
+                <div class="rank-info">
+                  <span class="rank-name">{{ t.nombre }}</span>
+                  <span class="rank-sub">{{ t.servicios_completados }} servicios · {{ t.calificacion_promedio | number:'1.1-1' }} ★</span>
+                </div>
+                <div class="rank-bar">
+                  <div class="rank-fill" [style.width.%]="(t.servicios_completados / (talleresRanking[0].servicios_completados || 1)) * 100"></div>
+                </div>
+                <div class="rank-score">{{ t.calificacion_promedio | number:'1.1-1' }}</div>
+              </div>
+            </div>
+            <div class="chart-empty" *ngIf="!talleresRanking.length">
+              <span class="material-symbols-rounded">info</span>
+              <p>No hay datos de ranking</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLA Detail -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="material-symbols-rounded">rule</span>
+            <h3>Nivel de Cumplimiento SLA</h3>
+          </div>
+          <div class="chart-body" *ngIf="sla">
+            <div class="sla-visual">
+              <div class="sla-ring-container">
+                <svg viewBox="0 0 120 120" class="sla-ring-svg">
+                  <circle cx="60" cy="60" r="54" fill="none" stroke="var(--slate-800)" stroke-width="8"/>
+                  <circle cx="60" cy="60" r="54" fill="none" stroke="#10b981" stroke-width="8"
+                    stroke-dasharray="339.292"
+                    [attr.stroke-dashoffset]="339.292 - (339.292 * (sla.porcentaje_cumplimiento / 100))"
+                    stroke-linecap="round"
+                    transform="rotate(-90 60 60)"/>
+                </svg>
+                <div class="sla-ring-label">
+                  <span class="sla-pct">{{ sla.porcentaje_cumplimiento | number:'1.0-0' }}%</span>
+                  <span class="sla-pct-sub">Cumplido</span>
+                </div>
+              </div>
+              <div class="sla-stats">
+                <div class="sla-stat">
+                  <span class="sla-stat-value sla-ok">{{ sla.dentro_sla }}</span>
+                  <span class="sla-stat-label">Dentro de SLA</span>
+                </div>
+                <div class="sla-stat">
+                  <span class="sla-stat-value sla-ko">{{ sla.fuera_sla }}</span>
+                  <span class="sla-stat-label">Fuera de SLA</span>
+                </div>
+                <div class="sla-stat">
+                  <span class="sla-stat-value">{{ sla.tiempo_promedio_min | number:'1.0-0' }} min</span>
+                  <span class="sla-stat-label">Tiempo Promedio</span>
+                </div>
+                <div class="sla-stat">
+                  <span class="sla-stat-value">{{ sla.sla_objetivo_min }} min</span>
+                  <span class="sla-stat-label">Objetivo SLA</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-empty" *ngIf="!sla">
+            <span class="material-symbols-rounded">info</span>
+            <p>No hay datos de SLA</p>
+          </div>
+        </div>
+
+      </div>
+
+    </ng-container>
+  </ng-container>
+
+</div>

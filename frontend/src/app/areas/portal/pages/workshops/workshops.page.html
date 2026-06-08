@@ -1,0 +1,57 @@
+<div class="page">
+  <header class="page__head">
+    <div>
+      <h1 class="page__title">Talleres</h1>
+      <p class="page__sub">Red de talleres mecánicos afiliados a la plataforma</p>
+    </div>
+    <span class="page__badge">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+      </svg>
+      Talleres
+    </span>
+  </header>
+
+  <div class="table-wrap">
+    <div class="table" *ngIf="talleres$ | async as items">
+      <div class="table__head">
+        <div class="table__cell">ID</div>
+        <div class="table__cell">Taller</div>
+        <div class="table__cell">Propietario</div>
+        <div class="table__cell">Email</div>
+        <div class="table__cell">Teléfono</div>
+        <div class="table__cell">Dirección</div>
+        <div class="table__cell">GPS</div>
+        <div class="table__cell table__cell--right">Acción</div>
+      </div>
+
+      <div class="table__body">
+        <div class="table__row" *ngFor="let t of items">
+          <div class="table__cell"><code class="table__code">#{{ t.id_taller }}</code></div>
+          <div class="table__cell table__cell--bold">{{ t.nombre_taller }}</div>
+          <div class="table__cell">{{ t.nombre_dueno }}</div>
+          <div class="table__cell">{{ t.email_dueno }}</div>
+          <div class="table__cell">{{ t.telefono_dueno || '—' }}</div>
+          <div class="table__cell table__cell--muted">{{ t.direccion || '—' }}</div>
+          <div class="table__cell">
+            <span class="gps-dot" [class.gps-dot--ok]="hasCoords(t)" [title]="hasCoords(t) ? 'Con GPS' : 'Sin GPS'"></span>
+          </div>
+          <div class="table__cell table__cell--right">
+            <button class="action-btn action-btn--danger" (click)="deleteWorkshop(t.id_taller, t.nombre_taller)" title="Eliminar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="table__empty" *ngIf="items.length === 0">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+          </svg>
+          <p>No hay talleres registrados</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

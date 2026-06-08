@@ -1,9 +1,55 @@
-# Backend
-emergencias-backend/venv/
-emergencias-backend/.env
-emergencias-backend/__pycache__/
+# ========================
+# OS / Archivos Generales
+# ========================
+.DS_Store
+Thumbs.db
+*.log
+*.sqlite3
+.vscode/
 
-# Frontend
+# ========================
+# BACKEND (Python/FastAPI)
+# ========================
+backend/venv/
+backend/venv2/
+backend/.env
+backend/__pycache__/
+backend/.pytest_cache/
+*.pyc
+*.pyo
+
+# ¡CRÍTICO: No subir NUNCA la llave maestra de Firebase!
+backend/firebase-adminsdk.json
+firebase-adminsdk.json
+
+# ========================
+# FRONTEND (Angular)
+# ========================
+# Carpeta abandonada
 emergencias-frontend/node_modules/
 emergencias-frontend/.angular/
 emergencias-frontend/dist/
+
+# Carpeta web activa
+frontend/node_modules/
+frontend/.angular/
+frontend/dist/
+frontend/.nx/
+frontend/coverage/
+
+# ========================
+# MÓVIL (Flutter/Dart)
+# ========================
+movil/.dart_tool/
+movil/.packages
+movil/build/
+movil/.pub-cache/
+movil/.pub/
+movil/android/app/build/
+movil/ios/Pods/
+movil/ios/.symlinks/
+movil/ios/Flutter/Flutter.podspec
+
+# Configuraciones locales de Flutter que no se deben subir
+movil/android/local.properties
+movil/android/key.properties

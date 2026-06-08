@@ -1,0 +1,223 @@
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.page-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.page-sub {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.date-filter {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 8px 16px;
+  gap: 8px;
+}
+
+.date-filter .material-symbols-rounded {
+  color: var(--text-secondary);
+  font-size: 18px;
+}
+
+.dark-select {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+.dark-select option {
+  background: var(--bg-card);
+}
+
+/* ── WIDGETS ── */
+.finance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.finance-widget {
+  background: linear-gradient(145deg, var(--slate-800), var(--slate-900));
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.widget-main {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(15, 23, 42, 1) 100%);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.widget-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--slate-400);
+  font-weight: 700;
+}
+
+.widget-value {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-family: 'SF Mono', monospace;
+  margin-bottom: auto;
+}
+
+.highlight-value {
+  color: var(--primary-light);
+  text-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+.value-sub {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+  margin-left: 4px;
+}
+
+.text-primary { color: var(--primary-light); }
+.text-warning { color: #f59e0b; }
+.text-muted { color: var(--slate-300); }
+
+.widget-footer {
+  margin-top: 20px;
+  font-size: 0.85rem;
+  color: var(--slate-400);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.trend.up {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--success);
+}
+
+.trend .material-symbols-rounded { font-size: 16px; }
+
+.widget-progress {
+  margin-top: 20px;
+}
+
+.progress-bar {
+  height: 6px;
+  background: var(--slate-700);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--slate-400);
+  border-radius: 3px;
+}
+
+.progress-text {
+  font-size: 0.75rem;
+  color: var(--slate-500);
+}
+
+/* ── TABLE ── */
+.mt-4 { margin-top: 24px; }
+
+.finance-table-wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.table-title {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: var(--r-md);
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.btn-outline:hover {
+  background: var(--slate-800);
+  color: var(--text-primary);
+}
+
+.btn-outline .material-symbols-rounded { font-size: 16px; }
+
+.table { min-width: 800px; }
+.table-head, .table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.table-head { background: rgba(0,0,0,0.2); }
+.table-head .table-cell { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--slate-400); }
+.table-row:last-child { border-bottom: none; }
+.table-row:hover { background: rgba(255,255,255,0.02); }
+
+.workshop-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.workshop-name .material-symbols-rounded {
+  color: var(--slate-500);
+  font-size: 18px;
+}

@@ -1,0 +1,84 @@
+<div class="page animate-in">
+  <header class="page-head">
+    <div>
+      <h1 class="page-title">Panel de Comisiones</h1>
+      <p class="page-sub">Métricas de ingresos para los administradores de la plataforma</p>
+    </div>
+    
+    <div class="date-filter">
+      <span class="material-symbols-rounded">calendar_today</span>
+      <select class="dark-select">
+        <option>Este Mes (Junio)</option>
+        <option>Mes Pasado (Mayo)</option>
+        <option>Año Actual (2026)</option>
+      </select>
+    </div>
+  </header>
+
+  <div class="finance-grid">
+    <!-- WIDGET PRINCIPAL -->
+    <div class="finance-widget widget-main">
+      <div class="widget-header">
+        <span class="widget-title">Recaudación Total (10%)</span>
+        <span class="material-symbols-rounded text-primary">account_balance</span>
+      </div>
+      <div class="widget-value highlight-value">Bs. {{ totalCommissions | number:'1.2-2' }}</div>
+      <div class="widget-footer">
+        <span class="trend up"><span class="material-symbols-rounded">trending_up</span> +12.5%</span> vs mes anterior
+      </div>
+    </div>
+
+    <!-- WIDGET SECUNDARIO -->
+    <div class="finance-widget">
+      <div class="widget-header">
+        <span class="widget-title">Volumen Bruto Generado</span>
+        <span class="material-symbols-rounded text-muted">payments</span>
+      </div>
+      <div class="widget-value text-muted">Bs. {{ totalGross | number:'1.2-2' }}</div>
+      <div class="widget-progress">
+        <div class="progress-bar"><div class="progress-fill" style="width: 75%"></div></div>
+        <span class="progress-text">Objetivo: Bs. 20,000</span>
+      </div>
+    </div>
+    
+    <!-- WIDGET TERCIARIO -->
+    <div class="finance-widget">
+      <div class="widget-header">
+        <span class="widget-title">Servicios Monetizados</span>
+        <span class="material-symbols-rounded text-warning">receipt_long</span>
+      </div>
+      <div class="widget-value text-warning">142<span class="value-sub"> Auxilios</span></div>
+      <div class="widget-footer">
+        Promedio: Bs. 102/servicio
+      </div>
+    </div>
+  </div>
+
+  <div class="finance-table-wrapper mt-4">
+    <div class="table-header">
+      <h3 class="table-title">Desglose de Talleres</h3>
+      <button class="btn btn-sm btn-outline"><span class="material-symbols-rounded">download</span> Exportar PDF</button>
+    </div>
+    <div class="table">
+      <div class="table-head">
+        <div class="table-cell">Taller</div>
+        <div class="table-cell">Servicios</div>
+        <div class="table-cell">Bruto Generado</div>
+        <div class="table-cell text-primary">Nuestra Comisión (10%)</div>
+      </div>
+      <div class="table-body">
+        <div class="table-row" *ngFor="let item of breakdown">
+          <div class="table-cell table-cell-bold">
+            <div class="workshop-name">
+              <span class="material-symbols-rounded">home_repair_service</span>
+              {{ item.workshop }}
+            </div>
+          </div>
+          <div class="table-cell">{{ item.services }}</div>
+          <div class="table-cell">Bs. {{ item.gross | number:'1.2-2' }}</div>
+          <div class="table-cell table-cell-bold text-primary">Bs. {{ item.comission | number:'1.2-2' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,202 @@
+<div class="overview animate-in">
+  <!-- Real-time alert banner -->
+  <div class="ws-alert" *ngIf="hasNewAlert">
+    <span class="material-symbols-rounded">warning</span>
+    <span>{{ newAlertMessage }}</span>
+    <button (click)="hasNewAlert = false">&times;</button>
+  </div>
+
+  <header class="overview-head">
+    <div>
+      <h1 class="overview-title">Dashboard</h1>
+      <p class="overview-sub" *ngIf="session$ | async as s">
+        Resumen general del sistema &middot; <span class="badge" [class.badge-admin]="s.role === 'admin'" [class.badge-taller]="s.role === 'taller'" [class.badge-tecnico]="s.role === 'tecnico'" [class.badge-cliente]="s.role === 'cliente'">{{ s.role }}</span>
+      </p>
+    </div>
+  </header>
+
+  <ng-container *ngIf="data$ | async as d">
+
+    <!-- ═══ STATS CARDS ═══ -->
+    <section class="ov-section">
+      <button class="ov-section-header" (click)="toggleSection('stats')">
+        <div class="ov-section-header-left">
+          <span class="material-symbols-rounded">dashboard</span>
+          <h3>Métricas Generales</h3>
+        </div>
+        <div class="ov-section-chevron" [class.rotated]="sections.stats">
+          <span class="material-symbols-rounded">expand_more</span>
+        </div>
+      </button>
+      <div class="ov-section-body" [class.ov-hidden]="!sections.stats">
+        <div class="stats-grid">
+          <article class="stat-card" style="--card-accent: var(--blue-500);">
+            <div class="stat-icon"><span class="material-symbols-rounded">directions_car</span></div>
+            <div class="stat-body">
+              <div class="stat-value">{{ d.vehiculos.length }}</div>
+              <div class="stat-label">Mis Vehículos</div>
+            </div>
+            <div class="stat-change" *ngIf="d.resumen">
+              <span class="material-symbols-rounded">info</span>
+              {{ d.resumen.total_incidentes }} incidentes totales
+            </div>
+          </article>
+
+          <article class="stat-card" style="--card-accent: var(--danger);">
+            <div class="stat-icon"><span class="material-symbols-rounded">emergency</span></div>
+            <div class="stat-body">
+              <div class="stat-value">{{ d.pendientes.length }}</div>
+              <div class="stat-label">Emergencias Pendientes</div>
+            </div>
+            <div class="stat-change urgency" *ngIf="d.pendientes.length > 0">
+              <span class="material-symbols-rounded">priority_high</span>
+              Requieren atención
+            </div>
+          </article>
+
+          <article class="stat-card" style="--card-accent: var(--amber-500);">
+            <div class="stat-icon"><span class="material-symbols-rounded">car_repair</span></div>
+            <div class="stat-body">
+              <div class="stat-value">{{ d.activo.id_incidente ?? 0 }}</div>
+              <div class="stat-label">Trabajos Activos</div>
+            </div>
+            <div class="stat-change" *ngIf="d.resumen">
+              <span class="material-symbols-rounded">timeline</span>
+              {{ d.resumen.incidentes_activos }} en proceso
+            </div>
+          </article>
+
+          <article class="stat-card" style="--card-accent: var(--success);">
+            <div class="stat-icon"><span class="material-symbols-rounded">payments</span></div>
+            <div class="stat-body">
+              <div class="stat-value">{{ d.pagos.length }}</div>
+              <div class="stat-label">Pagos Procesados</div>
+            </div>
+            <div class="stat-change" *ngIf="d.resumen">
+              <span class="material-symbols-rounded">monetization_on</span>
+              {{ d.resumen.ingresos_totales | number:'1.2-2' }}
+            </div>
+          </article>
+
+          <article class="stat-card" style="--card-accent: var(--purple-500);">
+            <div class="stat-icon"><span class="material-symbols-rounded">verified</span></div>
+            <div class="stat-body">
+              <div class="stat-value">{{ d.resumen?.tasa_exito || 0 }}%</div>
+              <div class="stat-label">Tasa de Éxito</div>
+            </div>
+            <div class="stat-change" *ngIf="d.resumen">
+              <span class="material-symbols-rounded">check_circle</span>
+              {{ d.resumen.incidentes_finalizados }} finalizados
+            </div>
+          </article>
+
+          <article class="stat-card" style="--card-accent: var(--cyan-500);">
+            <div class="stat-icon"><span class="material-symbols-rounded">star</span></div>
+            <div class="stat-body">
+              <div class="stat-value">{{ d.resumen?.calificacion_promedio || 0 | number:'1.1-1' }}</div>
+              <div class="stat-label">Calificación Promedio</div>
+            </div>
+            <div class="stat-change" *ngIf="d.resumen">
+              <span class="material-symbols-rounded">reviews</span>
+              / 5.0
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ BOTTOM SECTIONS ═══ -->
+    <div class="overview-sections">
+
+      <!-- Quick Access -->
+      <section class="ov-section">
+        <button class="ov-section-header" (click)="toggleSection('acceso')">
+          <div class="ov-section-header-left">
+            <span class="material-symbols-rounded">bolt</span>
+            <h3>Acceso Rápido</h3>
+          </div>
+          <div class="ov-section-chevron" [class.rotated]="sections.acceso">
+            <span class="material-symbols-rounded">expand_more</span>
+          </div>
+        </button>
+        <div class="ov-section-body" [class.ov-hidden]="!sections.acceso">
+          <div class="info-card-grid">
+            <a class="quick-link" routerLink="/panel/vehiculos">
+              <span class="material-symbols-rounded">directions_car</span>
+              <span>Gestionar Vehículos</span>
+            </a>
+            <a class="quick-link" routerLink="/panel/incidentes">
+              <span class="material-symbols-rounded">emergency</span>
+              <span>Ver Emergencias</span>
+            </a>
+            <a class="quick-link" routerLink="/panel/pagos">
+              <span class="material-symbols-rounded">payments</span>
+              <span>Revisar Pagos</span>
+            </a>
+            <a class="quick-link" routerLink="/panel/analitica">
+              <span class="material-symbols-rounded">monitoring</span>
+              <span>Ver Analítica</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mini Bar Chart -->
+      <section class="ov-section">
+        <button class="ov-section-header" (click)="toggleSection('incidentes')">
+          <div class="ov-section-header-left">
+            <span class="material-symbols-rounded">bar_chart</span>
+            <h3>Incidentes Recientes</h3>
+          </div>
+          <div class="ov-section-chevron" [class.rotated]="sections.incidentes">
+            <span class="material-symbols-rounded">expand_more</span>
+          </div>
+        </button>
+        <div class="ov-section-body" [class.ov-hidden]="!sections.incidentes">
+          <div class="mini-chart" *ngIf="d.incidentesMes.length">
+            <div class="mini-bar" *ngFor="let m of d.incidentesMes.slice(-6)"
+              [style.height.%]="(m.total / max(d.incidentesMes)) * 100">
+              <span class="mini-bar-val">{{ m.total }}</span>
+            </div>
+            <div class="mini-labels">
+              <span class="mini-label" *ngFor="let m of d.incidentesMes.slice(-6)">{{ m.mes.split(' ')[0] }}</span>
+            </div>
+          </div>
+          <div class="mini-chart-empty" *ngIf="!d.incidentesMes.length">
+            <span class="material-symbols-rounded">insights</span>
+            <p>Datos de incidentes aparecerán aquí</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Status Distribution -->
+      <section class="ov-section full-width">
+        <button class="ov-section-header" (click)="toggleSection('estados')">
+          <div class="ov-section-header-left">
+            <span class="material-symbols-rounded">donut_small</span>
+            <h3>Distribución de Estados</h3>
+          </div>
+          <div class="ov-section-chevron" [class.rotated]="sections.estados">
+            <span class="material-symbols-rounded">expand_more</span>
+          </div>
+        </button>
+        <div class="ov-section-body" [class.ov-hidden]="!sections.estados">
+          <div class="status-dist" *ngIf="d.porEstado.length">
+            <div class="status-chip" *ngFor="let e of d.porEstado" [style.--chip-color]="statusColor(e.estado)">
+              <span class="chip-dot"></span>
+              <span class="chip-label">{{ formatLabel(e.estado) }}</span>
+              <span class="chip-value">{{ e.total }}</span>
+              <span class="chip-pct">{{ e.porcentaje }}%</span>
+            </div>
+          </div>
+          <div class="mini-chart-empty" *ngIf="!d.porEstado.length">
+            <span class="material-symbols-rounded">info</span>
+            <p>No hay datos de distribución</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </ng-container>
+</div>

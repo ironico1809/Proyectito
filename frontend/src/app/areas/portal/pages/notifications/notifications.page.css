@@ -1,0 +1,45 @@
+.page { animation: fadeInUp 0.35s ease; }
+.page__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
+.page__title { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 4px; }
+.page__sub { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
+
+.page__btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0 16px; height: 40px; border-radius: var(--r-md);
+  background: var(--orange-600); color: white; border: none;
+  font-size: 0.88rem; font-weight: 600; white-space: nowrap;
+  transition: all var(--t);
+}
+.page__btn:hover { background: var(--orange-700); box-shadow: 0 4px 12px rgba(234,88,12,0.3); transform: translateY(-1px); }
+
+/* ── NOTIF LIST ── */
+.notif-list { display: flex; flex-direction: column; gap: 6px; }
+
+.notif-card {
+  display: flex; align-items: flex-start; gap: 12px; width: 100%;
+  padding: 16px 18px; border-radius: var(--r-lg); border: 1px solid var(--border);
+  background: var(--bg-card); text-align: left; cursor: pointer;
+  transition: all var(--t);
+}
+.notif-card:hover { border-color: var(--orange-300); box-shadow: var(--shadow-sm); }
+.notif-card--unread { background: color-mix(in srgb, var(--orange-500) 4%, transparent); border-color: color-mix(in srgb, var(--orange-500) 20%, transparent); }
+
+.notif-card__dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--orange-500); flex-shrink: 0; margin-top: 6px;
+}
+.notif-card__body { flex: 1; min-width: 0; }
+.notif-card__title { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); margin-bottom: 2px; }
+.notif-card__msg { font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 4px; }
+.notif-card__date { font-size: 0.72rem; color: var(--text-muted); }
+.notif-card__check { flex-shrink: 0; color: var(--orange-500); margin-top: 4px; }
+
+.table__empty { padding: 48px 18px; text-align: center; color: var(--text-muted); }
+.table__empty svg { margin-bottom: 12px; opacity: 0.4; }
+.table__empty p { font-size: 0.9rem; margin: 0; }
+
+@media (max-width: 600px) {
+  .page__head { flex-direction: column; }
+  .page__title { font-size: 1.25rem; }
+  .notif-card { padding: 12px 14px; }
+}

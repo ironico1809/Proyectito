@@ -1,0 +1,72 @@
+<div class="shell" [class.shell-sidebar-closed]="!sidebarOpen">
+
+  <div class="sidebar-overlay" *ngIf="sidebarOpen && isMobile" (click)="closeSidebar()"></div>
+
+  <aside class="sidebar" [class.sidebar-open]="sidebarOpen">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">
+        <span class="material-symbols-rounded">build</span>
+      </div>
+      <span class="sidebar-brand-text">TallerPro</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ng-container *ngFor="let pkg of packages">
+        <button class="pkg-header" (click)="togglePackage(pkg.id)"
+          [class.pkg-expanded]="pkg.expanded"
+          [class.pkg-active]="isPackageActive(pkg.id)">
+          <span class="material-symbols-rounded pkg-icon">{{ pkg.icon }}</span>
+          <span class="pkg-label">{{ pkg.label }}</span>
+          <span class="material-symbols-rounded pkg-chevron">chevron_left</span>
+        </button>
+        <div class="pkg-links" [class.pkg-open]="pkg.expanded">
+          <div class="pkg-links-inner">
+            <a *ngFor="let link of pkg.links"
+              [routerLink]="link.path"
+              routerLinkActive="nav-link-active"
+              class="nav-link"
+              (click)="closeSidebar()">
+              <span class="material-symbols-rounded">{{ link.icon }}</span>
+              <span>{{ link.label }}</span>
+            </a>
+          </div>
+        </div>
+      </ng-container>
+    </nav>
+
+    <div class="sidebar-user" *ngIf="session$ | async as s">
+      <div class="sidebar-user-avatar">{{ getUserInitial(s.displayName) }}</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name tr-text">{{ s.displayName }}</div>
+        <div class="sidebar-user-role">{{ s.role }}</div>
+      </div>
+      <button class="sidebar-logout" (click)="logout()" title="Cerrar sesión">
+        <span class="material-symbols-rounded">logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" (click)="toggleSidebar()" aria-label="Menú">
+          <span class="material-symbols-rounded">menu</span>
+        </button>
+        <span class="topbar-greeting" *ngIf="session$ | async as s">Hola, {{ s.displayName }}</span>
+      </div>
+
+      <div class="topbar-right">
+        <button class="icon-btn" routerLink="/panel/notificaciones">
+          <span class="material-symbols-rounded">notifications</span>
+        </button>
+        <div class="topbar-user-badge" routerLink="/panel/perfil">
+          <div class="topbar-avatar">{{ (session$ | async)?.displayName?.charAt(0)?.toUpperCase() || 'U' }}</div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

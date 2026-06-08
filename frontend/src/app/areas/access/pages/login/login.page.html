@@ -1,0 +1,46 @@
+<div class="login-wrapper">
+  <div class="login-card animate-in">
+    <div class="login-header">
+      <div class="logo-box">
+        <span class="material-symbols-rounded icon-filled logo-icon">build</span>
+      </div>
+      <h1 class="login-title">TallerPro</h1>
+      <p class="login-subtitle">Sistema de Emergencias y Taller</p>
+    </div>
+
+    <form class="login-form" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-group">
+        <label class="form-label">Correo Electrónico</label>
+        <div class="input-with-icon">
+          <span class="material-symbols-rounded input-icon">mail</span>
+          <input class="form-input" type="email" formControlName="email" placeholder="mecanico@taller.com" autocomplete="username">
+        </div>
+        <small class="field-error" *ngIf="form.controls.email.touched && form.controls.email.invalid">Ingresa un correo válido</small>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <div class="input-with-icon">
+          <span class="material-symbols-rounded input-icon">lock</span>
+          <input class="form-input" type="password" formControlName="password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <small class="field-error" *ngIf="form.controls.password.touched && form.controls.password.invalid">La contraseña es requerida</small>
+      </div>
+
+      <div class="alert-error animate-in" *ngIf="errorText">
+        <span class="material-symbols-rounded">error</span>
+        <span>{{ errorText }}</span>
+      </div>
+
+      <button class="btn btn-primary login-btn" type="submit" [disabled]="isBusy">
+        <span class="material-symbols-rounded spinner" *ngIf="isBusy">progress_activity</span>
+        <span>{{ isBusy ? 'Conectando...' : 'Acceder al Sistema' }}</span>
+        <span class="material-symbols-rounded" *ngIf="!isBusy">arrow_forward</span>
+      </button>
+    </form>
+  </div>
+  
+  <p class="login-footer animate-up">
+    Desarrollado para SI2 Examen 1 &mdash; 2026
+  </p>
+</div>
