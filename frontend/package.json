@@ -10,6 +10,12 @@
     "serve:ssr:frontend": "node dist/frontend/server/server.mjs"
   },
   "private": true,
+  "overrides": {
+    "@angular/common": "$@angular/common",
+    "@angular/core": "$@angular/core",
+    "@angular/platform-browser": "$@angular/platform-browser",
+    "@angular/platform-browser-dynamic": "$@angular/platform-browser-dynamic"
+  },
   "dependencies": {
     "@angular/animations": "^18.2.0",
     "@angular/common": "^18.2.0",
