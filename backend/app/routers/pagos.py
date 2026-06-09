@@ -11,7 +11,8 @@ from app.routers.auth import get_current_user
 from app.schemas.pago import PagoCreate, PagoOut, StripeIntentCreate, StripeIntentOut
 from app.utils.bitacora import registrar_evento  # CU21 — bitácora
 
-stripe.api_key = "sk_test_51SST3pGRwb0l2ATk8BzWCnkYyAeSqK9e7XrlQFMRBjW48uozcCcww6GDbqhi1kLHTmIkVEAgQPX8H1pxQnwKwiDK00QposqiTb"
+import os
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "sk_test_tu_llave_aqui")
 
 # ===================================================================
 # IDEA 3: SCHEDULER PARA MANTENIMIENTO PREVENTIVO
