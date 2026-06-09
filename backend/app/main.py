@@ -38,7 +38,7 @@ app = FastAPI(
 )
 
 # -------------------------------------------------------
-# CORS: Configuración ultra-permisiva para Producción
+# CORS: Configuración para Producción
 # -------------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
@@ -46,12 +46,11 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"],
 )
 
-@app.options("/{rest_of_path:path}")
-async def preflight_handler(rest_of_path: str):
-    return {"message": "OK"}
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "port": os.getenv("PORT")}
 
 # -------------------------------------------------------
 # Firebase Admin con seguridad contra fallos
