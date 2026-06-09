@@ -13,6 +13,9 @@ import os
 import firebase_admin
 from firebase_admin import credentials
 
+print(">>> INICIANDO APLICACIÓN <<<")
+print(f"PORT ENV: {os.getenv('PORT')}")
+
 firebase_key_path = os.path.join(os.path.dirname(__file__), "..", "firebase-adminsdk.json")
 if os.path.exists(firebase_key_path) and not firebase_admin._apps:
     try:
