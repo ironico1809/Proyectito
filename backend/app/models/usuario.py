@@ -1,6 +1,7 @@
 # ============================================================
 # models/usuario.py
-from sqlalchemy import Column, Integer, String, Enum as SAEnum
+from sqlalchemy import Column, Integer, String, Enum as SAEnum, ForeignKey
+from sqlalchemy.orm import relationship
 from app.database import Base
 import enum
 
@@ -9,6 +10,7 @@ class TipoRol(str, enum.Enum):
     taller     = "taller"
     tecnico    = "tecnico"
     admin      = "admin"
+    superadmin = "superadmin"
 
 
 class Usuario(Base):
@@ -21,3 +23,6 @@ class Usuario(Base):
     telefono      = Column(String(20))
     rol           = Column(SAEnum(TipoRol, name="tipo_rol"), default=TipoRol.cliente)
     fcm_token     = Column(String(255), nullable=True)
+    tenant_id     = Column(Integer, ForeignKey("tenants.id_tenant"), nullable=True, default=1)
+
+    tenant        = relationship("Tenant", foreign_keys=[tenant_id])

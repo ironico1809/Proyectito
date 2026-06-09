@@ -35,6 +35,7 @@ class TokenResponse(BaseModel):
     # ⚡ NUEVOS CAMPOS:
     id_usuario:   int
     id_taller:    Optional[int] = None
+    tenant_id:    Optional[int] = None
 
 
 # -------------------------------------------------------
@@ -49,6 +50,7 @@ class UsuarioCreate(BaseModel):
     password: str
     telefono: Optional[str] = None
     rol:      TipoRol = TipoRol.cliente
+    tenant_id: Optional[int] = 1
 
 
 # -------------------------------------------------------
@@ -62,6 +64,7 @@ class UsuarioUpdate(BaseModel):
     password: Optional[str]   = None
     telefono: Optional[str]   = None
     rol:      Optional[TipoRol] = None
+    tenant_id: Optional[int]  = None
 
 
 class UsuarioFCMToken(BaseModel):
@@ -78,6 +81,7 @@ class UsuarioOut(BaseModel):
     email:      str
     telefono:   Optional[str] = None
     rol:        TipoRol
+    tenant_id:  Optional[int] = None
 
     class Config:
         from_attributes = True

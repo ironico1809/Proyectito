@@ -76,7 +76,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="data-row" *ngFor="let it of items; trackBy: trackById" [routerLink]="['/panel/incidentes', it.id_incidente]">
+          <tr class="data-row" *ngFor="let it of items; trackBy: trackById" [routerLink]="userRole === 'tecnico' ? ['/panel/mision', it.id_incidente] : ['/panel/incidentes', it.id_incidente]">
             <td class="col-id">
               <code>#{{ it.id_incidente }}</code>
             </td>

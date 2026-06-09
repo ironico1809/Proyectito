@@ -1,0 +1,263 @@
+<ng-container *ngIf="incidenteId$ | async as id; else noMission">
+  <div class="mission-container" *ngIf="monitoreo$ | async as m; else loading">
+    <!-- Header de Misión -->
+    <header class="mission-header">
+    <div class="header-left">
+      <button routerLink="/panel/incidentes" class="back-btn">
+        <span class="material-symbols-rounded">arrow_back</span>
+      </button>
+      <div>
+        <h1 class="mission-title">Orden de Auxilio #{{ m.id_incidente }}</h1>
+        <p class="mission-status-badge" [attr.data-status]="m.estado_enum">
+          {{ getEstadoLabel(m.estado_enum) }}
+        </p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-indicator">
+        <span class="dot"></span> LIVE
+      </div>
+    </div>
+  </header>
+
+  <div class="mission-grid">
+    <!-- Columna Izquierda: Información y Mapa -->
+    <div class="mission-main">
+      
+      <!-- Card de Cliente -->
+      <section class="card client-card">
+        <div class="card-header">
+          <span class="material-symbols-rounded">person</span>
+          <h3>Información del Cliente</h3>
+        </div>
+        <div class="card-body">
+          <div class="client-info">
+            <div class="avatar">{{ m.cliente_nombre?.charAt(0) }}</div>
+            <div class="details">
+              <p class="name">{{ m.cliente_nombre }}</p>
+              <p class="vehicle">Vehículo: <strong>{{ m.vehiculo_placa }}</strong></p>
+              <p class="desc" *ngIf="m.descripcion_texto">"{{ m.descripcion_texto }}"</p>
+            </div>
+          </div>
+          <div class="action-buttons">
+            <button class="btn btn-primary" (click)="abrirNavegacion(m.latitud_emergencia, m.longitud_emergencia)">
+              <span class="material-symbols-rounded">navigation</span>
+              Iniciar Navegación
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mapa -->
+      <section class="card map-card">
+        <div class="card-header">
+          <span class="material-symbols-rounded">map</span>
+          <h3>Ubicación de Emergencia</h3>
+        </div>
+        <div class="map-wrapper">
+          <iframe 
+            *ngIf="mapaUrlSegura"
+            [src]="mapaUrlSegura" 
+            allowfullscreen="" 
+            loading="lazy">
+          </iframe>
+          <div class="map-overlay" *ngIf="trackingActive">
+            <span class="material-symbols-rounded pulse">location_on</span>
+            Compartiendo mi ubicación...
+          </div>
+        </div>
+      </section>
+
+      <!-- Diagnóstico IA -->
+      <section class="card ia-card" *ngIf="m.clasificacion_ia">
+        <div class="card-header">
+          <span class="material-symbols-rounded">psychology</span>
+          <h3>Análisis de IA</h3>
+        </div>
+        <div class="card-body">
+          <div class="ia-diagnosis">
+            <p class="diagnosis-text">{{ m.clasificacion_ia }}</p>
+          </div>
+          
+          <div class="evidences-scroll" *ngIf="m.evidencias?.length">
+            <div class="evidence-thumb" *ngFor="let ev of m.evidencias">
+              <img *ngIf="ev.tipo === 'imagen'" [src]="ev.url" alt="Evidencia">
+              <span *ngIf="ev.tipo === 'audio'" class="material-symbols-rounded">mic</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Columna Derecha: Controles y Pago -->
+    <aside class="mission-sidebar">
+      
+      <!-- Card de Control de Estados -->
+      <section class="card controls-card">
+        <div class="card-header">
+          <span class="material-symbols-rounded">settings</span>
+          <h3>Panel de Operación</h3>
+        </div>
+        <div class="card-body">
+          <div class="status-steps">
+            <!-- Paso 1: En camino -->
+            <button class="status-btn" 
+              [disabled]="m.estado_enum !== 'en_proceso' && m.estado_enum !== 'taller_asignado'"
+              [class.active]="m.estado_enum === 'en_camino'"
+              (click)="updateStatus(m.id_incidente, 'en_camino')">
+              <span class="material-symbols-rounded">directions_car</span>
+              <span>Iniciar Ruta (En camino)</span>
+            </button>
+
+            <!-- Paso 2: En atención -->
+            <button class="status-btn" 
+              [disabled]="m.estado_enum !== 'en_camino'"
+              [class.active]="m.estado_enum === 'en_atencion'"
+              (click)="updateStatus(m.id_incidente, 'en_atencion')">
+              <span class="material-symbols-rounded">handyman</span>
+              <span>Llegué al lugar (En sitio)</span>
+            </button>
+
+            <!-- Paso 3: Finalizar -->
+            <button class="status-btn success" 
+              [disabled]="m.estado_enum !== 'en_atencion'"
+              (click)="updateStatus(m.id_incidente, 'finalizado')">
+              <span class="material-symbols-rounded">check_circle</span>
+              <span>Finalizar Servicio</span>
+            </button>
+          </div>
+
+          <div class="tracking-control">
+            <button class="btn btn-outline" [class.btn-danger]="trackingActive" (click)="toggleTracking(m.id_incidente)">
+              <span class="material-symbols-rounded">{{ trackingActive ? 'location_off' : 'my_location' }}</span>
+              {{ trackingActive ? 'Detener Seguimiento' : 'Compartir mi GPS' }}
+            </button>
+            <div style="display: flex; gap: 8px; margin-top: 12px;">
+              <button class="btn btn-outline" style="flex: 1;" (click)="openQuotationForm()">
+                <span class="material-symbols-rounded">request_quote</span>
+                Cotizar
+              </button>
+              <button class="btn btn-outline btn-danger" style="flex: 1;" (click)="openExceptionForm()">
+                <span class="material-symbols-rounded">cancel</span>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Card de Pago / Cotización -->
+      <section class="card payment-card" *ngIf="cotizacionAceptada">
+        <div class="card-header">
+          <span class="material-symbols-rounded">payments</span>
+          <h3>Resumen Financiero</h3>
+        </div>
+        <div class="card-body">
+          <div class="payment-summary">
+            <div class="summary-row">
+              <span>Monto Acordado:</span>
+              <span class="price">{{ cotizacionAceptada.precio_estimado }} Bs.</span>
+            </div>
+            <div class="summary-row">
+              <span>Estado Cotización:</span>
+              <span class="badge">{{ cotizacionAceptada.estado }}</span>
+            </div>
+            <p class="summary-note">* El cliente ya aceptó este presupuesto.</p>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </div>
+  </div>
+
+  <!-- Modal Excepción -->
+  <ng-container *ngIf="monitoreo$ | async as m">
+    <div class="modal-overlay" *ngIf="showExceptionForm">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>Cancelar Misión (Excepción)</h2>
+          <button class="btn-icon" (click)="closeExceptionForm()"><span class="material-symbols-rounded">close</span></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-sm" style="margin-bottom: 16px;">Indica el motivo por el cual no se puede completar el servicio.</p>
+          
+          <div class="form-group">
+            <label>Motivo de Cancelación</label>
+            <textarea class="form-input" [(ngModel)]="exceptionForm.motivo" rows="3" placeholder="Ej: Vehículo inaccesible, cliente no responde..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+          <button class="btn btn-outline" (click)="closeExceptionForm()">Volver</button>
+          <button class="btn btn-primary btn-danger" [disabled]="isBusy" (click)="reportarExcepcion(m.id_incidente)">
+            Confirmar Cancelación
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Modal Cotización -->
+  <ng-container *ngIf="monitoreo$ | async as m">
+    <div class="modal-overlay" *ngIf="showQuotationForm">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>Generar Cotización</h2>
+          <button class="btn-icon" (click)="closeQuotationForm()"><span class="material-symbols-rounded">close</span></button>
+        </div>
+        <div class="modal-body">
+          <div style="margin-bottom: 16px; background: rgba(59, 130, 246, 0.1); padding: 12px; border-radius: 8px;">
+            <p class="text-sm" style="margin: 0; color: var(--primary-color);">
+              <span class="material-symbols-rounded" style="vertical-align: middle; font-size: 16px;">psychology</span>
+              ¿Quieres que la IA te sugiera un precio basado en el diagnóstico?
+            </p>
+            <button class="btn btn-outline" style="margin-top: 8px; width: 100%; border-color: var(--primary-color); color: var(--primary-color);" 
+              (click)="suggestAIQuotation(m.clasificacion_ia)">
+              Calcular con IA
+            </button>
+          </div>
+
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label>Precio (Bs.)</label>
+              <input type="number" class="form-input" [(ngModel)]="quotationForm.precio_estimado">
+            </div>
+            <div class="form-group">
+              <label>Tiempo de llegada (min)</label>
+              <input type="number" class="form-input" [(ngModel)]="quotationForm.tiempo_estimado_min">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 16px;">
+            <label>Descripción del Servicio</label>
+            <textarea class="form-input" [(ngModel)]="quotationForm.descripcion" rows="3" placeholder="Detalles de la cotización..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+          <button class="btn btn-outline" (click)="closeQuotationForm()">Cancelar</button>
+          <button class="btn btn-primary" [disabled]="isBusy" (click)="createQuotation(m.id_incidente)">
+            Enviar Cotización
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+</ng-container>
+
+<ng-template #noMission>
+  <div class="empty-mission">
+    <div class="icon-circle success-pulse">
+      <span class="material-symbols-rounded">check_circle</span>
+    </div>
+    <h2>¡Todo limpio!</h2>
+    <p>No tienes más emergencias pendientes por atender.</p>
+    <button class="btn btn-outline" routerLink="/panel/incidentes">Revisar Bandeja General</button>
+  </div>
+</ng-template>
+
+<ng-template #loading>
+  <div class="mission-loading">
+    <span class="material-symbols-rounded spinner">sync</span>
+    <p>Cargando detalles de la misión...</p>
+  </div>
+</ng-template>

@@ -66,6 +66,10 @@ export interface TiempoData {
 export class KpisApi {
   constructor(private readonly http: HttpClient) {}
 
+  obtenerTodo() {
+    return this.http.get<any>(apiUrl('/kpis/all'));
+  }
+
   obtenerResumen() {
     return this.http.get<KpiResumen>(apiUrl('/kpis/resumen'));
   }

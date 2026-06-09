@@ -22,6 +22,7 @@ class AuthService {
       nombre: data['nombre'],
       rol: data['rol'],
       email: email,
+      tenantId: data['tenant_id'],
     );
 
     // Let's call /usuarios/me to fetch any additional fields like phone number
@@ -34,6 +35,7 @@ class AuthService {
         rol: meData['rol'],
         email: meData['email'] ?? email,
         telefono: meData['telefono'],
+        tenantId: meData['tenant_id'],
       );
       return Usuario.fromJson(meData);
     } catch (_) {
@@ -43,6 +45,7 @@ class AuthService {
         email: email,
         rol: data['rol'],
         idTaller: data['id_taller'],
+        tenantId: data['tenant_id'],
       );
     }
   }
@@ -78,6 +81,7 @@ class AuthService {
       rol: data['rol'],
       email: data['email'] ?? '',
       telefono: data['telefono'],
+      tenantId: data['tenant_id'],
     );
 
     return Usuario.fromJson(data);

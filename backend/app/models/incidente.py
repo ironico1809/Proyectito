@@ -67,6 +67,7 @@ class Incidente(Base):
     latitud_tecnico  = Column(Numeric(10, 6), nullable=True)
     longitud_tecnico = Column(Numeric(10, 6), nullable=True)
     uuid_offline     = Column(String(36), unique=True, nullable=True)  # CU19 — deduplicación offline
+    tenant_id                = Column(Integer, ForeignKey("tenants.id_tenant"), nullable=True, default=1)
 
     evidencias = relationship("EvidenciaIA", back_populates="incidente", cascade="all, delete")
     historial  = relationship("HistorialEstado", back_populates="incidente", cascade="all, delete")
@@ -75,6 +76,7 @@ class Incidente(Base):
     vehiculo = relationship("Vehiculo", foreign_keys=[vehiculo_id])
     taller_actual = relationship("Taller", foreign_keys=[taller_actual_id])
     tecnico = relationship("Tecnico", foreign_keys=[tecnico_id])
+    tenant = relationship("Tenant", foreign_keys=[tenant_id])
 
     @property
     def cliente_nombre(self):

@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BehaviorSubject, catchError, combineLatest, of, switchMap } from 'rxjs';
-import { TalleresApi, TallerOut } from '../../../../infra/api/talleres.api';
+import { TalleresApi, TallerOut, InventarioOut } from '../../../../infra/api/talleres.api';
 import { SessionStore } from '../../../../infra/session/session.store';
 
 @Component({
@@ -12,7 +12,7 @@ import { SessionStore } from '../../../../infra/session/session.store';
   templateUrl: './my-workshop.page.html',
   styleUrl: './my-workshop.page.css',
 })
-export class MyWorkshopPage {
+export class MyWorkshopPage implements OnInit {
   private readonly api = inject(TalleresApi);
   readonly session = inject(SessionStore);
 
@@ -69,6 +69,46 @@ export class MyWorkshopPage {
         this.saved = true;
         this.editing = false;
         setTimeout(() => { this.saved = false; this.refresh$.next(); }, 1500);
+      }
+    });
+  }
+
+  inventario: InventarioOut[] = [];
+  cargandoInventario = false;
+  guardandoInventario = false;
+  nuevoItem = { item_nombre: 'llanta', cantidad: 1 };
+
+  ngOnInit() {
+    this.cargarInventario();
+  }
+
+  cargarInventario() {
+    this.cargandoInventario = true;
+    this.api.listarInventario().subscribe({
+      next: (data) => {
+        this.inventario = data;
+        this.cargandoInventario = false;
+      },
+      error: () => {
+        this.cargandoInventario = false;
+      }
+    });
+  }
+
+  agregarAlInventario() {
+    if (!this.nuevoItem.item_nombre || this.nuevoItem.cantidad <= 0) return;
+    this.guardandoInventario = true;
+    this.api.agregarInventario({
+      item_nombre: this.nuevoItem.item_nombre.toLowerCase(),
+      cantidad: this.nuevoItem.cantidad
+    }).subscribe({
+      next: () => {
+        this.guardandoInventario = false;
+        this.nuevoItem.cantidad = 1;
+        this.cargarInventario();
+      },
+      error: () => {
+        this.guardandoInventario = false;
       }
     });
   }

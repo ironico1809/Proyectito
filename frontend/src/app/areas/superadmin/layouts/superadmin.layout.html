@@ -1,0 +1,71 @@
+<div class="portal-container" *ngIf="session$ | async as s">
+  
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.open]="sidebarOpen">
+    <div class="sidebar-header">
+      <div class="logo-box">
+        <span class="material-symbols-rounded logo-icon">car_repair</span>
+      </div>
+      <div class="logo-info">
+        <span class="logo-title">TallerPro</span>
+        <span class="logo-subtitle">SaaS Root Admin</span>
+      </div>
+      <button class="mobile-close-btn" (click)="toggleSidebar()">&times;</button>
+    </div>
+
+    <!-- Superadmin Menu List -->
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Plataforma SaaS</div>
+      
+      <a routerLink="/superadmin/dashboard" routerLinkActive="active" class="nav-link" (click)="closeSidebar()">
+        <span class="material-symbols-rounded">monitoring</span>
+        <span>Dashboard SaaS</span>
+      </a>
+
+      <a routerLink="/superadmin/tenants" routerLinkActive="active" class="nav-link" (click)="closeSidebar()">
+        <span class="material-symbols-rounded">business</span>
+        <span>Empresas Registradas</span>
+      </a>
+
+      <div class="sidebar-spacer"></div>
+
+      <!-- User card -->
+      <div class="user-card">
+        <div class="user-avatar">{{ getUserInitial(s.displayName) }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ s.displayName }}</span>
+          <span class="user-role-badge">Superadmin</span>
+        </div>
+      </div>
+
+      <!-- Logout Button -->
+      <button class="logout-btn" (click)="logout()">
+        <span class="material-symbols-rounded">logout</span>
+        <span>Cerrar Sesión</span>
+      </button>
+    </nav>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+    <!-- Header/Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-btn" (click)="toggleSidebar()">
+          <span class="material-symbols-rounded">menu</span>
+        </button>
+        <h2 class="topbar-title">SaaS Global Control</h2>
+      </div>
+      
+      <div class="topbar-right">
+        <div class="topbar-badge">SYSTEM STABLE</div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="content-area">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+</div>

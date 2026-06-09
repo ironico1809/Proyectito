@@ -1,0 +1,270 @@
+<div class="landing-container">
+  <!-- Navbar -->
+  <nav class="navbar animate-fade-in">
+    <div class="logo-area">
+      <div class="logo-box">
+        <span class="material-symbols-rounded logo-icon">car_repair</span>
+      </div>
+      <span class="logo-text">TallerPro <span class="badge-saas">SaaS</span></span>
+    </div>
+    <div class="nav-links">
+      <a href="#features">Beneficios</a>
+      <a href="#pricing">Planes</a>
+      <button class="btn btn-outline" routerLink="/acceso">Ya tengo cuenta</button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="hero-content animate-slide-up">
+      <h1 class="hero-title">
+        La plataforma SaaS inteligente para <span class="highlight">Redes de Talleres</span>
+      </h1>
+      <p class="hero-subtitle">
+        Gestiona múltiples talleres de auxilio mecánico, despacha técnicos con IA en tiempo real, procesa cobros digitales y automatiza reportes globales en una sola plataforma unificada.
+      </p>
+      <div class="hero-actions">
+        <a href="#pricing" class="btn btn-primary btn-lg">Comenzar mi Red Gratis</a>
+        <button class="btn btn-secondary btn-lg" routerLink="/acceso">Acceso Socios</button>
+      </div>
+    </div>
+    
+    <div class="hero-visual animate-fade-in">
+      <div class="visual-card">
+        <div class="visual-header">
+          <span class="visual-dot red"></span>
+          <span class="visual-dot yellow"></span>
+          <span class="visual-dot green"></span>
+          <span class="visual-title">SaaS Control Center</span>
+        </div>
+        <div class="visual-body">
+          <div class="visual-stat">
+            <span class="stat-num">99.9%</span>
+            <span class="stat-desc">Tiempo de Actividad SLA</span>
+          </div>
+          <div class="visual-stat">
+            <span class="stat-num">AI</span>
+            <span class="stat-desc">Asignación por Stock</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Features Section -->
+  <section id="features" class="section features-section">
+    <h2 class="section-title">¿Por qué elegir TallerPro?</h2>
+    <p class="section-subtitle">Todo lo que necesitas para operar y expandir tus servicios mecánicos.</p>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="material-symbols-rounded feature-icon blue">map</span>
+        <h3>Rastreo GPS en Tiempo Real</h3>
+        <p>Monitorea la posición de tus grúas y técnicos desde que aceptan el servicio hasta la llegada al cliente.</p>
+      </div>
+      <div class="feature-card">
+        <span class="material-symbols-rounded feature-icon amber">psychology</span>
+        <h3>Despacho Inteligente</h3>
+        <p>Nuestra IA analiza el reporte y filtra los talleres cercanos que tengan el stock disponible requerido.</p>
+      </div>
+      <div class="feature-card">
+        <span class="material-symbols-rounded feature-icon green">payments</span>
+        <h3>Suscripciones y Cobros</h3>
+        <p>Procesa pagos mediante Stripe o PayPal en la app móvil. Los fondos van directamente al tallerista asignado.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="pricing" class="section pricing-section">
+    <h2 class="section-title">Elige el plan ideal para tu red</h2>
+    <p class="section-subtitle">Sin costos ocultos. Cancela o cambia de plan en cualquier momento.</p>
+
+    <div class="pricing-grid">
+      <!-- Plan Inicial -->
+      <div class="price-card">
+        <div class="price-header">
+          <span class="plan-name">Plan Inicial</span>
+          <div class="plan-price"><span class="currency">$</span>49<span class="period">/mes</span></div>
+          <p class="plan-desc">Ideal para talleres independientes en crecimiento.</p>
+        </div>
+        <ul class="plan-features">
+          <li><span class="material-symbols-rounded check-icon">check_circle</span> 1 Taller Físico</li>
+          <li><span class="material-symbols-rounded check-icon">check_circle</span> Hasta 3 Técnicos activos</li>
+          <li><span class="material-symbols-rounded check-icon">check_circle</span> Facturación en PDF</li>
+          <li><span class="material-symbols-rounded check-icon">check_circle</span> Soporte por correo</li>
+        </ul>
+        <button class="btn btn-outline-primary" (click)="openCheckout('Plan Inicial', 49)">Registrar mi Red</button>
+      </div>
+
+      <!-- Plan Profesional -->
+      <div class="price-card popular">
+        <div class="popular-badge">Recomendado</div>
+        <div class="price-header">
+          <span class="plan-name">Plan Red Pro</span>
+          <div class="plan-price"><span class="currency">$</span>99<span class="period">/mes</span></div>
+          <p class="plan-desc">Para franquicias y redes medianas de auxilio.</p>
+        </div>
+        <ul class="plan-features">
+          <li><span class="material-symbols-rounded check-icon">check_circle</span> Hasta 5 Talleres Físicos</li>
+          <li><span class="material-symbols-rounded check-icon">check_circle</span> Técnicos ilimitados</li>
+          <li><span class="material-symbols-rounded check-icon">check_circle</span> Asignación por IA</li>
+          <li><span class="material-symbols-rounded check-icon">check_circle</span> Métricas y KPIs avanzados</li>
+          <li><span class="material-symbols-rounded check-icon">check_circle</span> Soporte 24/7 prioritario</li>
+        </ul>
+        <button class="btn btn-primary" (click)="openCheckout('Plan Red Pro', 99)">Registrar mi Red</button>
+      </div>
+
+      <!-- Plan Enterprise -->
+      <div class="price-card">
+        <div class="price-header">
+          <span class="plan-name">Plan Enterprise</span>
+          <div class="plan-price"><span class="currency">$</span>199<span class="period">/mes</span></div>
+          <p class="plan-desc">Para grandes redes nacionales con alta demanda.</p>
+        </div>
+        <ul class="plan-features">
+          <li><span class="material-symbols-rounded check-icon">check_circle</span> Talleres Físicos ilimitados</li>
+          <li><span class="material-symbols-rounded check-icon">check_circle</span> Técnicos ilimitados</li>
+          <li><span class="material-symbols-rounded check-icon">check_circle</span> Base de datos dedicada</li>
+          <li><span class="material-symbols-rounded check-icon">check_circle</span> Analítica predictiva con IA</li>
+          <li><span class="material-symbols-rounded check-icon">check_circle</span> Integración vía API REST</li>
+        </ul>
+        <button class="btn btn-outline-primary" (click)="openCheckout('Plan Enterprise', 199)">Registrar mi Red</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2026 TallerPro SaaS. Todos los derechos reservados. Sistemas 2.</p>
+  </footer>
+
+  <!-- Checkout/Onboarding Wizard Modal -->
+  <div class="modal-backdrop" *ngIf="showModal" (click)="closeCheckout()">
+    <div class="modal-card animate-scale-up" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Registro de Red: {{ selectedPlan }}</h3>
+        <button class="close-btn" (click)="closeCheckout()">&times;</button>
+      </div>
+
+      <!-- Wizard Steps Progress -->
+      <div class="wizard-steps">
+        <div class="step" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1">
+          <span class="step-num">1</span>
+          <span class="step-label">Empresa</span>
+        </div>
+        <div class="step-line" [class.completed]="currentStep > 1"></div>
+        <div class="step" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2">
+          <span class="step-num">2</span>
+          <span class="step-label">Admin</span>
+        </div>
+        <div class="step-line" [class.completed]="currentStep > 2"></div>
+        <div class="step" [class.active]="currentStep >= 3" [class.completed]="currentStep > 3">
+          <span class="step-num">3</span>
+          <span class="step-label">Pago</span>
+        </div>
+      </div>
+
+      <!-- Form Container -->
+      <form [formGroup]="form" (ngSubmit)="submit()" class="modal-form">
+        
+        <!-- STEP 1: Empresa -->
+        <div class="step-content" *ngIf="currentStep === 1">
+          <div class="form-group">
+            <label for="nombre_empresa">Nombre de tu Red de Talleres</label>
+            <input type="text" id="nombre_empresa" formControlName="nombre_empresa" class="form-input" placeholder="Ej: Auxilio Express S.R.L.">
+            <span class="error" *ngIf="form.get('nombre_empresa')?.touched && form.get('nombre_empresa')?.invalid">El nombre de la empresa es requerido.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="descripcion_empresa">Descripción de la Empresa</label>
+            <textarea id="descripcion_empresa" formControlName="descripcion_empresa" class="form-input textarea" placeholder="Escribe detalles sobre tu red de talleres..."></textarea>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeCheckout()">Cancelar</button>
+            <button type="button" class="btn btn-primary" [disabled]="form.get('nombre_empresa')?.invalid" (click)="nextStep()">Siguiente</button>
+          </div>
+        </div>
+
+        <!-- STEP 2: Administrador -->
+        <div class="step-content" *ngIf="currentStep === 2">
+          <div class="form-group">
+            <label for="admin_nombre">Nombre Completo del Administrador</label>
+            <input type="text" id="admin_nombre" formControlName="admin_nombre" class="form-input" placeholder="Ej: Diego Armando">
+            <span class="error" *ngIf="form.get('admin_nombre')?.touched && form.get('admin_nombre')?.invalid">El nombre es requerido.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="admin_email">Correo Electrónico (Para Login)</label>
+            <input type="email" id="admin_email" formControlName="admin_email" class="form-input" placeholder="diego@test.com">
+            <span class="error" *ngIf="form.get('admin_email')?.touched && form.get('admin_email')?.invalid">Ingresa un correo electrónico válido.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="admin_password">Contraseña</label>
+            <input type="password" id="admin_password" formControlName="admin_password" class="form-input" placeholder="••••••••">
+            <span class="error" *ngIf="form.get('admin_password')?.touched && form.get('admin_password')?.invalid">La contraseña debe tener mínimo 6 caracteres.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="admin_telefono">Teléfono de Contacto</label>
+            <input type="text" id="admin_telefono" formControlName="admin_telefono" class="form-input" placeholder="78901234">
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="prevStep()">Atrás</button>
+            <button type="button" class="btn btn-primary" [disabled]="form.get('admin_nombre')?.invalid || form.get('admin_email')?.invalid || form.get('admin_password')?.invalid" (click)="nextStep()">Siguiente</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Pago Simulador -->
+        <div class="step-content" *ngIf="currentStep === 3">
+          <div class="checkout-summary">
+            <span>Suscripción: {{ selectedPlan }}</span>
+            <span class="summary-price">${{ selectedPrice }}/mes</span>
+          </div>
+
+          <div class="payment-card-input">
+            <div class="form-group">
+              <label>Número de Tarjeta</label>
+              <div class="input-with-icon">
+                <span class="material-symbols-rounded input-icon">credit_card</span>
+                <input type="text" class="form-input" value="4000 1234 5678 9010" disabled>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Vencimiento</label>
+                <input type="text" class="form-input" value="12/28" disabled>
+              </div>
+              <div class="form-group">
+                <label>CVC</label>
+                <input type="text" class="form-input" value="123" disabled>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info">
+            <span class="material-symbols-rounded">info</span>
+            <span>Estás en modo de simulación. No se realizará ningún cargo real a la tarjeta.</span>
+          </div>
+
+          <div class="error-text" *ngIf="errorText">{{ errorText }}</div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" [disabled]="isBusy" (click)="prevStep()">Atrás</button>
+            <button type="submit" class="btn btn-primary" [disabled]="isBusy">
+              <span *ngIf="!isBusy">Simular Pago y Activar Red</span>
+              <span *ngIf="isBusy" class="loading-span">
+                <span class="material-symbols-rounded spinner">sync</span> Procesando...
+              </span>
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

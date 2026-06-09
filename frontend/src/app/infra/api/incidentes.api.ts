@@ -102,6 +102,12 @@ export class IncidentesApi {
     );
   }
 
+  obtenerTecnicoActivo() {
+    return this.http.get<{ id_incidente: number | null }>(
+      apiUrl('/incidentes/tecnico/activo'),
+    );
+  }
+
   obtener(id: number) {
     return this.http.get<IncidenteOut>(apiUrl(`/incidentes/${id}`));
   }

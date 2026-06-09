@@ -97,11 +97,22 @@ def obtener_resumen_kpis(
     ).all()
     if inc_finalizados:
         tiempos = []
+        inc_ids = [inc.id_incidente for inc in inc_finalizados]
+        # Consulta en lote para evitar N+1 subconsultas en la base de datos
+        historiales = db.query(HistorialEstado).filter(
+            HistorialEstado.incidente_id.in_(inc_ids),
+            HistorialEstado.estado_enum.in_(ESTADOS_FINALIZADOS)
+        ).all()
+        
+        # Mapear el historial más reciente por incidente
+        latest_hist = {}
+        for h in historiales:
+            inc_id = h.incidente_id
+            if inc_id not in latest_hist or h.fecha_hora_timestamp > latest_hist[inc_id].fecha_hora_timestamp:
+                latest_hist[inc_id] = h
+                
         for inc in inc_finalizados:
-            ultimo = db.query(HistorialEstado).filter(
-                HistorialEstado.incidente_id == inc.id_incidente,
-                HistorialEstado.estado_enum.in_(ESTADOS_FINALIZADOS)
-            ).order_by(HistorialEstado.fecha_hora_timestamp.desc()).first()
+            ultimo = latest_hist.get(inc.id_incidente)
             if ultimo and inc.fecha_creacion_timestamp:
                 diff = (ultimo.fecha_hora_timestamp - inc.fecha_creacion_timestamp).total_seconds() / 60
                 if diff > 0:
@@ -218,30 +229,47 @@ def ranking_talleres(
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user)
 ):
-    talleres = db.query(Taller).all()
+    query = db.query(Taller)
+    if current_user.tenant_id is not None:
+        query = query.filter(Taller.tenant_id == current_user.tenant_id)
+    talleres = query.all()
+    
+    if not talleres:
+        return []
+        
+    taller_ids = [t.id_taller for t in talleres]
+    
+    # 1. Get completed services count for all talleres in a single query
+    services_counts = db.query(
+        Incidente.taller_actual_id,
+        func.count(Incidente.id_incidente)
+    ).filter(
+        Incidente.taller_actual_id.in_(taller_ids),
+        Incidente.estado_enum.in_(ESTADOS_FINALIZADOS)
+    ).group_by(Incidente.taller_actual_id).all()
+    
+    services_map = {taller_id: count for taller_id, count in services_counts}
+    
+    # 2. Get average rating for all talleres in a single query
+    ratings_map = {}
+    if Calificacion is not None:
+        ratings = db.query(
+            Calificacion.taller_id,
+            func.avg(Calificacion.puntuacion)
+        ).filter(
+            Calificacion.taller_id.in_(taller_ids)
+        ).group_by(Calificacion.taller_id).all()
+        ratings_map = {taller_id: round(float(avg_val), 1) if avg_val else 0.0 for taller_id, avg_val in ratings}
+        
     ranking = []
-
     for t in talleres:
-        servicios = db.query(Incidente).filter(
-            Incidente.taller_actual_id == t.id_taller,
-            Incidente.estado_enum.in_(ESTADOS_FINALIZADOS)
-        ).count()
-
-        calif_prom = 0.0
-        if Calificacion is not None:
-            avg_val = db.query(func.avg(Calificacion.puntuacion)).filter(
-                Calificacion.taller_id == t.id_taller
-            ).scalar()
-            calif_prom = round(float(avg_val), 1) if avg_val else 0.0
-
         ranking.append(TallerRanking(
             taller_id=t.id_taller,
             nombre=t.nombre,
-            servicios_completados=servicios,
-            calificacion_promedio=calif_prom
+            servicios_completados=services_map.get(t.id_taller, 0),
+            calificacion_promedio=ratings_map.get(t.id_taller, 0.0)
         ))
-
-    # Ordenar por servicios completados DESC - Ciclo 5 - CU22
+        
     ranking.sort(key=lambda x: x.servicios_completados, reverse=True)
     return ranking[:10]
 
@@ -264,18 +292,27 @@ def tiempo_respuesta(
 
     incidentes = q.all()
     tiempos = []
-
-    for inc in incidentes:
-        # Buscar primer estado en_proceso - Ciclo 5 - CU22
-        primer_proceso = db.query(HistorialEstado).filter(
-            HistorialEstado.incidente_id == inc.id_incidente,
+    if incidentes:
+        inc_ids = [inc.id_incidente for inc in incidentes]
+        # Consulta en lote para evitar consultas N+1
+        historiales = db.query(HistorialEstado).filter(
+            HistorialEstado.incidente_id.in_(inc_ids),
             HistorialEstado.estado_enum == EstadoIncidente.en_proceso
-        ).order_by(HistorialEstado.fecha_hora_timestamp.asc()).first()
-
-        if primer_proceso and inc.fecha_creacion_timestamp:
-            diff = (primer_proceso.fecha_hora_timestamp - inc.fecha_creacion_timestamp).total_seconds() / 60
-            if diff > 0:
-                tiempos.append(diff)
+        ).all()
+        
+        # Mapear el primer registro por incidente
+        first_hist = {}
+        for h in historiales:
+            inc_id = h.incidente_id
+            if inc_id not in first_hist or h.fecha_hora_timestamp < first_hist[inc_id].fecha_hora_timestamp:
+                first_hist[inc_id] = h
+                
+        for inc in incidentes:
+            primer_proceso = first_hist.get(inc.id_incidente)
+            if primer_proceso and inc.fecha_creacion_timestamp:
+                diff = (primer_proceso.fecha_hora_timestamp - inc.fecha_creacion_timestamp).total_seconds() / 60
+                if diff > 0:
+                    tiempos.append(diff)
 
     avg_min = round(sum(tiempos) / len(tiempos), 1) if tiempos else 0.0
     return {"avg_minutos": avg_min}
@@ -296,17 +333,27 @@ def tiempo_asignacion(
         q = q.filter(Incidente.taller_actual_id == taller.id_taller)
     incidentes = q.all()
     tiempos = []
-
-    for inc in incidentes:
-        # #Ciclo5 CU22 Buscar primer estado taller_asignado
-        asignado = db.query(HistorialEstado).filter(
-            HistorialEstado.incidente_id == inc.id_incidente,
+    if incidentes:
+        inc_ids = [inc.id_incidente for inc in incidentes]
+        # Consulta en lote para evitar consultas N+1
+        historiales = db.query(HistorialEstado).filter(
+            HistorialEstado.incidente_id.in_(inc_ids),
             HistorialEstado.estado_enum == EstadoIncidente.taller_asignado
-        ).order_by(HistorialEstado.fecha_hora_timestamp.asc()).first()
-        if asignado and inc.fecha_creacion_timestamp:
-            diff = (asignado.fecha_hora_timestamp - inc.fecha_creacion_timestamp).total_seconds() / 60
-            if diff > 0:
-                tiempos.append(diff)
+        ).all()
+        
+        # Mapear el primer registro por incidente
+        first_hist = {}
+        for h in historiales:
+            inc_id = h.incidente_id
+            if inc_id not in first_hist or h.fecha_hora_timestamp < first_hist[inc_id].fecha_hora_timestamp:
+                first_hist[inc_id] = h
+                
+        for inc in incidentes:
+            asignado = first_hist.get(inc.id_incidente)
+            if asignado and inc.fecha_creacion_timestamp:
+                diff = (asignado.fecha_hora_timestamp - inc.fecha_creacion_timestamp).total_seconds() / 60
+                if diff > 0:
+                    tiempos.append(diff)
 
     avg_min = round(sum(tiempos) / len(tiempos), 1) if tiempos else 0.0
     return {"avg_minutos": avg_min, "total_medidos": len(tiempos)}
@@ -327,21 +374,33 @@ def tiempo_llegada(
         q = q.filter(Incidente.taller_actual_id == taller.id_taller)
     incidentes = q.all()
     tiempos = []
-
-    for inc in incidentes:
-        asignado = db.query(HistorialEstado).filter(
-            HistorialEstado.incidente_id == inc.id_incidente,
-            HistorialEstado.estado_enum == EstadoIncidente.taller_asignado
-        ).order_by(HistorialEstado.fecha_hora_timestamp.asc()).first()
-        # #Ciclo5 CU22 Buscar primer estado en_atencion (llegada)
-        llegada = db.query(HistorialEstado).filter(
-            HistorialEstado.incidente_id == inc.id_incidente,
-            HistorialEstado.estado_enum == EstadoIncidente.en_atencion
-        ).order_by(HistorialEstado.fecha_hora_timestamp.asc()).first()
-        if asignado and llegada:
-            diff = (llegada.fecha_hora_timestamp - asignado.fecha_hora_timestamp).total_seconds() / 60
-            if diff > 0:
-                tiempos.append(diff)
+    if incidentes:
+        inc_ids = [inc.id_incidente for inc in incidentes]
+        # Consulta en lote para evitar consultas N+1
+        historiales = db.query(HistorialEstado).filter(
+            HistorialEstado.incidente_id.in_(inc_ids),
+            HistorialEstado.estado_enum.in_([EstadoIncidente.taller_asignado, EstadoIncidente.en_atencion])
+        ).all()
+        
+        # Mapear registros por incidente
+        first_asignado = {}
+        first_llegada = {}
+        for h in historiales:
+            inc_id = h.incidente_id
+            if h.estado_enum == EstadoIncidente.taller_asignado:
+                if inc_id not in first_asignado or h.fecha_hora_timestamp < first_asignado[inc_id].fecha_hora_timestamp:
+                    first_asignado[inc_id] = h
+            elif h.estado_enum == EstadoIncidente.en_atencion:
+                if inc_id not in first_llegada or h.fecha_hora_timestamp < first_llegada[inc_id].fecha_hora_timestamp:
+                    first_llegada[inc_id] = h
+                    
+        for inc in incidentes:
+            asignado = first_asignado.get(inc.id_incidente)
+            llegada = first_llegada.get(inc.id_incidente)
+            if asignado and llegada:
+                diff = (llegada.fecha_hora_timestamp - asignado.fecha_hora_timestamp).total_seconds() / 60
+                if diff > 0:
+                    tiempos.append(diff)
 
     avg_min = round(sum(tiempos) / len(tiempos), 1) if tiempos else 0.0
     return {"avg_minutos": avg_min, "total_medidos": len(tiempos)}
@@ -367,17 +426,25 @@ def incidentes_por_tipo(
 
     # #Ciclo5 CU22 Extraer tipo de clasificación IA [TIPO]
     tipos_count: dict = {}
-    for inc in incidentes:
-        evidencia = db.query(EvidenciaIA).filter(
-            EvidenciaIA.incidente_id == inc.id_incidente,
+    if incidentes:
+        inc_ids = [inc.id_incidente for inc in incidentes]
+        # Consulta en lote de evidencias IA
+        evidencias = db.query(EvidenciaIA).filter(
+            EvidenciaIA.incidente_id.in_(inc_ids),
             EvidenciaIA.clasificacion_ia_texto.isnot(None)
-        ).first()
-        tipo = "otros"
-        if evidencia and evidencia.clasificacion_ia_texto:
-            match = re.search(r'\[(\w+)\]', evidencia.clasificacion_ia_texto)
-            if match:
-                tipo = match.group(1).lower()
-        tipos_count[tipo] = tipos_count.get(tipo, 0) + 1
+        ).all()
+        
+        # Mapear por incidente
+        evidencia_map = {ev.incidente_id: ev for ev in evidencias}
+        
+        for inc in incidentes:
+            evidencia = evidencia_map.get(inc.id_incidente)
+            tipo = "otros"
+            if evidencia and evidencia.clasificacion_ia_texto:
+                match = re.search(r'\[(\w+)\]', evidencia.clasificacion_ia_texto)
+                if match:
+                    tipo = match.group(1).lower()
+            tipos_count[tipo] = tipos_count.get(tipo, 0) + 1
 
     resultado = [{"tipo": t, "total": c} for t, c in sorted(tipos_count.items(), key=lambda x: x[1], reverse=True)]
     return resultado
@@ -441,19 +508,30 @@ def cumplimiento_sla(
     fuera_sla = 0
     tiempos_detalle = []
 
-    for inc in finalizados:
-        # #Ciclo5 CU22 Calcular tiempo total de resolución
-        ultimo = db.query(HistorialEstado).filter(
-            HistorialEstado.incidente_id == inc.id_incidente,
+    if finalizados:
+        inc_ids = [inc.id_incidente for inc in finalizados]
+        # Consulta en lote de historiales
+        historiales = db.query(HistorialEstado).filter(
+            HistorialEstado.incidente_id.in_(inc_ids),
             HistorialEstado.estado_enum.in_(ESTADOS_FINALIZADOS)
-        ).order_by(HistorialEstado.fecha_hora_timestamp.desc()).first()
-        if ultimo and inc.fecha_creacion_timestamp:
-            diff = (ultimo.fecha_hora_timestamp - inc.fecha_creacion_timestamp).total_seconds() / 60
-            if diff <= SLA_MINUTOS:
-                dentro_sla += 1
-            else:
-                fuera_sla += 1
-            tiempos_detalle.append(round(diff, 1))
+        ).all()
+        
+        # Mapear el más reciente
+        latest_hist = {}
+        for h in historiales:
+            inc_id = h.incidente_id
+            if inc_id not in latest_hist or h.fecha_hora_timestamp > latest_hist[inc_id].fecha_hora_timestamp:
+                latest_hist[inc_id] = h
+                
+        for inc in finalizados:
+            ultimo = latest_hist.get(inc.id_incidente)
+            if ultimo and inc.fecha_creacion_timestamp:
+                diff = (ultimo.fecha_hora_timestamp - inc.fecha_creacion_timestamp).total_seconds() / 60
+                if diff <= SLA_MINUTOS:
+                    dentro_sla += 1
+                else:
+                    fuera_sla += 1
+                tiempos_detalle.append(round(diff, 1))
 
     porcentaje = round(dentro_sla / total * 100, 1) if total > 0 else 0.0
     return {
@@ -463,4 +541,77 @@ def cumplimiento_sla(
         "fuera_sla": fuera_sla,
         "porcentaje_cumplimiento": porcentaje,
         "tiempo_promedio_min": round(sum(tiempos_detalle) / len(tiempos_detalle), 1) if tiempos_detalle else 0.0
+    }
+
+
+# ===================================================================
+# #Ciclo5 CU22 OBTENER TODOS LOS KPIS EN UN SOLO ENDPOINT (Optimización)
+# Evita pool exhaustion y reduce latencia de red a una sola llamada
+# ===================================================================
+@router.get("/all")
+def obtener_todos_los_kpis(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    try:
+        resumen = obtener_resumen_kpis(db, current_user)
+    except Exception:
+        resumen = None
+
+    try:
+        por_mes = incidentes_por_mes(db, current_user)
+    except Exception:
+        por_mes = []
+
+    try:
+        por_estado = distribucion_por_estado(db, current_user)
+    except Exception:
+        por_estado = []
+
+    try:
+        por_prioridad = distribucion_por_prioridad(db, current_user)
+    except Exception:
+        por_prioridad = []
+
+    try:
+        talleres = ranking_talleres(db, current_user)
+    except Exception:
+        talleres = []
+
+    try:
+        por_tipo = incidentes_por_tipo(db, current_user)
+    except Exception:
+        por_tipo = []
+
+    try:
+        sla = cumplimiento_sla(db, current_user)
+    except Exception:
+        sla = None
+
+    try:
+        t_asignacion = tiempo_asignacion(db, current_user)
+    except Exception:
+        t_asignacion = {"avg_minutos": 0.0}
+
+    try:
+        t_llegada = tiempo_llegada(db, current_user)
+    except Exception:
+        t_llegada = {"avg_minutos": 0.0}
+
+    try:
+        t_respuesta = tiempo_respuesta(db, current_user)
+    except Exception:
+        t_respuesta = {"avg_minutos": 0.0}
+
+    return {
+        "resumen": resumen,
+        "porMes": por_mes,
+        "porEstado": por_estado,
+        "porPrioridad": por_prioridad,
+        "talleres": talleres,
+        "porTipo": por_tipo,
+        "sla": sla,
+        "tAsignacion": t_asignacion,
+        "tLlegada": t_llegada,
+        "tRespuesta": t_respuesta
     }

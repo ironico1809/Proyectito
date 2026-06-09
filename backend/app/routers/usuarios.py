@@ -57,7 +57,8 @@ def registrar_usuario(datos: UsuarioCreate, db: Session = Depends(get_db)):
         email         = datos.email,
         password_hash = hash_password(datos.password),
         telefono      = datos.telefono,
-        rol           = datos.rol
+        rol           = datos.rol,
+        tenant_id     = datos.tenant_id
     )
 
     # 3. Guardar en la base de datos
@@ -134,9 +135,12 @@ def actualizar_fcm_token(
 @router.get("/", response_model=List[UsuarioOut])
 def listar_usuarios(
     db: Session = Depends(get_db),
-    _: Usuario  = Depends(require_admin)
+    current_user: Usuario = Depends(require_admin)
 ):
-    return db.query(Usuario).all()
+    query = db.query(Usuario)
+    if current_user.tenant_id is not None:
+        query = query.filter(Usuario.tenant_id == current_user.tenant_id)
+    return query.all()
 
 
 # -------------------------------------------------------
@@ -148,13 +152,18 @@ def listar_usuarios(
 def obtener_usuario(
     id_usuario: int,
     db: Session        = Depends(get_db),
-    _: Usuario         = Depends(require_admin)
+    current_user: Usuario = Depends(require_admin)
 ):
     usuario = db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first()
     if not usuario:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Usuario no encontrado"
+        )
+    if current_user.tenant_id is not None and usuario.tenant_id != current_user.tenant_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No autorizado: El usuario pertenece a otro tenant"
         )
     return usuario
 
@@ -170,13 +179,18 @@ def actualizar_usuario(
     id_usuario: int,
     datos: UsuarioCreate,
     db: Session        = Depends(get_db),
-    _: Usuario         = Depends(require_admin)
+    current_user: Usuario = Depends(require_admin)
 ):
     usuario = db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first()
     if not usuario:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Usuario no encontrado"
+        )
+    if current_user.tenant_id is not None and usuario.tenant_id != current_user.tenant_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No autorizado: El usuario pertenece a otro tenant"
         )
 
     # Verificar que el nuevo email no pertenezca a otro usuario
@@ -194,6 +208,8 @@ def actualizar_usuario(
     usuario.password_hash = hash_password(datos.password)
     usuario.telefono      = datos.telefono
     usuario.rol           = datos.rol
+    if datos.tenant_id is not None:
+        usuario.tenant_id = datos.tenant_id
 
     db.commit()
     db.refresh(usuario)
@@ -211,7 +227,7 @@ def actualizar_usuario_parcial(
     id_usuario: int,
     datos: UsuarioUpdate,
     db: Session        = Depends(get_db),
-    _: Usuario         = Depends(require_admin)
+    current_user: Usuario = Depends(require_admin)
 ):
     usuario = db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first()
     if not usuario:
@@ -219,12 +235,18 @@ def actualizar_usuario_parcial(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Usuario no encontrado"
         )
+    if current_user.tenant_id is not None and usuario.tenant_id != current_user.tenant_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No autorizado: El usuario pertenece a otro tenant"
+        )
 
     # Solo actualiza los campos que no sean None
     if datos.nombre   is not None: usuario.nombre        = datos.nombre
     if datos.telefono is not None: usuario.telefono      = datos.telefono
     if datos.rol      is not None: usuario.rol           = datos.rol
     if datos.password is not None: usuario.password_hash = hash_password(datos.password)
+    if datos.tenant_id is not None: usuario.tenant_id    = datos.tenant_id
     if datos.email    is not None:
         email_existe = db.query(Usuario).filter(Usuario.email == datos.email).first()
         if email_existe and email_existe.id_usuario != id_usuario:
@@ -263,6 +285,11 @@ def eliminar_usuario(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Usuario no encontrado"
+        )
+    if current_user.tenant_id is not None and usuario.tenant_id != current_user.tenant_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No autorizado: El usuario pertenece a otro tenant"
         )
 
     db.delete(usuario)

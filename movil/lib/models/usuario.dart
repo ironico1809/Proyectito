@@ -5,6 +5,7 @@ class Usuario {
   final String? telefono;
   final String rol;
   final int? idTaller;
+  final int? tenantId;
 
   Usuario({
     required this.idUsuario,
@@ -13,6 +14,7 @@ class Usuario {
     this.telefono,
     required this.rol,
     this.idTaller,
+    this.tenantId,
   });
 
   factory Usuario.fromJson(Map<String, dynamic> json) => Usuario(
@@ -22,5 +24,6 @@ class Usuario {
     telefono: json['telefono'],
     rol: json['rol'] ?? 'cliente',
     idTaller: json['id_taller'],
+    tenantId: json['tenant_id'],
   );
 }

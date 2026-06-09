@@ -1,14 +1,23 @@
-import { Component, HostListener, inject, OnInit } from '@angular/core';
+import { Component, HostListener, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { SessionStore } from '../../../infra/session/session.store';
+import { IncidentesApi } from '../../../infra/api/incidentes.api';
+import { WebSocketService } from '../../../infra/realtime/websocket.service';
+import { Subscription } from 'rxjs';
+
+interface LinkItem {
+  path: string;
+  label: string;
+  icon: string;
+}
 
 interface PackageSection {
   id: string;
   label: string;
   icon: string;
   expanded: boolean;
-  links: { path: string; label: string; icon: string }[];
+  links: LinkItem[];
 }
 
 @Component({
@@ -18,16 +27,29 @@ interface PackageSection {
   templateUrl: './portal.layout.html',
   styleUrl: './portal.layout.css',
 })
-export class PortalLayout implements OnInit {
+export class PortalLayout implements OnInit, OnDestroy {
   readonly session$ = inject(SessionStore).session$;
 
   private readonly store = inject(SessionStore);
   private readonly router = inject(Router);
+  private readonly incidentesApi = inject(IncidentesApi);
+  private readonly wsService = inject(WebSocketService);
+  private sub?: Subscription;
+  private wsSub?: Subscription;
 
   sidebarOpen = window.innerWidth > 1024;
   isMobile = window.innerWidth <= 1024;
 
+  activeMissionId: number | null = null;
+
   packages: PackageSection[] = [
+    {
+      id: 'operacion',
+      label: 'Operación',
+      icon: 'electric_car',
+      expanded: true,
+      links: [],
+    },
     {
       id: 'principal',
       label: 'Principal',
@@ -87,11 +109,69 @@ export class PortalLayout implements OnInit {
     },
   ];
 
+  filteredPackages: PackageSection[] = [];
+
   ngOnInit() {
-    // Auto-expand only the package that matches current route
-    this.packages.forEach(pkg => {
-      pkg.expanded = this.isPackageActive(pkg.id);
+    this.sub = this.session$.subscribe(session => {
+      const role = session?.role || '';
+      this.rebuildMenu(role);
     });
+  }
+
+  private rebuildMenu(role: string) {
+    this.filteredPackages = this.packages.map(pkg => {
+      let links = [...pkg.links];
+
+      // Add static active mission link for technicians
+      if (pkg.id === 'operacion' && role === 'tecnico') {
+        links = [
+          { path: `/panel/mision`, label: 'Misión Activa', icon: 'my_location' },
+          ...links
+        ];
+      }
+
+      const filteredLinks = links.filter(link => {
+        let allowedRoles: string[] = [];
+        
+        if (link.path.startsWith('/panel/mision')) allowedRoles = ['tecnico'];
+        else if (link.path === '/panel/resumen') allowedRoles = ['admin', 'taller', 'tecnico'];
+          else if (link.path === '/panel/analitica') allowedRoles = ['admin'];
+          else if (link.path === '/panel/perfil') allowedRoles = ['admin', 'taller', 'tecnico'];
+          else if (link.path === '/panel/notificaciones') allowedRoles = ['admin', 'taller', 'tecnico'];
+          
+          else if (link.path === '/panel/clientes') allowedRoles = ['admin'];
+          else if (link.path === '/panel/talleres') allowedRoles = ['admin'];
+          else if (link.path === '/panel/usuarios') allowedRoles = ['admin'];
+          else if (link.path === '/panel/vehiculos') allowedRoles = ['admin'];
+          
+          else if (link.path === '/panel/tecnicos') allowedRoles = ['admin', 'taller'];
+          else if (link.path === '/panel/ubicacion') allowedRoles = ['admin', 'taller'];
+          else if (link.path === '/panel/incidentes') allowedRoles = ['admin', 'taller', 'tecnico'];
+          else if (link.path === '/panel/cotizaciones') allowedRoles = ['admin', 'taller'];
+          
+          else if (link.path === '/panel/comisiones') allowedRoles = ['admin'];
+          else if (link.path === '/panel/ingresos') allowedRoles = ['taller'];
+          else if (link.path === '/panel/pagos') allowedRoles = ['admin'];
+          
+          else if (link.path === '/panel/historial') allowedRoles = ['admin', 'taller', 'tecnico'];
+          else if (link.path === '/panel/mi-taller') allowedRoles = ['taller'];
+          
+          return allowedRoles.includes(role);
+        });
+
+        return {
+          ...pkg,
+          links: filteredLinks
+        };
+      }).filter(pkg => pkg.links.length > 0);
+
+      this.filteredPackages.forEach(pkg => {
+        pkg.expanded = this.isPackageActive(pkg.id);
+      });
+  }
+
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
   }
 
   @HostListener('window:resize')
@@ -110,17 +190,17 @@ export class PortalLayout implements OnInit {
   }
 
   togglePackage(id: string) {
-    this.packages.forEach(pkg => {
+    this.filteredPackages.forEach(pkg => {
       if (pkg.id === id) {
         pkg.expanded = !pkg.expanded;
       } else {
-        pkg.expanded = false; // Close all other packages
+        pkg.expanded = false;
       }
     });
   }
 
   isPackageActive(id: string): boolean {
-    const pkg = this.packages.find((p) => p.id === id);
+    const pkg = this.filteredPackages.find((p) => p.id === id);
     if (!pkg) return false;
     const currentUrl = this.router.url;
     return pkg.links.some((l) => currentUrl.startsWith(l.path));
@@ -135,3 +215,4 @@ export class PortalLayout implements OnInit {
     return name?.charAt(0)?.toUpperCase() || 'U';
   }
 }
+

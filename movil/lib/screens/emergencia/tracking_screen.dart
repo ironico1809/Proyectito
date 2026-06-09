@@ -11,6 +11,7 @@ import '../../models/cotizacion.dart';
 import '../../providers/emergencia_provider.dart';
 import '../../services/websocket_service.dart';
 import '../../widgets/status_badge.dart';
+import '../../widgets/app_button.dart';
 
 class TrackingScreen extends StatefulWidget {
   const TrackingScreen({super.key});
@@ -31,6 +32,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
   String _estado = 'pendiente';
   List<Cotizacion> _cotizaciones = [];
   bool _loadingIncident = false;
+  bool _simulating = false;
 
   double _calculateDistance(LatLng p1, LatLng p2) {
     const double r = 6371.0; // Earth's radius in km
@@ -64,8 +66,8 @@ class _TrackingScreenState extends State<TrackingScreen> {
         }
         _connectWebSocket();
         _loadCotizaciones();
-        // If incident arrived with only an ID, fetch full details
-        if (arg.estadoEnum == null && arg.idIncidente != null) {
+        // Always load full details on start to get the latest state from the backend
+        if (arg.idIncidente != null) {
           _loadFullIncident(arg.idIncidente!);
         }
       }
@@ -139,6 +141,16 @@ class _TrackingScreenState extends State<TrackingScreen> {
         }
         if (nuevoEstado == 'finalizado' || nuevoEstado == 'atendido') {
           _showFinalizadoDialog();
+        } else if (nuevoEstado == 'cancelado') {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('El incidente ha sido cancelado.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          }
         }
       } else if (tipo == 'nueva_cotizacion') {
         _loadCotizaciones();
@@ -434,11 +446,30 @@ class _TrackingScreenState extends State<TrackingScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text('Técnico en Camino',
-                                        style: GoogleFonts.inter(color: const Color(0xFFF59E0B), fontWeight: FontWeight.w700, fontSize: 15)),
+                                      Text(
+                                        _estado == 'en_atencion' ? 'Técnico reparando...' : 'Técnico en Camino',
+                                        style: GoogleFonts.inter(color: const Color(0xFFF59E0B), fontWeight: FontWeight.w700, fontSize: 15),
+                                      ),
                                       const SizedBox(height: 4),
-                                      Text(_incidente?.tallerNombre ?? 'Taller asignado',
-                                        style: GoogleFonts.inter(color: Colors.white70, fontSize: 13)),
+                                      Text(
+                                        _estado == 'en_atencion'
+                                            ? 'El técnico está reparando tu vehículo en el lugar.'
+                                            : (_incidente?.tallerNombre ?? 'Taller asignado'),
+                                        style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
+                                      ),
+                                      if (_estado == 'en_atencion') ...[
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.hourglass_bottom_rounded, color: Colors.blueAccent, size: 14),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              'Reparación estimada: ~15 min',
+                                              style: GoogleFonts.inter(color: Colors.blueAccent, fontSize: 12, fontWeight: FontWeight.w600),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ],
                                   ),
                                 ),
@@ -688,6 +719,37 @@ class _TrackingScreenState extends State<TrackingScreen> {
                             }
                           },
                         ),
+                      ),
+                    ],
+                    if (_incidente != null && (_estado == 'en_proceso' || _estado == 'en_camino')) ...[
+                      const SizedBox(height: 16),
+                      AppButton(
+                        text: 'Simular Recorrido',
+                        icon: Icons.play_arrow_rounded,
+                        isLoading: _simulating,
+                        onPressed: _simulating ? null : () async {
+                          setState(() => _simulating = true);
+                          final prov = context.read<EmergenciaProvider>();
+                          final success = await prov.simularRecorrido(_incidente!.idIncidente!);
+                          if (mounted) {
+                            setState(() => _simulating = false);
+                            if (success) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Simulación iniciada. El técnico va en camino.'),
+                                  backgroundColor: Colors.blueAccent,
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Error: ${prov.error ?? "No se pudo iniciar"}'),
+                                  backgroundColor: Colors.redAccent,
+                                ),
+                              );
+                            }
+                          }
+                        },
                       ),
                     ],
                   ],

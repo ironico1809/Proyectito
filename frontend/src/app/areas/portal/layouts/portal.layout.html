@@ -11,7 +11,7 @@
     </div>
 
     <nav class="sidebar-nav">
-      <ng-container *ngFor="let pkg of packages">
+      <ng-container *ngFor="let pkg of filteredPackages">
         <button class="pkg-header" (click)="togglePackage(pkg.id)"
           [class.pkg-expanded]="pkg.expanded"
           [class.pkg-active]="isPackageActive(pkg.id)">

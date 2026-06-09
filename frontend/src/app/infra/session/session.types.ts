@@ -7,4 +7,5 @@ export interface SessionSnapshot {
   displayName: string;
   userId: number;
   workshopId: number | null;
+  tenantId: number | null;
 }

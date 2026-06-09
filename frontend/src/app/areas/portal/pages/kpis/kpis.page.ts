@@ -2,6 +2,10 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { forkJoin, catchError, of, finalize } from 'rxjs';
 import { KpisApi, KpiResumen, IncidentesPorMes, DistribucionEstado, DistribucionPrioridad, TallerRanking, TipoIncidente, SlaData, TiempoData } from '../../../../infra/api/kpis.api';
+import { ReportesIaApi, ReporteResponse } from '../../../../infra/api/reportes-ia.api';
+
+// Declaración para el API de reconocimiento de voz del navegador
+declare var webkitSpeechRecognition: any;
 
 interface StatusColors {
   [key: string]: string;
@@ -15,10 +19,25 @@ interface StatusColors {
   styleUrl: './kpis.page.css',
 })
 export class KpisPage implements OnInit {
-  private readonly kpisApi = inject(KpisApi);
+  private readonly kpisApi: KpisApi = inject(KpisApi);
+  private readonly reportesApi: ReportesIaApi = inject(ReportesIaApi);
 
   isLoading = true;
   error = false;
+
+  // Estados de Voz
+  isRecording = false;
+  transcript = '';
+  recognition: any;
+  isGeneratingReport = false;
+  reporteGenerado: ReporteResponse | null = null;
+
+  readonly reportesRapidos = [
+    { label: 'Resumen Mensual', prompt: 'Dame un resumen ejecutivo de los incidentes de los últimos 30 días, destacando la tasa de éxito y los ingresos.' },
+    { label: 'Análisis de Fallas', prompt: 'Analiza los tipos de incidentes más comunes y sugiere medidas preventivas basadas en los datos.' },
+    { label: 'Ranking de Talleres', prompt: 'Explica por qué los mejores talleres tienen ese rendimiento y qué diferencia hay con el promedio.' },
+    { label: 'Cumplimiento SLA', prompt: 'Evalúa el cumplimiento de los tiempos de respuesta (SLA) e identifica cuellos de botella en la operación.' }
+  ];
 
   resumen: KpiResumen | null = null;
   incidentesPorMes: IncidentesPorMes[] = [];
@@ -79,34 +98,23 @@ export class KpisPage implements OnInit {
     this.isLoading = true;
     this.error = false;
 
-    forkJoin({
-      resumen: this.kpisApi.obtenerResumen().pipe(catchError(() => of(null))),
-      porMes: this.kpisApi.incidentesPorMes().pipe(catchError(() => of([]))),
-      porEstado: this.kpisApi.porEstado().pipe(catchError(() => of([]))),
-      porPrioridad: this.kpisApi.porPrioridad().pipe(catchError(() => of([]))),
-      talleres: this.kpisApi.talleresRanking().pipe(catchError(() => of([]))),
-      porTipo: this.kpisApi.porTipo().pipe(catchError(() => of([]))),
-      sla: this.kpisApi.sla().pipe(catchError(() => of(null))),
-      tAsignacion: this.kpisApi.tiempoAsignacion().pipe(catchError(() => of(null))),
-      tLlegada: this.kpisApi.tiempoLlegada().pipe(catchError(() => of(null))),
-      tRespuesta: this.kpisApi.tiempoRespuesta().pipe(catchError(() => of(null))),
-    }).pipe(
+    this.kpisApi.obtenerTodo().pipe(
       finalize(() => this.isLoading = false)
     ).subscribe({
       next: (data) => {
         this.resumen = data.resumen;
-        this.incidentesPorMes = data.porMes;
-        this.porEstado = data.porEstado;
-        this.porPrioridad = data.porPrioridad;
-        this.talleresRanking = data.talleres;
-        this.porTipo = data.porTipo;
+        this.incidentesPorMes = data.porMes || [];
+        this.porEstado = data.porEstado || [];
+        this.porPrioridad = data.porPrioridad || [];
+        this.talleresRanking = data.talleres || [];
+        this.porTipo = data.porTipo || [];
         this.sla = data.sla;
         this.tiempoAsignacion = data.tAsignacion;
         this.tiempoLlegada = data.tLlegada;
         this.tiempoRespuesta = data.tRespuesta;
 
-        this.maxMes = Math.max(...data.porMes.map(m => m.total), 1);
-        this.maxTipo = Math.max(...data.porTipo.map(t => t.total), 1);
+        this.maxMes = Math.max(...(data.porMes || []).map((m: any) => m.total), 1);
+        this.maxTipo = Math.max(...(data.porTipo || []).map((t: any) => t.total), 1);
 
         if (!data.resumen && !data.sla) {
           this.error = true;
@@ -158,5 +166,112 @@ export class KpisPage implements OnInit {
       critica: 'Crítica',
     };
     return map[key] || key;
+  }
+
+  // ---- CONTROL DE VOZ Y REPORTES IA ----
+  
+  initVoice() {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert('Tu navegador no soporta reconocimiento de voz.');
+      return;
+    }
+
+    this.recognition = new webkitSpeechRecognition();
+    this.recognition.lang = 'es-ES';
+    this.recognition.continuous = true;
+    this.recognition.interimResults = true;
+
+    this.recognition.onresult = (event: any) => {
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        }
+      }
+      if (finalTranscript) {
+        this.transcript = finalTranscript;
+      }
+    };
+
+    this.recognition.onend = () => {
+      if (this.isRecording) {
+        this.stopVoice();
+      }
+    };
+  }
+
+  toggleVoice() {
+    if (this.isRecording) {
+      this.stopVoice();
+    } else {
+      this.startVoice();
+    }
+  }
+
+  startVoice() {
+    if (!this.recognition) this.initVoice();
+    this.transcript = '';
+    this.reporteGenerado = null;
+    this.recognition.start();
+    this.isRecording = true;
+  }
+
+  stopVoice() {
+    this.recognition.stop();
+    this.isRecording = false;
+    
+    // Procesar automáticamente al detener
+    if (this.transcript.trim()) {
+      this.generarReporteIA();
+    }
+  }
+
+  generarReporteRapido(prompt: string) {
+    this.transcript = prompt;
+    this.generarReporteIA();
+  }
+
+  generarReporteIA() {
+    if (!this.transcript.trim()) return;
+
+    this.isGeneratingReport = true;
+    this.reportesApi.generarPorTexto(this.transcript, 30).pipe(
+      finalize(() => this.isGeneratingReport = false)
+    ).subscribe({
+      next: (res: ReporteResponse) => {
+        this.reporteGenerado = res;
+      },
+      error: () => alert('Error al generar el reporte con IA.')
+    });
+  }
+
+  exportarPDF() {
+    if (!this.reporteGenerado) return;
+    this.reportesApi.exportarPdf(this.transcript || 'Reporte de KPIs', 30).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Reporte_Analitica_${new Date().getTime()}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => alert('Error al generar el PDF profesional.')
+    });
+  }
+
+  exportarExcel() {
+    if (!this.reporteGenerado) return;
+    this.reportesApi.exportarExcel(this.transcript || 'Reporte de KPIs', 30).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Reporte_Operativo_${new Date().getTime()}.xlsx`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => alert('Error al generar el archivo Excel.')
+    });
   }
 }

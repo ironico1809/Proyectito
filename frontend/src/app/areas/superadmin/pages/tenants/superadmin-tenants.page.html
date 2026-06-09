@@ -1,0 +1,71 @@
+<div class="tenants-wrapper animate-in">
+
+  <div class="tenants-header">
+    <h1 class="page-title">Empresas y Redes Registradas</h1>
+    <p class="page-subtitle">Visualiza todas las redes de talleres activas en la plataforma y controla su acceso al servicio.</p>
+  </div>
+
+  <!-- Loading State / Content -->
+  <div class="tenants-card">
+    <div class="table-container" *ngIf="tenants$ | async as list; else loading">
+      <table class="tenants-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre de la Red</th>
+            <th>Descripción</th>
+            <th>Talleres</th>
+            <th>Usuarios</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of list">
+            <td>{{ t.id_tenant }}</td>
+            <td class="font-bold text-white">{{ t.nombre }}</td>
+            <td class="text-muted">{{ t.descripcion || 'Sin descripción' }}</td>
+            <td>
+              <span class="count-badge blue">{{ t.talleres_count }}</span>
+            </td>
+            <td>
+              <span class="count-badge purple">{{ t.usuarios_count }}</span>
+            </td>
+            <td>
+              <span class="status-pill" [class.activo]="t.estado === 'activo'" [class.suspendido]="t.estado === 'suspendido'">
+                {{ t.estado === 'activo' ? 'Activo' : 'Suspendido' }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <!-- Toggle status button -->
+                <button 
+                  *ngIf="t.id_tenant !== 1" 
+                  class="btn-action" 
+                  [class.btn-suspend]="t.estado === 'activo'" 
+                  [class.btn-activate]="t.estado === 'suspendido'"
+                  [disabled]="isUpdatingId === t.id_tenant"
+                  (click)="toggleStatus(t.id_tenant, t.estado)">
+                  <span class="material-symbols-rounded">
+                    {{ t.estado === 'activo' ? 'block' : 'check_circle' }}
+                  </span>
+                  <span>{{ t.estado === 'activo' ? 'Suspender' : 'Activar' }}</span>
+                </button>
+                <span *ngIf="t.id_tenant === 1" class="sys-badge">Sistema</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Loading spinner template -->
+    <ng-template #loading>
+      <div class="loading-state">
+        <span class="material-symbols-rounded spinner">sync</span>
+        <p>Cargando empresas registradas...</p>
+      </div>
+    </ng-template>
+  </div>
+
+</div>

@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthApi } from '../../../../infra/api/auth.api';
 import { SessionStore } from '../../../../infra/session/session.store';
@@ -10,7 +10,7 @@ import { NotificationService } from '../../../../infra/services/notification.ser
 @Component({
   selector: 'ev-login-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './login.page.html',
   styleUrl: './login.page.css',
 })
@@ -46,7 +46,11 @@ export class LoginPage {
         next: (token) => {
           this.session.setFromLogin(token);
           this.notificationService.requestPermissionAndGetToken();
-          this.router.navigateByUrl('/panel');
+          if (token.rol === 'superadmin') {
+            this.router.navigateByUrl('/superadmin');
+          } else {
+            this.router.navigateByUrl('/panel');
+          }
         },
         error: (err) => {
           const detail = err?.error?.detail;

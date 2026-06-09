@@ -62,28 +62,36 @@ gestor = GestorSalas()
 # ============================================================
 class GestorSalaGeneral:
     def __init__(self):
-        self.conexiones: List[WebSocket] = []
+        # Dict: tenant_id → list of WebSockets
+        self.conexiones: Dict[int, List[WebSocket]] = {}
 
-    async def conectar(self, ws: WebSocket):
+    async def conectar(self, ws: WebSocket, tenant_id: int):
         await ws.accept()
-        self.conexiones.append(ws)
+        if tenant_id not in self.conexiones:
+            self.conexiones[tenant_id] = []
+        self.conexiones[tenant_id].append(ws)
 
-    def desconectar(self, ws: WebSocket):
-        if ws in self.conexiones:
-            self.conexiones.remove(ws)
+    def desconectar(self, ws: WebSocket, tenant_id: int):
+        if tenant_id in self.conexiones:
+            if ws in self.conexiones[tenant_id]:
+                self.conexiones[tenant_id].remove(ws)
+            if not self.conexiones[tenant_id]:
+                del self.conexiones[tenant_id]
 
-    async def broadcast(self, mensaje: dict):
-        """Enviar mensaje a TODOS los portales web conectados"""
+    async def broadcast(self, tenant_id: int, mensaje: dict):
+        """Enviar mensaje a TODOS los portales web conectados del tenant correspondiente"""
+        if tenant_id not in self.conexiones:
+            return
         mensaje_json = json.dumps(mensaje, ensure_ascii=False, default=str)
         caidos = []
-        for ws in self.conexiones:
+        for ws in self.conexiones[tenant_id]:
             try:
                 await ws.send_text(mensaje_json)
             except Exception:
                 caidos.append(ws)
         for ws in caidos:
-            if ws in self.conexiones:
-                self.conexiones.remove(ws)
+            if ws in self.conexiones[tenant_id]:
+                self.conexiones[tenant_id].remove(ws)
 
 # Instancia global sala general
 gestor_general = GestorSalaGeneral()
@@ -94,7 +102,13 @@ async def sala_general(
     ws: WebSocket
 ):
     """WebSocket para que el portal web (talleres/admin) reciba alertas en tiempo real."""
-    await gestor_general.conectar(ws)
+    tenant_id_raw = ws.query_params.get("tenant_id", "1")
+    try:
+        tenant_id = int(tenant_id_raw)
+    except ValueError:
+        tenant_id = 1
+
+    await gestor_general.conectar(ws, tenant_id)
     try:
         while True:
             # Mantener conexión viva — cliente envía ping
@@ -106,7 +120,7 @@ async def sala_general(
             except Exception:
                 pass
     except WebSocketDisconnect:
-        gestor_general.desconectar(ws)
+        gestor_general.desconectar(ws, tenant_id)
 
 
 # ============================================================
@@ -128,6 +142,17 @@ async def sala_incidente(
         if not incidente:
             await ws.close(code=4004)
             return
+
+        # Tenant verification
+        tenant_id_raw = ws.query_params.get("tenant_id")
+        if tenant_id_raw:
+            try:
+                conn_tenant_id = int(tenant_id_raw)
+                if incidente.tenant_id != conn_tenant_id:
+                    await ws.close(code=4003)
+                    return
+            except ValueError:
+                pass
             
         estado_actual = incidente.estado_enum.value if hasattr(incidente.estado_enum, 'value') else str(incidente.estado_enum)
     finally:

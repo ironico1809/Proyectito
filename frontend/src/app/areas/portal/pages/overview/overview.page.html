@@ -54,11 +54,15 @@
             </div>
           </article>
 
-          <article class="stat-card" style="--card-accent: var(--amber-500);">
+          <article class="stat-card" style="--card-accent: var(--amber-500);" *ngIf="session$ | async as s">
             <div class="stat-icon"><span class="material-symbols-rounded">car_repair</span></div>
             <div class="stat-body">
-              <div class="stat-value">{{ d.activo.id_incidente ?? 0 }}</div>
-              <div class="stat-label">Trabajos Activos</div>
+              <div class="stat-value">
+                {{ (s.role === 'admin' || s.role === 'taller') ? (d.resumen?.incidentes_activos ?? 0) : (d.activo.id_incidente ?? 0) }}
+              </div>
+              <div class="stat-label">
+                {{ (s.role === 'admin' || s.role === 'taller') ? 'Trabajos Activos' : 'Mi Incidente Activo' }}
+              </div>
             </div>
             <div class="stat-change" *ngIf="d.resumen">
               <span class="material-symbols-rounded">timeline</span>

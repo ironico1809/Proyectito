@@ -34,9 +34,11 @@ export class WebSocketService implements OnDestroy {
   }
 
   private connect(url: string): void {
-    // DESACTIVADO EN EL PORTAL WEB: Para optimizar rendimiento y dejar el WebSocket exclusivo para el móvil.
-    console.log('WebSocket de la web omitido/desactivado:', url);
-    return;
+    this.intentionalClose = false;
+    this.currentUrl = url;
+    this.disconnect();
+    this.intentionalClose = false;
+    this._open(url);
   }
 
   private _open(url: string): void {
@@ -52,6 +54,7 @@ export class WebSocketService implements OnDestroy {
         try {
           const data: WsMessage = JSON.parse(event.data);
           this.messageSubject.next(data);
+          this.showNativeNotification(data);
         } catch { /* ignore parse errors */ }
       };
 
@@ -107,6 +110,71 @@ export class WebSocketService implements OnDestroy {
       this.socket.close();
       this.socket = null;
     }
+  }
+
+  private showNativeNotification(data: WsMessage): void {
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
+
+    if (Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    if (Notification.permission !== 'granted') return;
+
+    let title = '';
+    let body = '';
+    let isHighPriority = false;
+
+    // Obtener rol del usuario desde localStorage si es posible, o asumimos que podría ser técnico
+    let userRole = 'desconocido';
+    try {
+      const session = localStorage.getItem('session');
+      if (session) {
+        userRole = JSON.parse(session).role;
+      }
+    } catch (e) {}
+
+    if (data.tipo === 'nuevo_incidente') {
+      title = `🚨 Nueva Emergencia #${data['id_incidente']}`;
+      body = `Prioridad: ${data['prioridad'] || 'pendiente'}\n${data['descripcion'] || 'Sin descripción'}`;
+      isHighPriority = true; // Solo alertas fuertes para incidentes nuevos
+    } else if (data.tipo === 'cambio_estado') {
+      // Filtrar notificaciones de cambio de estado para técnicos, a menos que el mensaje diga específicamente que fue asignado.
+      if (userRole === 'tecnico' && data['estado'] !== 'en_proceso') {
+          // El técnico está cambiando sus propios estados, no necesita notificación nativa para esto
+          return; 
+      }
+      
+      title = `⚙️ Estado de Auxilio: ${data['estado']?.toUpperCase()}`;
+      body = data['mensaje'] || `El incidente #${data['id_incidente'] || ''} cambió a estado: ${data['estado']}`;
+    } else if (data.tipo === 'nueva_cotizacion') {
+      title = `💰 Nueva Cotización Recibida`;
+      body = `El taller ${data['taller_nombre']} envió cotización de Bs. ${data['precio']}.`;
+    }
+
+    if (title) {
+      try {
+        new Notification(title, {
+          body: body,
+          icon: '/favicon.ico'
+        });
+        
+        if (isHighPriority) {
+          this.playNotificationSound();
+        }
+      } catch (e) {
+        console.error('Error mostrando notificación HTML5:', e);
+      }
+    }
+  }
+
+  private playNotificationSound(): void {
+    try {
+      // Soft chime sound
+      const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/911/911-84.wav');
+      audio.volume = 0.4;
+      audio.play();
+    } catch { /* ignore audio errors */ }
   }
 
   ngOnDestroy(): void {

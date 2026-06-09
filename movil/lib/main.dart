@@ -20,6 +20,7 @@ import 'screens/auth/register_screen.dart';
 import 'screens/main_screen.dart';
 import 'screens/emergencia/nueva_emergencia_screen.dart';
 import 'screens/emergencia/tracking_screen.dart';
+import 'screens/pagos/mis_pagos_screen.dart';
 import 'screens/pagos/pago_screen.dart';
 import 'screens/calificacion/calificacion_screen.dart';
 import 'screens/vehiculos/vehiculos_screen.dart';
@@ -167,6 +168,7 @@ class MyApp extends StatelessWidget {
         '/nueva-emergencia': (_) => const NuevaEmergenciaScreen(),
         '/tracking': (_) => const TrackingScreen(),
         '/pago': (_) => const PagoScreen(),
+        '/mis_pagos': (_) => const MisPagosScreen(),
         '/calificacion': (_) => const CalificacionScreen(),
         '/vehiculos': (_) => const VehiculosScreen(),
         '/vehiculo-form': (_) => const VehiculoFormScreen(),

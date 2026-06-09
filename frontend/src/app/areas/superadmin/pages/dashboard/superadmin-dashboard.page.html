@@ -1,0 +1,64 @@
+<div class="dashboard-wrapper animate-in" *ngIf="data$ | async as d">
+  
+  <div class="dashboard-header">
+    <h1 class="page-title">Métricas Globales de la Plataforma</h1>
+    <p class="page-subtitle">Monitoreo del rendimiento comercial y operativo a nivel de todo el SaaS.</p>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card blue">
+      <div class="stat-icon"><span class="material-symbols-rounded">business</span></div>
+      <div class="stat-body">
+        <span class="stat-label">Empresas Registradas (Tenants)</span>
+        <span class="stat-value">{{ d.total_tenants }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card amber">
+      <div class="stat-icon"><span class="material-symbols-rounded">storefront</span></div>
+      <div class="stat-body">
+        <span class="stat-label">Talleres Activos en Redes</span>
+        <span class="stat-value">{{ d.total_talleres }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card green">
+      <div class="stat-icon"><span class="material-symbols-rounded">payments</span></div>
+      <div class="stat-body">
+        <span class="stat-label">Ingresos Globales Recaudados</span>
+        <span class="stat-value">{{ d.total_ingresos | number:'1.2-2' }} Bs.</span>
+      </div>
+    </div>
+
+    <div class="stat-card purple">
+      <div class="stat-icon"><span class="material-symbols-rounded">engineering</span></div>
+      <div class="stat-body">
+        <span class="stat-label font-md">Usuarios Totales</span>
+        <span class="stat-value">{{ d.total_usuarios }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info Cards -->
+  <div class="info-row">
+    <div class="info-card">
+      <h3>Estado de Actividad del Sistema</h3>
+      <div class="status-list">
+        <div class="status-item">
+          <span class="status-dot green"></span>
+          <span>Base de Datos de Producción Conectada</span>
+        </div>
+        <div class="status-item">
+          <span class="status-dot green"></span>
+          <span>Pasarela de Pago Stripe (Simulada)</span>
+        </div>
+        <div class="status-item">
+          <span class="status-dot green"></span>
+          <span>Despacho IA Operativo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

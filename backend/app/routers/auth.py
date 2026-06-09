@@ -10,8 +10,9 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from app.database import get_db
-from app.models.usuario import Usuario, TipoRol # 👈 Añadido TipoRol
+from app.models.usuario import Usuario, TipoRol
 from app.models.taller import Taller
+from app.models.tenant import Tenant
 from app.schemas.usuario import LoginRequest, TokenResponse
 from app.utils.security import verify_password, create_access_token, decode_access_token
 
@@ -35,6 +36,16 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales incorrectas"
         )
+
+    # Verificar si el tenant del usuario está suspendido
+    if usuario.tenant_id is not None:
+        tenant = db.query(Tenant).filter(Tenant.id_tenant == usuario.tenant_id).first()
+        if tenant and tenant.estado == "suspendido":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Su empresa se encuentra suspendida. Contacte al administrador de la plataforma."
+            )
+
     id_taller_encontrado = None
     if usuario.rol == TipoRol.taller:
         taller = db.query(Taller).filter(Taller.dueño_id == usuario.id_usuario).first()
@@ -43,7 +54,8 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
 
     token = create_access_token(data={
         "sub": usuario.email,
-        "rol": usuario.rol
+        "rol": usuario.rol,
+        "tenant_id": usuario.tenant_id
     })
 
     return TokenResponse(
@@ -52,7 +64,8 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
         rol=usuario.rol,
         nombre=usuario.nombre,
         id_usuario=usuario.id_usuario,  # 👈 ESTO ES LO QUE FALTA
-        id_taller=id_taller_encontrado
+        id_taller=id_taller_encontrado,
+        tenant_id=usuario.tenant_id
     )
 
 

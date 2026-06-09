@@ -6,6 +6,7 @@ import { BehaviorSubject, combineLatest, map, of, shareReplay, Subscription, swi
 import { catchError } from 'rxjs/operators';
 import { IncidentesApi, IncidenteOut } from '../../../../infra/api/incidentes.api';
 import { WebSocketService } from '../../../../infra/realtime/websocket.service';
+import { SessionStore } from '../../../../infra/session/session.store';
 
 @Component({
   selector: 'ev-incidents-page',
@@ -17,6 +18,9 @@ import { WebSocketService } from '../../../../infra/realtime/websocket.service';
 export class IncidentsPage implements OnInit, OnDestroy {
   private readonly api = inject(IncidentesApi);
   private readonly wsService = inject(WebSocketService);
+  private readonly session = inject(SessionStore);
+  
+  userRole = this.session.snapshot()?.role || '';
   pageSize = 10;
   private totalPagesValue = 1;
   private wsSub?: Subscription;

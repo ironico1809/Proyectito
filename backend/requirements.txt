@@ -16,3 +16,9 @@ apscheduler
 pytz
 websockets
 firebase-admin
+reportlab
+pandas
+openpyxl
+matplotlib
+google-genai
+stripe

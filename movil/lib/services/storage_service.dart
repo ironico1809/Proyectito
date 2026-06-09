@@ -8,6 +8,7 @@ class StorageService {
   static const _keyUserRole = 'user_role';
   static const _keyUserEmail = 'user_email';
   static const _keyUserPhone = 'user_phone';
+  static const _keyTenantId = 'tenant_id';
 
   late SharedPreferences _prefs;
 
@@ -27,6 +28,7 @@ class StorageService {
     required String rol,
     required String email,
     String? telefono,
+    int? tenantId,
   }) async {
     await Future.wait([
       _prefs.setInt(_keyUserId, id),
@@ -37,6 +39,10 @@ class StorageService {
         _prefs.setString(_keyUserPhone, telefono)
       else
         _prefs.remove(_keyUserPhone),
+      if (tenantId != null)
+        _prefs.setInt(_keyTenantId, tenantId)
+      else
+        _prefs.remove(_keyTenantId),
     ]);
   }
 
@@ -45,6 +51,7 @@ class StorageService {
   String? getUserRole() => _prefs.getString(_keyUserRole);
   String? getUserEmail() => _prefs.getString(_keyUserEmail);
   String? getUserPhone() => _prefs.getString(_keyUserPhone);
+  int? getTenantId() => _prefs.getInt(_keyTenantId);
 
   Usuario? getUser() {
     final id = getUserId();
@@ -52,6 +59,7 @@ class StorageService {
     final email = getUserEmail();
     final rol = getUserRole();
     final telefono = getUserPhone();
+    final tenantId = getTenantId();
     
     if (id == null || nombre == null || rol == null) return null;
     return Usuario(
@@ -60,6 +68,7 @@ class StorageService {
       email: email ?? '',
       rol: rol,
       telefono: telefono,
+      tenantId: tenantId,
     );
   }
 

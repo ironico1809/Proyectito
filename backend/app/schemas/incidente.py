@@ -26,6 +26,7 @@ class IncidenteCreate(BaseModel):
     descripcion_texto:   Optional[str] = None
     evidencias:          List[EvidenciaCreate] = [] # Soporta múltiples fotos/audios
     uuid_offline:        Optional[str] = None 
+    tenant_id:           Optional[int] = 1 
     
 class AccionSolicitud(BaseModel):
     accion:     str  # Solo debe ser "aceptar" o "rechazar"
@@ -81,6 +82,7 @@ class IncidenteOut(BaseModel):
     latitud_tecnico:          Optional[Decimal] = None
     longitud_tecnico:         Optional[Decimal] = None
     uuid_offline:             Optional[str] = None
+    tenant_id:                Optional[int] = None
     
     # Propiedades calculadas
     cliente_nombre:           Optional[str] = None

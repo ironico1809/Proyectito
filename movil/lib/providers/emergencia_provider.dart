@@ -8,6 +8,8 @@ class EmergenciaProvider extends ChangeNotifier {
   final ApiService _apiService;
   final OfflineService _offlineService = OfflineService();
 
+  ApiService get apiService => _apiService;
+
   Incidente? _activeIncidente;
   bool _isLoading = false;
   String? _error;
@@ -54,7 +56,12 @@ class EmergenciaProvider extends ChangeNotifier {
       final idIncidente = data['id_incidente'];
       if (idIncidente != null && idIncidente is int) {
         final detail = await _apiService.get('/incidentes/$idIncidente');
-        _activeIncidente = Incidente.fromJson(detail.data);
+        final inc = Incidente.fromJson(detail.data);
+        if (inc.estadoEnum == 'cancelado' || inc.estadoEnum == 'finalizado' || inc.estadoEnum == 'atendido') {
+          _activeIncidente = null;
+        } else {
+          _activeIncidente = inc;
+        }
       } else {
         _activeIncidente = null;
       }
@@ -209,6 +216,24 @@ class EmergenciaProvider extends ChangeNotifier {
       return Incidente.fromJson(response.data);
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<bool> simularRecorrido(int incidenteId) async {
+    _isLoading = true;
+    _error = null;
+    _safeNotify();
+
+    try {
+      await _apiService.post('/incidentes/$incidenteId/simular');
+      _isLoading = false;
+      _safeNotify();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      _safeNotify();
+      return false;
     }
   }
 

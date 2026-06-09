@@ -27,6 +27,7 @@ export class SessionStore {
       displayName: response.nombre,
       userId: response.id_usuario,
       workshopId: response.id_taller ?? null,
+      tenantId: response.tenant_id ?? null,
     };
 
     localStorage.setItem(RUNTIME.sessionStorageKey, JSON.stringify(next));

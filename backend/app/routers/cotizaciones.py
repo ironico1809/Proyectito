@@ -27,9 +27,17 @@ async def crear_cotizacion(
     if not incidente:
         raise HTTPException(status_code=404, detail="Incidente no encontrado.")
 
-    # El taller_id se obtiene buscando el taller del usuario autenticado
+    # El taller_id se obtiene buscando el taller del usuario autenticado o del técnico
     from app.models.taller import Taller
-    taller = db.query(Taller).filter(Taller.dueño_id == current_user.id_usuario).first()
+    if current_user.rol == "tecnico":
+        from app.models.tecnico import Tecnico
+        tecnico = db.query(Tecnico).filter(Tecnico.usuario_id == current_user.id_usuario).first()
+        if not tecnico:
+            raise HTTPException(status_code=403, detail="El técnico no está asignado a ningún taller.")
+        taller = db.query(Taller).filter(Taller.id_taller == tecnico.taller_id).first()
+    else:
+        taller = db.query(Taller).filter(Taller.dueño_id == current_user.id_usuario).first()
+        
     if not taller:
         raise HTTPException(status_code=403, detail="El usuario no tiene un taller asociado.")
 

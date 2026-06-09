@@ -56,4 +56,24 @@ export class TalleresApi {
   actualizarUbicacion(datos: TallerUbicacion) {
     return this.http.patch<TallerOut>(apiUrl('/talleres/mi-ubicacion/actualizar'), datos);
   }
+
+  listarInventario() {
+    return this.http.get<InventarioOut[]>(apiUrl('/talleres/inventario'));
+  }
+
+  agregarInventario(datos: InventarioCreate) {
+    return this.http.post<InventarioOut>(apiUrl('/talleres/inventario'), datos);
+  }
+}
+
+export interface InventarioOut {
+  id_inventario: number;
+  taller_id: number;
+  item_nombre: string;
+  cantidad: number;
+}
+
+export interface InventarioCreate {
+  item_nombre: string;
+  cantidad: number;
 }

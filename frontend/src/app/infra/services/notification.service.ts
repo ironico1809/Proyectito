@@ -4,6 +4,7 @@ import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
+import { apiUrl } from '../api/api-url';
 
 @Injectable({
   providedIn: 'root'
@@ -51,8 +52,7 @@ export class NotificationService {
   }
 
   private sendTokenToServer(token: string) {
-    // Usamos el endpoint del backend directamente. El interceptor pondrá el JWT.
-    this.http.patch('http://192.168.1.10:8000/usuarios/fcm-token', { fcm_token: token })
+    this.http.patch(apiUrl('/usuarios/fcm-token'), { fcm_token: token })
       .subscribe({
         next: () => console.log('Token FCM Web registrado en el servidor.'),
         error: (err) => console.error('Error registrando token FCM en el servidor:', err)

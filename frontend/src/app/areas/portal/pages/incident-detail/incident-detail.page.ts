@@ -8,6 +8,8 @@ import { CotizacionesApi, CotizacionOut } from '../../../../infra/api/cotizacion
 import { TecnicosApi, TecnicoOut } from '../../../../infra/api/tecnicos.api';
 import { TalleresApi } from '../../../../infra/api/talleres.api';
 import { WebSocketService } from '../../../../infra/realtime/websocket.service';
+import { SessionStore } from '../../../../infra/session/session.store';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'ev-incident-detail-page',
@@ -23,7 +25,11 @@ export class IncidentDetailPage implements OnInit, OnDestroy {
   private readonly tecnicosApi = inject(TecnicosApi);
   private readonly talleresApi = inject(TalleresApi);
   private readonly wsService = inject(WebSocketService);
+  private readonly sessionStore = inject(SessionStore);
+  private readonly sanitizer = inject(DomSanitizer);
 
+  userRole = this.sessionStore.snapshot()?.role || '';
+  mapaUrlSegura: SafeResourceUrl | null = null;
   private wsSub?: Subscription;
   private currentIncidenteId?: number;
   wsConnected = false;
@@ -73,6 +79,13 @@ export class IncidentDetailPage implements OnInit, OnDestroy {
           this.cargarCotizaciones(this.currentIncidenteId);
           this.monitoreoRefresh$.next(this.monitoreoRefresh$.value + 1);
         }
+      }
+    });
+
+    this.monitoreo$.subscribe((m) => {
+      if (m && m.latitud_emergencia && m.longitud_emergencia) {
+        const urlBruta = `https://maps.google.com/maps?q=${m.latitud_emergencia},${m.longitud_emergencia}&z=15&output=embed`;
+        this.mapaUrlSegura = this.sanitizer.bypassSecurityTrustResourceUrl(urlBruta);
       }
     });
   }

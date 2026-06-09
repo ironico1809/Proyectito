@@ -318,44 +318,22 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: const Icon(Icons.history_rounded, color: Colors.white70, size: 28),
                         onPressed: () => Navigator.pushNamed(context, '/historial'),
                       ),
-                      Stack(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.notifications_outlined, color: Colors.white70, size: 28),
-                            onPressed: () => Navigator.pushNamed(context, '/notificaciones'),
-                          ),
-                          if (notif.unreadCount > 0)
-                            Positioned(
-                              right: 6, top: 6,
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
-                                child: Text('${notif.unreadCount}',
-                                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                              ),
-                            ),
-                        ],
+                      IconButton(
+                        icon: const Icon(Icons.payments_rounded, color: Colors.white70, size: 28),
+                        onPressed: () => Navigator.pushNamed(context, '/mis_pagos'),
                       ),
                     ],
                   ),
-                ),
-                ],
+                    ),
+                    if (emergencia.activeIncidente != null) ...[
+                      const SizedBox(height: 12),
+                      _buildActiveEmergencyCard(emergencia.activeIncidente!),
+                    ],
+                  ],
                 ),
               ),
             ),
           ),
-
-          // 3. ACTIVE EMERGENCY CARD (If any)
-          if (emergencia.activeIncidente != null)
-            SafeArea(
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 100, left: 16, right: 16),
-                  child: _buildActiveEmergencyCard(emergencia.activeIncidente!),
-                ),
-              ),
-            ),
 
           // 4. EMERGENCY BUTTON (Floating at the bottom)
           SafeArea(
@@ -406,13 +384,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // Botón flotante pequeño para recargar
+          // Botón flotante pequeño para recargar GPS
           SafeArea(
             child: Align(
               alignment: Alignment.bottomRight,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 110, right: 24),
                 child: FloatingActionButton(
+                  heroTag: 'gps_btn',
                   mini: true,
                   backgroundColor: const Color(0xFF0F172A).withValues(alpha: 0.9),
                   child: const Icon(Icons.my_location_rounded, color: Color(0xFFF59E0B)),

@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import '../../providers/emergencia_provider.dart';
 import '../../models/incidente.dart';
 import '../../widgets/status_badge.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../config/api_config.dart';
 
 class HistorialScreen extends StatefulWidget {
   const HistorialScreen({super.key});
@@ -226,6 +229,24 @@ class _HistorialScreenState extends State<HistorialScreen> {
           ),
         ),
         actions: [
+          if (inc.costoFinalDecimal != null && inc.costoFinalDecimal! > 0 && (inc.estadoEnum == 'finalizado' || inc.estadoEnum == 'atendido'))
+            TextButton(
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                final token = prefs.getString('token') ?? '';
+                final url = Uri.parse('${ApiConfig.baseUrl}/pagos/incidente/${inc.idIncidente}/factura?token=$token');
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                } else {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('No se pudo abrir el comprobante.')),
+                    );
+                  }
+                }
+              },
+              child: Text('Descargar Factura', style: GoogleFonts.inter(color: Colors.lightBlueAccent, fontWeight: FontWeight.bold)),
+            ),
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text('Cerrar', style: GoogleFonts.inter(color: const Color(0xFFF59E0B))),

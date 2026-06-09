@@ -6,11 +6,60 @@
       <h1 class="kpi-title">Analítica Operacional</h1>
       <p class="kpi-subtitle">Métricas en tiempo real del rendimiento de la red de auxilio</p>
     </div>
-    <button class="btn btn-primary" (click)="cargarDatos()" [disabled]="isLoading">
-      <span class="material-symbols-rounded" [class.spin]="isLoading">sync</span>
-      Actualizar
-    </button>
+    <div class="header-actions">
+      <!-- BOTÓN DE VOZ -->
+      <button class="btn btn-voice" [class.recording]="isRecording" (click)="toggleVoice()">
+        <span class="material-symbols-rounded">{{ isRecording ? 'mic' : 'mic_none' }}</span>
+        {{ isRecording ? 'Escuchando...' : 'Reporte por Voz' }}
+      </button>
+
+      <button class="btn btn-primary" (click)="cargarDatos()" [disabled]="isLoading">
+        <span class="material-symbols-rounded" [class.spin]="isLoading">sync</span>
+        Actualizar
+      </button>
+    </div>
   </header>
+
+  <!-- REPORTES RÁPIDOS -->
+  <div class="quick-reports-bar glass animate-in">
+    <span class="quick-label">Reportes Rápidos:</span>
+    <div class="quick-actions">
+      <button 
+        *ngFor="let r of reportesRapidos" 
+        class="btn-quick" 
+        (click)="generarReporteRapido(r.prompt)"
+        [disabled]="isGeneratingReport">
+        {{ r.label }}
+      </button>
+    </div>
+  </div>
+
+  <!-- SECCIÓN DE REPORTE IA (VOZ) -->
+  <div class="voice-report-section" *ngIf="transcript || isGeneratingReport || reporteGenerado">
+    <div class="glass report-container">
+      <div class="report-header">
+        <div class="report-user-query">
+          <span class="material-symbols-rounded">psychology</span>
+          <p><strong>Comando detectado:</strong> "{{ transcript }}"</p>
+        </div>
+        <div class="report-actions" *ngIf="reporteGenerado">
+          <button class="btn btn-outline" (click)="exportarExcel()"><span class="material-symbols-rounded">table_view</span> Excel</button>
+          <button class="btn btn-outline" (click)="exportarPDF()"><span class="material-symbols-rounded">picture_as_pdf</span> PDF</button>
+        </div>
+      </div>
+
+      <div class="report-content">
+        <div class="generating-state" *ngIf="isGeneratingReport">
+          <span class="material-symbols-rounded spin">neurology</span>
+          <p>La IA está analizando los datos operativos y redactando tu reporte...</p>
+        </div>
+
+        <div class="markdown-body" *ngIf="reporteGenerado">
+          <pre>{{ reporteGenerado.reporte_markdown }}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- LOADING -->
   <ng-template #loadingTpl>

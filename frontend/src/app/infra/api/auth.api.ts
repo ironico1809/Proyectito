@@ -14,7 +14,9 @@ export interface TokenResponse {
   nombre: string;
   id_usuario: number;
   id_taller?: number | null;
+  tenant_id?: number;
 }
+
 
 @Injectable({ providedIn: 'root' })
 export class AuthApi {
@@ -22,6 +24,10 @@ export class AuthApi {
 
   login(payload: LoginPayload) {
     return this.http.post<TokenResponse>(apiUrl('/auth/login'), payload);
+  }
+
+  registroSaaS(payload: any) {
+    return this.http.post<TokenResponse>(apiUrl('/saas/registro-saas'), payload);
   }
 
   logout() {

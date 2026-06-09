@@ -119,6 +119,31 @@
   height: 50px;
 }
 
+.login-extra {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: var(--t);
+  opacity: 0.8;
+}
+
+.back-link:hover {
+  color: var(--primary-color);
+  opacity: 1;
+}
+
+.back-link .material-symbols-rounded {
+  font-size: 18px;
+}
+
 .spinner {
   animation: spin 1s linear infinite;
 }
@@ -127,4 +152,29 @@
   font-size: 0.85rem;
   color: var(--text-secondary);
   text-align: center;
+}
+
+@media (max-width: 768px) {
+  table, .table-container, .table-wrapper, .data-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .form-row, .grid, .grid-2, .flex, .stats-grid, .actions, .action-buttons {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+  .grid, .grid-2, .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .button-group, .btn-group, .actions {
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+  }
+  .modal-card, .modal-content, .modal-container, .modal {
+    width: 90% !important;
+    max-width: 95% !important;
+    margin: 10px auto !important;
+  }
 }

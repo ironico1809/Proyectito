@@ -37,6 +37,13 @@
         <span>{{ isBusy ? 'Conectando...' : 'Acceder al Sistema' }}</span>
         <span class="material-symbols-rounded" *ngIf="!isBusy">arrow_forward</span>
       </button>
+
+      <div class="login-extra">
+        <a routerLink="/" class="back-link">
+          <span class="material-symbols-rounded">arrow_back</span>
+          Volver al inicio
+        </a>
+      </div>
     </form>
   </div>
   

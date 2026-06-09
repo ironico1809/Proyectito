@@ -145,20 +145,35 @@ def calcular_distancia(lat1, lon1, lat2, lon2):
     a = math.sin(dlat/2)**2 + math.cos(math.radians(float(lat1))) * math.cos(math.radians(float(lat2))) * math.sin(dlon/2)**2
     return R * (2 * math.atan2(math.sqrt(a), math.sqrt(1 - a)))
 
-def buscar_taller_disponible(db, lat_emergencia, lon_emergencia, incidente_id=None):
+def buscar_taller_disponible(db, lat_emergencia, lon_emergencia, incidente_id=None, item_requerido=None, tenant_id=None):
     excluidos_ids = []
     if incidente_id:
         rechazos = db.query(TallerRechazo.taller_id).filter(
             TallerRechazo.incidente_id == incidente_id
         ).all()
-        excluidos_ids = [r[0] for r in rechazos]
+        excluidos_ids = [r[0] for r in rechazados]
 
-    talleres = db.query(Taller).all()
+    query = db.query(Taller)
+    if tenant_id is not None:
+        query = query.filter(Taller.tenant_id == tenant_id)
+    talleres = query.all()
     mejor_taller, dist_min = None, float('inf')
 
     for t in talleres:
         if t.id_taller in excluidos_ids:
             continue
+            
+        # Filtro de Inventario (Idea 2)
+        if item_requerido and item_requerido in ["bateria", "llanta", "aceite"]:
+            from app.models.taller import TallerInventario
+            stock = db.query(TallerInventario).filter(
+                TallerInventario.taller_id == t.id_taller,
+                TallerInventario.item_nombre == item_requerido,
+                TallerInventario.cantidad > 0
+            ).first()
+            if not stock:
+                continue # Saltar taller si no tiene stock
+
         if db.query(Tecnico).filter(
             Tecnico.taller_id == t.id_taller,
             Tecnico.disponible_boolean == True
@@ -190,7 +205,7 @@ def robot_reasignacion_automatica():
                 db.flush()
 
             # 2. Buscar nuevo taller (el taller anterior ya está excluido por TallerRechazo)
-            nuevo_taller, dist = buscar_taller_disponible(db, inc.latitud_emergencia, inc.longitud_emergencia, inc.id_incidente)
+            nuevo_taller, dist = buscar_taller_disponible(db, inc.latitud_emergencia, inc.longitud_emergencia, inc.id_incidente, tenant_id=inc.tenant_id)
             
             if nuevo_taller:
                 msg = f"Ventana expirada. Reasignado a Taller ID: {nuevo_taller.id_taller}"
@@ -251,9 +266,9 @@ def actualizar_ubicacion_tecnico(
 def broadcast_async(incidente_id, payload):
     asyncio.run(gestor.broadcast(incidente_id, payload))
 
-def broadcast_general_async(payload):
+def broadcast_general_async(tenant_id, payload):
     """Broadcast a message to all connected web portals (sala general)."""
-    asyncio.run(gestor_general.broadcast(payload))
+    asyncio.run(gestor_general.broadcast(tenant_id, payload))
 
 # ===================================================================
 # CU7: REGISTRAR EMERGENCIA — acepta audio, imagen o texto por separado
@@ -270,30 +285,6 @@ def registrar_emergencia(
     if not vehiculo:
         raise HTTPException(status_code=404, detail="Vehículo no encontrado.")
 
-    # Buscar el taller más cercano disponible
-    taller, dist = buscar_taller_disponible(db, datos.latitud_emergencia, datos.longitud_emergencia)
-
-    # Verificar uuid_offline para evitar duplicados de sincronización offline
-    if datos.uuid_offline:
-        ya_existe = db.query(Incidente).filter(Incidente.uuid_offline == datos.uuid_offline).first()
-        if ya_existe:
-            # Si ya existe devolver el mismo sin duplicar
-            return ya_existe
-
-    nuevo_incidente = Incidente(
-        cliente_id=current_user.id_usuario,
-        vehiculo_id=datos.vehiculo_id,
-        taller_actual_id=taller.id_taller if taller else None,
-        latitud_emergencia=datos.latitud_emergencia,
-        longitud_emergencia=datos.longitud_emergencia,
-        descripcion_texto=datos.descripcion_texto,
-        latitud_tecnico=float(taller.latitud_decimal) if (taller and taller.latitud_decimal is not None) else None,
-        longitud_tecnico=float(taller.longitud_decimal) if (taller and taller.longitud_decimal is not None) else None,
-        uuid_offline=datos.uuid_offline  # CU19 — sincronización offline
-    )
-    db.add(nuevo_incidente)
-    db.flush()
-
     # Validar que venga al menos un canal de evidencia (texto, foto o audio)
     texto_cliente = datos.descripcion_texto or ""
     tiene_audio  = any("audio"  in str(ev.tipo_enum) for ev in datos.evidencias)
@@ -301,7 +292,6 @@ def registrar_emergencia(
     tiene_texto  = bool(texto_cliente.strip())
 
     if not tiene_texto and not tiene_audio and not tiene_imagen:
-        db.rollback()
         raise HTTPException(status_code=400, detail="Debes enviar al menos una descripción, foto o audio.")
 
     # Procesar cada canal de evidencia de forma INDEPENDIENTE
@@ -332,6 +322,32 @@ def registrar_emergencia(
 
     # La IA analiza con lo que tenga disponible
     texto_resumen_seguro, prioridad_ia = analizar_emergencia_gemini(b64_img, texto_cliente, transcripcion)
+    clasificacion_pura = texto_resumen_seguro.split(']')[0].replace('[', '').strip().lower()
+
+    # Buscar el taller más cercano disponible considerando Inventario
+    taller, dist = buscar_taller_disponible(db, datos.latitud_emergencia, datos.longitud_emergencia, item_requerido=clasificacion_pura, tenant_id=current_user.tenant_id)
+
+    # Verificar uuid_offline para evitar duplicados de sincronización offline
+    if datos.uuid_offline:
+        ya_existe = db.query(Incidente).filter(Incidente.uuid_offline == datos.uuid_offline).first()
+        if ya_existe:
+            # Si ya existe devolver el mismo sin duplicar
+            return ya_existe
+
+    nuevo_incidente = Incidente(
+        cliente_id=current_user.id_usuario,
+        vehiculo_id=datos.vehiculo_id,
+        taller_actual_id=taller.id_taller if taller else None,
+        latitud_emergencia=datos.latitud_emergencia,
+        longitud_emergencia=datos.longitud_emergencia,
+        descripcion_texto=datos.descripcion_texto,
+        latitud_tecnico=float(taller.latitud_decimal) if (taller and taller.latitud_decimal is not None) else None,
+        longitud_tecnico=float(taller.longitud_decimal) if (taller and taller.longitud_decimal is not None) else None,
+        uuid_offline=datos.uuid_offline,  # CU19 — sincronización offline
+        tenant_id=current_user.tenant_id
+    )
+    db.add(nuevo_incidente)
+    db.flush()
 
     try:
         nuevo_incidente.prioridad_enum = PrioridadIncidente(prioridad_ia)
@@ -371,7 +387,7 @@ def registrar_emergencia(
     db.refresh(nuevo_incidente)
 
     # Notificar al portal web en tiempo real sobre la nueva emergencia
-    background_tasks.add_task(broadcast_general_async, {
+    background_tasks.add_task(broadcast_general_async, nuevo_incidente.tenant_id, {
         "tipo": "nuevo_incidente",
         "id_incidente": nuevo_incidente.id_incidente,
         "estado": nuevo_incidente.estado_enum.value if hasattr(nuevo_incidente.estado_enum, 'value') else str(nuevo_incidente.estado_enum),
@@ -387,7 +403,7 @@ def registrar_emergencia(
     # AUTOGENERACIÓN DE COTIZACIONES BASADA EN IA
     # ===================================================================
     clasificacion_pura = texto_resumen_seguro.split(']')[0].replace('[', '').strip().lower()
-    talleres_cercanos = db.query(Taller).all()
+    talleres_cercanos = db.query(Taller).filter(Taller.tenant_id == current_user.tenant_id).all()
     # Ordenar talleres por distancia
     lista_talleres = []
     for t in talleres_cercanos:
@@ -462,9 +478,12 @@ def listar_solicitudes_pendientes(
 
     if not taller:
         # Acceso total temporal
-        return db.query(Incidente).filter(
+        query = db.query(Incidente).filter(
             Incidente.estado_enum == EstadoIncidente.pendiente
-        ).all()
+        )
+        if current_user.tenant_id is not None:
+            query = query.filter(Incidente.tenant_id == current_user.tenant_id)
+        return query.all()
 
     # Obtener IDs de incidentes que este taller ya rechazó
     rechazados = db.query(TallerRechazo.incidente_id).filter(
@@ -608,8 +627,14 @@ def asignar_tecnico(
 # CU12: LISTAR INCIDENTES EN PROCESO (para el técnico en Flutter)
 # ===================================================================
 @router.get("/en-proceso", response_model=List[IncidenteOut])
-def listar_solicitudes_en_proceso(db: Session = Depends(get_db)):
-    return db.query(Incidente).filter(Incidente.estado_enum == EstadoIncidente.en_proceso).all()
+def listar_solicitudes_en_proceso(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    query = db.query(Incidente).filter(Incidente.estado_enum == EstadoIncidente.en_proceso)
+    if current_user.tenant_id is not None:
+        query = query.filter(Incidente.tenant_id == current_user.tenant_id)
+    return query.all()
 
 # ===================================================================
 # CU12: ACTUALIZAR ESTADO DEL SERVICIO (técnico finaliza o avanza)
@@ -700,7 +725,7 @@ def registrar_excepcion(
         )
 
     # Verificar tipo de excepción válido
-    tipos_validos = ["cancelacion_cliente", "llego_seguro_primero", "llegaron_ambos"]
+    tipos_validos = ["cancelacion_cliente", "llego_seguro_primero", "llegaron_ambos", "cancelacion_tecnico"]
     if datos.tipo_excepcion not in tipos_validos:
         raise HTTPException(status_code=400, detail=f"Tipo inválido. Usa: {tipos_validos}")
     
@@ -873,6 +898,21 @@ def obtener_emergencia_activa(
 
     return {"id_incidente": None}
 
+@router.get("/tecnico/activo")
+def obtener_incidente_activo_tecnico(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    tecnico = db.query(Tecnico).filter(Tecnico.usuario_id == current_user.id_usuario).first()
+    if not tecnico:
+        return {"id_incidente": None}
+    
+    incidente = db.query(Incidente).filter(
+        Incidente.tecnico_id == tecnico.id_tecnico,
+        Incidente.estado_enum.notin_([EstadoIncidente.finalizado, EstadoIncidente.cancelado, EstadoIncidente.atendido])
+    ).first()
+    return {"id_incidente": incidente.id_incidente if incidente else None}
+
 # ===================================================================
 # CU12: HISTORIAL DE SERVICIOS DEL TÉCNICO (solo atendidos)
 # ===================================================================
@@ -941,6 +981,33 @@ def obtener_todos_los_incidentes(
     current_user: Usuario = Depends(get_current_user)
 ):
     query = db.query(Incidente)
+    if current_user.tenant_id is not None:
+        query = query.filter(Incidente.tenant_id == current_user.tenant_id)
+
+    # Filtrado por Roles (SaaS y nivel de acceso)
+    if current_user.rol == "taller":
+        taller = db.query(Taller).filter(Taller.dueño_id == current_user.id_usuario).first()
+        if taller:
+            query = query.filter(
+                or_(
+                    Incidente.taller_actual_id == taller.id_taller,
+                    Incidente.estado_enum.in_([EstadoIncidente.pendiente, EstadoIncidente.buscando_taller])
+                )
+            )
+        else:
+            query = query.filter(Incidente.estado_enum.in_([EstadoIncidente.pendiente, EstadoIncidente.buscando_taller]))
+            
+    elif current_user.rol == "tecnico":
+        tecnico = db.query(Tecnico).filter(Tecnico.usuario_id == current_user.id_usuario).first()
+        if tecnico:
+            query = query.filter(
+                or_(
+                    Incidente.tecnico_id == tecnico.id_tecnico,
+                    Incidente.estado_enum.in_([EstadoIncidente.pendiente, EstadoIncidente.buscando_taller])
+                )
+            )
+        else:
+            query = query.filter(Incidente.estado_enum.in_([EstadoIncidente.pendiente, EstadoIncidente.buscando_taller]))
     
     # Eager loading
     query = query.options(
@@ -1057,9 +1124,15 @@ async def cancelar_incidente(
     db.refresh(inc)
 
     # Broadcast via WebSocket
-    await manager.broadcast_incidente_actualizado(id_incidente, "cancelado")
+    await gestor.broadcast(id_incidente, {
+        "tipo": "cambio_estado",
+        "estado": "cancelado",
+        "mensaje": "El incidente fue cancelado por el cliente.",
+        "timestamp": datetime.now().isoformat()
+    })
     
     return inc
+
 # ===================================================================
 # GET /incidentes/{id} — Obtener un incidente por ID (para Flutter y Angular)
 # Este endpoint faltaba y causaba errores 404 en múltiples pantallas
@@ -1074,6 +1147,9 @@ def obtener_incidente_por_id(
     incidente = db.query(Incidente).filter(Incidente.id_incidente == id_incidente).first()
     if not incidente:
         raise HTTPException(status_code=404, detail="Incidente no encontrado.")
+
+    if current_user.tenant_id is not None and incidente.tenant_id != current_user.tenant_id:
+        raise HTTPException(status_code=403, detail="No autorizado: El incidente pertenece a otro tenant")
 
     cliente  = db.query(Usuario).filter(Usuario.id_usuario == incidente.cliente_id).first()
     vehiculo = db.query(Vehiculo).filter(Vehiculo.id_vehiculo == incidente.vehiculo_id).first()
@@ -1096,6 +1172,9 @@ def monitoreo_completo(
     incidente = db.query(Incidente).filter(Incidente.id_incidente == id_incidente).first()
     if not incidente:
         raise HTTPException(status_code=404, detail="Incidente no encontrado")
+
+    if current_user.tenant_id is not None and incidente.tenant_id != current_user.tenant_id:
+        raise HTTPException(status_code=403, detail="No autorizado: El incidente pertenece a otro tenant")
 
     cliente  = db.query(Usuario).filter(Usuario.id_usuario == incidente.cliente_id).first()
     vehiculo = db.query(Vehiculo).filter(Vehiculo.id_vehiculo == incidente.vehiculo_id).first()
@@ -1150,4 +1229,105 @@ def monitoreo_completo(
             for h in historial
         ],
     }
+
+
+def simular_movimiento_tecnico_background(id_incidente: int, db: Session):
+    import time
+    # 1. Fetch incident
+    incidente = db.query(Incidente).filter(Incidente.id_incidente == id_incidente).first()
+    if not incidente:
+        return
+
+    # Start coordinates (offset by 0.012 degrees ~ 1.3 km)
+    lat_emergencia = float(incidente.latitud_emergencia) if incidente.latitud_emergencia else -17.7833
+    lng_emergencia = float(incidente.longitud_emergencia) if incidente.longitud_emergencia else -63.1821
+
+    start_lat = lat_emergencia + 0.012
+    start_lng = lng_emergencia - 0.012
+
+    steps = 10
+    for i in range(steps + 1):
+        fraction = i / steps
+        current_lat = start_lat + (lat_emergencia - start_lat) * fraction
+        current_lng = start_lng + (lng_emergencia - start_lng) * fraction
+
+        # Update coordinates in database
+        incidente.latitud_tecnico = current_lat
+        incidente.longitud_tecnico = current_lng
+        db.commit()
+
+        # Broadcast coordinate update
+        payload = {
+            "tipo": "ubicacion_tecnico",
+            "latitud": current_lat,
+            "longitud": current_lng,
+            "timestamp": datetime.now().isoformat()
+        }
+        asyncio.run(gestor.broadcast(id_incidente, payload))
+
+        # Sleep 0.4 seconds for faster simulation
+        time.sleep(0.4)
+
+    # 2. Update status to 'en_atencion'
+    incidente.estado_enum = EstadoIncidente.en_atencion
+    db.add(HistorialEstado(
+        incidente_id=id_incidente,
+        estado_enum=EstadoIncidente.en_atencion,
+        comentario_texto="Técnico ha llegado al lugar y está atendiendo la emergencia."
+    ))
+    db.commit()
+
+    # Broadcast status change
+    payload_status = {
+        "tipo": "cambio_estado",
+        "estado": "en_atencion",
+        "mensaje": "Técnico en el lugar. Reparando vehículo...",
+        "timestamp": datetime.now().isoformat()
+    }
+    asyncio.run(gestor.broadcast(id_incidente, payload_status))
+
+    # 3. Sleep 7 seconds (simulating repair)
+    time.sleep(7)
+
+    # 4. Update status to 'finalizado'
+    incidente.estado_enum = EstadoIncidente.finalizado
+    incidente.costo_final_decimal = 150.0
+    if incidente.tecnico_id:
+        tecnico = db.query(Tecnico).filter(Tecnico.id_tecnico == incidente.tecnico_id).first()
+        if tecnico:
+            tecnico.disponible_boolean = True
+
+    db.add(HistorialEstado(
+        incidente_id=id_incidente,
+        estado_enum=EstadoIncidente.finalizado,
+        comentario_texto="Servicio finalizado con éxito. Costo: Bs. 150."
+    ))
+    db.commit()
+
+    # Broadcast status change
+    payload_final = {
+        "tipo": "cambio_estado",
+        "estado": "finalizado",
+        "mensaje": "Servicio de auxilio finalizado.",
+        "costo_final": 150.0,
+        "timestamp": datetime.now().isoformat()
+    }
+    asyncio.run(gestor.broadcast(id_incidente, payload_final))
+
+
+@router.post("/{id_incidente}/simular", status_code=status.HTTP_200_OK)
+def simular_recorrido_incidente(
+    id_incidente: int,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    # Check if incident exists
+    incidente = db.query(Incidente).filter(Incidente.id_incidente == id_incidente).first()
+    if not incidente:
+        raise HTTPException(status_code=404, detail="Incidente no encontrado.")
+
+    # Trigger background simulation
+    background_tasks.add_task(simular_movimiento_tecnico_background, id_incidente, db)
+    return {"message": "Simulación iniciada en segundo plano."}
 

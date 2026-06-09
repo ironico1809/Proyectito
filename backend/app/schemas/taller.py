@@ -28,6 +28,7 @@ class TallerCreate(BaseModel):
     # Coordenadas geográficas (usadas en CU11 - asignación inteligente)
     latitud_decimal:   Optional[Decimal] = None
     longitud_decimal:  Optional[Decimal] = None
+    tenant_id:         Optional[int] = 1
 
 
 # -------------------------------------------------------
@@ -45,6 +46,7 @@ class TallerUpdate(BaseModel):
     # También se puede actualizar info del dueño
     nombre_dueno:      Optional[str]     = None
     telefono:          Optional[str]     = None
+    tenant_id:         Optional[int]     = None
 
 
 # -------------------------------------------------------
@@ -69,6 +71,24 @@ class TallerOut(BaseModel):
     nit:               Optional[str]     = None
     latitud_decimal:   Optional[Decimal] = None
     longitud_decimal:  Optional[Decimal] = None
+    tenant_id:         Optional[int]     = None
+
+    class Config:
+        from_attributes = True
+
+# -------------------------------------------------------
+# INVENTARIO DE TALLER
+# -------------------------------------------------------
+class InventarioBase(BaseModel):
+    item_nombre: str
+    cantidad: int
+
+class InventarioCreate(InventarioBase):
+    pass
+
+class InventarioOut(InventarioBase):
+    id_inventario: int
+    taller_id: int
 
     class Config:
         from_attributes = True
