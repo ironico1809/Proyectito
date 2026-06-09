@@ -15,9 +15,14 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+HAS_MATPLOTLIB = False
+try:
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    HAS_MATPLOTLIB = True
+except Exception as e:
+    print(f"Advertencia: Matplotlib no pudo cargarse ({e}). Los reportes PDF no tendrán gráficas.")
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
