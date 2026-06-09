@@ -35,15 +35,14 @@ app = FastAPI(
 )
 
 # -------------------------------------------------------
-# CORS: permite que Angular (localhost:4200) consuma la API
-# En producción reemplazar con el dominio real
+# CORS: permite que el Frontend consuma la API
 # -------------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["Content-Type", "Set-Cookie", "Authorization", "Access-Control-Allow-Origin", "Access-Control-Allow-Headers"],
 )
 
 # -------------------------------------------------------
