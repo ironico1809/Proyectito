@@ -151,7 +151,7 @@ def buscar_taller_disponible(db, lat_emergencia, lon_emergencia, incidente_id=No
         rechazos = db.query(TallerRechazo.taller_id).filter(
             TallerRechazo.incidente_id == incidente_id
         ).all()
-        excluidos_ids = [r[0] for r in rechazados]
+        excluidos_ids = [r[0] for r in rechazos]
 
     query = db.query(Taller)
     if tenant_id is not None:

@@ -13,6 +13,7 @@ import os
 import firebase_admin
 from firebase_admin import credentials
 
+
 print(">>> INICIANDO APLICACIÓN <<<")
 print(f"PORT ENV: {os.getenv('PORT')}")
 
@@ -29,8 +30,10 @@ from app.models import tenant
 from app.models import bitacora
 from app.models import taller_rechazo
 from app.models import calificacion, consejo_vial  # Modelos nuevos - Ciclo 5 - CU23, CU25
+from app.models import backup  
 from app.routers import auth, usuarios, talleres, vehiculos, tecnicos, incidentes, ia, notificaciones, pagos, websocket_incidente, cotizaciones, saas
 from app.routers import bitacora as bitacora_router, kpis, calificaciones, reportes_ia, consejos_viales  # Routers - Ciclo 5
+from app.routers import backup as backup_router 
 app = FastAPI(
     title="Plataforma Inteligente de Emergencias Vehiculares",
     description="API REST - Sistema de Información 2 | UAGRM Grupo 30", 
@@ -87,6 +90,7 @@ app.include_router(calificaciones.router)
 app.include_router(reportes_ia.router)
 app.include_router(consejos_viales.router)
 app.include_router(saas.router)
+app.include_router(backup_router.router)
 
 @app.get("/")
 def root():
