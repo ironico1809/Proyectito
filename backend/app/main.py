@@ -95,3 +95,9 @@ app.include_router(backup_router.router)
 @app.get("/")
 def root():
     return {"message": "API de Emergencias Vehiculares corriendo ✓"}
+@app.on_event("startup")
+async def startup_event():
+    import asyncio
+    from app.routers.backup import planificador_backup_automatico
+    # Ejecuta el planificador en segundo plano
+    asyncio.create_task(planificador_backup_automatico())

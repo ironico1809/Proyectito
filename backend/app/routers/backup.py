@@ -233,3 +233,55 @@ def guardar_config(
             status_code=500,
             detail=f"Error al guardar config: {str(e)}"
         )
+    # -------------------------------------------------------
+# Tarea en segundo plano: Planificador de Backup Automático
+# -------------------------------------------------------
+async def planificador_backup_automatico():
+    import asyncio
+    from app.database import SessionLocal
+    
+    print("⏰ Planificador de backups automáticos iniciado.")
+    ultimo_ejecutado = None
+    
+    while True:
+        try:
+            await asyncio.sleep(30)  # Verifica la hora cada 30 segundos
+            ahora = datetime.now()
+            hora_actual_str = ahora.strftime("%H:%M")
+            
+            # Evita ejecutar múltiples veces en el mismo minuto
+            if ultimo_ejecutado == hora_actual_str:
+                continue
+                
+            db = SessionLocal()
+            try:
+                config = db.query(BackupConfig).first()
+                # Si la automatización está activa y coincide la hora
+                if config and config.automatico_activo and config.hora_automatico == hora_actual_str:
+                    print(f"🚀 Iniciando backup automático para las {hora_actual_str}...")
+                    
+                    nombre = f"backup_auto_{ahora.strftime('%Y-%m-%d_%H-%M-%S')}.json"
+                    ruta = os.path.join(BACKUP_DIR, nombre)
+                    
+                    datos = _exportar_tablas_a_json(db)
+                    
+                    with open(ruta, "w", encoding="utf-8") as f:
+                        json.dump(datos, f, ensure_ascii=False, indent=2, default=str)
+                        
+                    tamanio = os.path.getsize(ruta)
+                    
+                    registro = Backup(
+                        nombre_archivo=nombre,
+                        tipo="automatico",
+                        tamanio_bytes=tamanio,
+                        ruta_archivo=ruta,
+                    )
+                    db.add(registro)
+                    db.commit()
+                    
+                    print(f"✅ Backup automático '{nombre}' generado correctamente.")
+                    ultimo_ejecutado = hora_actual_str
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"❌ Error en planificador de backup: {e}")
