@@ -214,6 +214,12 @@ export const routes: Routes = [
             (m) => m.SuperadminDashboardPage,
           ),
       },
+      {   
+        path: 'mantenimiento',
+        loadComponent: () =>
+          import('./areas/superadmin/pages/mantenimiento/superadmin-mantenimiento.page')
+            .then((m) => m.SuperadminMantenimientoPage),
+      },
       {
         path: 'tenants',
         loadComponent: () =>

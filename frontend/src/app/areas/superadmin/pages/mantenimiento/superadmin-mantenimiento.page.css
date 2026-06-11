@@ -1,0 +1,374 @@
+/* ============================================================
+   superadmin-mantenimiento.page.css
+   Estilos del módulo de Backup — mismas variables del proyecto
+   ============================================================ */
+
+.mantenimiento-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ── TOAST / MENSAJE ── */
+.toast {
+  padding: 14px 20px;
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  animation: slideDown 0.3s ease;
+}
+.toast.success {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid var(--success);
+}
+.toast.error {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── CARD DE CONFIGURACIÓN ── */
+.config-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 28px;
+}
+
+.config-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.icon-title {
+  font-size: 28px;
+  color: var(--primary-color);
+  margin-top: 2px;
+}
+
+.config-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.config-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 4px 0 0;
+}
+
+.config-body {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.config-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+/* ── INPUT DE HORA ── */
+.input-with-icon {
+  position: relative;
+}
+
+.time-input {
+  background: var(--slate-900);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  padding: 10px 14px;
+  padding-right: 38px;
+  font-size: 0.9rem;
+  font-family: var(--font);
+  outline: none;
+  transition: border-color var(--t);
+}
+.time-input:focus {
+  border-color: var(--border-focus);
+}
+
+.input-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* ── TOGGLE SWITCH ── */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 42px;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--slate-600);
+  border-radius: var(--r-full);
+  transition: var(--t);
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 3px;
+  bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: var(--t);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--primary-color);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(22px);
+}
+
+.toggle-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* ── BOTÓN GUARDAR HORARIO ── */
+.btn-guardar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background: var(--primary-color);
+  color: #000;
+  border: none;
+  border-radius: var(--r-full);
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: var(--t);
+}
+.btn-guardar:hover {
+  background: var(--primary-hover);
+  box-shadow: var(--shadow-glow);
+}
+.btn-guardar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-guardar span {
+  font-size: 18px;
+}
+
+/* ── BOTÓN GENERAR MANUAL ── */
+.btn-generar {
+  width: 100%;
+  padding: 16px;
+  background: var(--primary-color);
+  color: #000;
+  border: none;
+  border-radius: var(--r-md);
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: var(--t);
+}
+.btn-generar:hover {
+  background: var(--primary-hover);
+  box-shadow: var(--shadow-glow);
+}
+.btn-generar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn-generar span {
+  font-size: 22px;
+}
+
+/* ── CARD DE HISTORIAL ── */
+.historial-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 28px;
+}
+
+.historial-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 20px;
+  color: var(--text-primary);
+}
+
+/* ── TABLA ── */
+.table-container {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table td {
+  padding: 14px 16px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.empty-row {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 40px 16px !important;
+  font-style: italic;
+}
+
+/* ── CELDA DE ARCHIVO ── */
+.cell-archivo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.file-icon {
+  font-size: 20px;
+  color: var(--primary-color);
+}
+
+/* ── BADGES ── */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--r-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge-manual {
+  background: var(--info-bg);
+  color: var(--info);
+}
+
+.badge-auto {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+/* ── BOTONES DE ACCIÓN ── */
+.cell-acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--t);
+}
+
+.btn-icon span {
+  font-size: 18px;
+}
+
+.btn-icon.download:hover {
+  background: var(--info-bg);
+  color: var(--info);
+  border-color: var(--info);
+}
+
+.btn-icon.delete:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .config-body {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .data-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}

@@ -1,0 +1,116 @@
+<div class="mantenimiento-wrapper animate-in">
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  MENSAJE DE FEEDBACK                       -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="toast" *ngIf="mensaje" [class.success]="mensajeTipo === 'success'" [class.error]="mensajeTipo === 'error'">
+    <span class="material-symbols-rounded">{{ mensajeTipo === 'success' ? 'check_circle' : 'error' }}</span>
+    {{ mensaje }}
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  SECCIÓN 1: CONFIGURACIÓN                  -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="config-card">
+    <div class="config-header">
+      <span class="material-symbols-rounded icon-title">settings_backup_restore</span>
+      <div>
+        <h2 class="config-title">Mantenimiento Técnico y Respaldos</h2>
+        <p class="config-subtitle">
+          Gestión avanzada de copias de seguridad cumpliendo criterios de Fiabilidad, Portabilidad y Recuperabilidad (ISO 25010).
+        </p>
+      </div>
+    </div>
+
+    <div class="config-body">
+      <div class="config-field">
+        <label class="field-label">HORA DE RESPALDO AUTOMÁTICO DIARIO</label>
+        <div class="input-with-icon">
+          <input
+            type="time"
+            class="time-input"
+            [(ngModel)]="config.hora_automatico"
+            placeholder="--:--"
+          />
+          <span class="material-symbols-rounded input-icon">schedule</span>
+        </div>
+      </div>
+
+      <div class="config-field">
+        <label class="field-label">ESTADO DE AUTOMATIZACIÓN</label>
+        <div class="toggle-row">
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="config.automatico_activo" />
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">{{ config.automatico_activo ? 'Activado' : 'Desactivado' }}</span>
+        </div>
+      </div>
+
+      <button class="btn-guardar" (click)="guardarHorario()" [disabled]="guardando">
+        <span class="material-symbols-rounded">schedule</span>
+        {{ guardando ? 'Guardando...' : 'Guardar Horario' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  SECCIÓN 2: BOTÓN GENERAR MANUAL           -->
+  <!-- ═══════════════════════════════════════════ -->
+  <button class="btn-generar" (click)="generarManual()" [disabled]="generando">
+    <span class="material-symbols-rounded">{{ generando ? 'hourglass_top' : 'backup' }}</span>
+    {{ generando ? 'Generando copia...' : 'Generar Copia Manual Ahora' }}
+  </button>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!--  SECCIÓN 3: HISTORIAL DE COPIAS            -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="historial-card">
+    <h3 class="historial-title">Historial de Copias Disponibles</h3>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ARCHIVO</th>
+            <th>TIPO</th>
+            <th>FECHA DE CREACIÓN</th>
+            <th>TAMAÑO</th>
+            <th>ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Si no hay backups -->
+          <tr *ngIf="backups.length === 0">
+            <td colspan="5" class="empty-row">
+              No hay copias de seguridad registradas en el sistema.
+            </td>
+          </tr>
+
+          <!-- Lista de backups -->
+          <tr *ngFor="let b of backups">
+            <td class="cell-archivo">
+              <span class="material-symbols-rounded file-icon">description</span>
+              {{ b.nombre_archivo }}
+            </td>
+            <td>
+              <span class="badge" [class.badge-manual]="b.tipo === 'manual'" [class.badge-auto]="b.tipo === 'automatico'">
+                {{ b.tipo }}
+              </span>
+            </td>
+            <td>{{ formatFecha(b.creado_en) }}</td>
+            <td>{{ formatBytes(b.tamanio_bytes) }}</td>
+            <td class="cell-acciones">
+              <button class="btn-icon download" title="Descargar" (click)="descargar(b)">
+                <span class="material-symbols-rounded">download</span>
+              </button>
+              <button class="btn-icon delete" title="Eliminar" (click)="eliminar(b.id)">
+                <span class="material-symbols-rounded">delete</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
