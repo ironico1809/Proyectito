@@ -8,6 +8,7 @@ import { CotizacionesApi, CotizacionOut } from '../../../../infra/api/cotizacion
 import { TecnicosApi, TecnicoOut } from '../../../../infra/api/tecnicos.api';
 import { TalleresApi } from '../../../../infra/api/talleres.api';
 import { WebSocketService } from '../../../../infra/realtime/websocket.service';
+import { BitacoraApi, BitacoraItem } from '../../../../infra/api/bitacora.api';
 import { SessionStore } from '../../../../infra/session/session.store';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
@@ -27,6 +28,7 @@ export class IncidentDetailPage implements OnInit, OnDestroy {
   private readonly wsService = inject(WebSocketService);
   private readonly sessionStore = inject(SessionStore);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly bitacoraApi = inject(BitacoraApi);
 
   userRole = this.sessionStore.snapshot()?.role || '';
   mapaUrlSegura: SafeResourceUrl | null = null;
@@ -34,6 +36,7 @@ export class IncidentDetailPage implements OnInit, OnDestroy {
   private currentIncidenteId?: number;
   wsConnected = false;
   currentEstado = '';
+  bitacora: BitacoraItem[] = [];
 
   readonly incidenteId$ = this.route.paramMap.pipe(map((p) => Number(p.get('id'))));
 
@@ -63,6 +66,7 @@ export class IncidentDetailPage implements OnInit, OnDestroy {
         this.wsService.connectIncidente(id);
         this.wsConnected = true;
         this.cargarCotizaciones(id);
+        this.cargarBitacora(id);
       }
     });
 
@@ -70,6 +74,7 @@ export class IncidentDetailPage implements OnInit, OnDestroy {
       if (msg['tipo'] === 'nueva_cotizacion') {
         if (this.currentIncidenteId) {
           this.cargarCotizaciones(this.currentIncidenteId);
+          this.cargarBitacora(this.currentIncidenteId);
         }
       } else if (msg['tipo'] === 'cambio_estado') {
         this.currentEstado = msg['estado'];
@@ -77,6 +82,7 @@ export class IncidentDetailPage implements OnInit, OnDestroy {
       } else if (msg['tipo'] === 'cotizacion_aceptada') {
         if (this.currentIncidenteId) {
           this.cargarCotizaciones(this.currentIncidenteId);
+          this.cargarBitacora(this.currentIncidenteId);
           this.monitoreoRefresh$.next(this.monitoreoRefresh$.value + 1);
         }
       }
@@ -120,6 +126,7 @@ export class IncidentDetailPage implements OnInit, OnDestroy {
     }).subscribe(() => {
       this.showQuotationForm = false;
       this.cargarCotizaciones(incidenteId);
+      this.cargarBitacora(incidenteId);
     });
   }
 
@@ -172,6 +179,7 @@ export class IncidentDetailPage implements OnInit, OnDestroy {
 
     this.incidentesApi.actualizarEstado(id, estado, comentario || undefined, costo_final || undefined).subscribe(() => {
       this.monitoreoRefresh$.next(this.monitoreoRefresh$.value + 1);
+      this.cargarBitacora(id);
     });
   }
 
@@ -189,6 +197,7 @@ export class IncidentDetailPage implements OnInit, OnDestroy {
     }).subscribe(() => {
       this.showExceptionForm = false;
       this.monitoreoRefresh$.next(this.monitoreoRefresh$.value + 1);
+      this.cargarBitacora(id);
     });
   }
 
@@ -240,6 +249,12 @@ export class IncidentDetailPage implements OnInit, OnDestroy {
       'text-transform': 'uppercase',
       'display': 'inline-block'
     };
+  }
+
+    cargarBitacora(incidentId: number) {
+    this.bitacoraApi.obtenerBitacora(incidentId).subscribe((data) => {
+      this.bitacora = data;
+    });
   }
 
   ngOnDestroy(): void {

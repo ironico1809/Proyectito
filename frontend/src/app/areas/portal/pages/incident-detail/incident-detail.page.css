@@ -150,3 +150,134 @@
     margin: 10px auto !important;
   }
 }
+
+/* ── BITÁCORA Y TIMELINE ── */
+.timeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  padding-left: 10px;
+}
+
+.timeline-empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+  padding: 10px 0;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 16px;
+}
+
+.timeline-dot-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.timeline-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--slate-600);
+  border: 2px solid var(--border);
+  z-index: 2;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Conector vertical */
+.timeline-line {
+  position: absolute;
+  top: 12px;
+  bottom: -20px;
+  width: 2px;
+  background: var(--border);
+  z-index: 1;
+}
+
+/* El último item no lleva línea conectora hacia abajo */
+.timeline-item:last-child .timeline-line {
+  display: none;
+}
+
+.timeline-content {
+  flex: 1;
+  background: var(--slate-900);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.timeline-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.event-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.event-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.event-desc {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.event-user {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Colores personalizados según el tipo de Evento */
+.timeline-dot.CREACION, .event-badge.CREACION {
+  background: #3b82f6; /* Azul */
+  color: #fff;
+}
+
+.timeline-dot.COTIZACION_ENVIADA, .event-badge.COTIZACION_ENVIADA {
+  background: #f59e0b; /* Ámbar */
+  color: #fff;
+}
+
+.timeline-dot.COTIZACION_ACEPTADA, .timeline-dot.PAGO_COMPLETADO, .event-badge.COTIZACION_ACEPTADA, .event-badge.PAGO_COMPLETADO {
+  background: #10b981; /* Verde */
+  color: #fff;
+}
+
+.timeline-dot.TECNICO_ASIGNADO, .timeline-dot.TECNICO_EN_CAMINO, .event-badge.TECNICO_ASIGNADO, .event-badge.TECNICO_EN_CAMINO {
+  background: #8b5cf6; /* Púrpura */
+  color: #fff;
+}
+
+.timeline-dot.SERVICIO_INICIADO, .timeline-dot.SERVICIO_FINALIZADO, .event-badge.SERVICIO_INICIADO, .event-badge.SERVICIO_FINALIZADO {
+  background: #06b6d4; /* Cian */
+  color: #fff;
+}
+
+.timeline-dot.EXCEPCION, .event-badge.EXCEPCION {
+  background: #ef4444; /* Rojo */
+  color: #fff;
+}
+
+.timeline-dot.CANCELADO, .event-badge.CANCELADO {
+  background: #6b7280; /* Gris */
+  color: #fff;
+}
