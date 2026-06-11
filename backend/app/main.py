@@ -14,17 +14,32 @@ import firebase_admin
 from firebase_admin import credentials
 
 
+import json
+
+
 print(">>> INICIANDO APLICACIÓN <<<")
 print(f"PORT ENV: {os.getenv('PORT')}")
 
+firebase_creds_json = os.getenv("FIREBASE_CREDENTIALS")
 firebase_key_path = os.path.join(os.path.dirname(__file__), "..", "firebase-adminsdk.json")
-if os.path.exists(firebase_key_path) and not firebase_admin._apps:
-    try:
-        cred = credentials.Certificate(firebase_key_path)
-        firebase_admin.initialize_app(cred)
-        print("Firebase Admin SDK inicializado correctamente.")
-    except Exception as e:
-        print(f"Error al inicializar Firebase Admin: {e}")
+
+if not firebase_admin._apps:
+    if firebase_creds_json:
+        try:
+            creds_dict = json.loads(firebase_creds_json)
+            cred = credentials.Certificate(creds_dict)
+            firebase_admin.initialize_app(cred)
+            print("Firebase Admin SDK inicializado correctamente (desde env var).")
+        except Exception as e:
+            print(f"Error al inicializar Firebase Admin desde env var: {e}")
+    elif os.path.exists(firebase_key_path):
+        try:
+            cred = credentials.Certificate(firebase_key_path)
+            firebase_admin.initialize_app(cred)
+            print("Firebase Admin SDK inicializado correctamente (desde archivo local).")
+        except Exception as e:
+            print(f"Error al inicializar Firebase Admin: {e}")
+
 
 from app.models import tenant
 from app.models import bitacora
@@ -58,17 +73,27 @@ def health_check():
 # -------------------------------------------------------
 # Firebase Admin con seguridad contra fallos
 # -------------------------------------------------------
-firebase_key_path = os.path.join(os.path.dirname(__file__), "..", "firebase-adminsdk.json")
-if os.path.exists(firebase_key_path):
-    try:
-        if not firebase_admin._apps:
+if not firebase_admin._apps:
+    firebase_creds_json = os.getenv("FIREBASE_CREDENTIALS")
+    firebase_key_path = os.path.join(os.path.dirname(__file__), "..", "firebase-adminsdk.json")
+    if firebase_creds_json:
+        try:
+            import json
+            creds_dict = json.loads(firebase_creds_json)
+            cred = credentials.Certificate(creds_dict)
+            firebase_admin.initialize_app(cred)
+            print("✅ Firebase Admin listo (desde env var).")
+        except Exception as e:
+            print(f"❌ Error Firebase desde env var: {e}")
+    elif os.path.exists(firebase_key_path):
+        try:
             cred = credentials.Certificate(firebase_key_path)
             firebase_admin.initialize_app(cred)
-            print("✅ Firebase Admin listo.")
-    except Exception as e:
-        print(f"❌ Error Firebase: {e}")
-else:
-    print("⚠️ Advertencia: firebase-adminsdk.json no encontrado. Notificaciones push desactivadas.")
+            print("✅ Firebase Admin listo (desde archivo local).")
+        except Exception as e:
+            print(f"❌ Error Firebase: {e}")
+    else:
+        print("⚠️ Advertencia: firebase-adminsdk.json no encontrado y FIREBASE_CREDENTIALS vacío. Notificaciones push desactivadas.")
 
 # -------------------------------------------------------
 # Registro de routers por caso de uso

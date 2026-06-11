@@ -33,6 +33,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
   List<Cotizacion> _cotizaciones = [];
   bool _loadingIncident = false;
   bool _simulating = false;
+  bool _accepting = false;
 
   double _calculateDistance(LatLng p1, LatLng p2) {
     const double r = 6371.0; // Earth's radius in km
@@ -233,8 +234,13 @@ class _TrackingScreenState extends State<TrackingScreen> {
   }
 
   Future<void> _aceptarCotizacion(Cotizacion cot) async {
+    if (_accepting) return;
+    setState(() => _accepting = true);
     final prov = context.read<EmergenciaProvider>();
     final success = await prov.aceptarCotizacion(cot.idCotizacion);
+    if (mounted) {
+      setState(() => _accepting = false);
+    }
     if (mounted && success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('¡Cotización aceptada! Técnico en camino.'), backgroundColor: Colors.green),
@@ -652,9 +658,15 @@ class _TrackingScreenState extends State<TrackingScreen> {
                             ),
                             if (cot.estado == 'pendiente')
                               ElevatedButton(
-                                onPressed: () => _aceptarCotizacion(cot),
+                                onPressed: _accepting ? null : () => _aceptarCotizacion(cot),
                                 style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8)),
-                                child: const Text('Aceptar'),
+                                child: _accepting
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                      )
+                                    : const Text('Aceptar'),
                               )
                             else if (cot.estado == 'aceptada')
                               const Icon(Icons.check_circle_rounded, color: Colors.greenAccent),

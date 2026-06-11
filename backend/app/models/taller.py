@@ -36,3 +36,6 @@ class TallerInventario(Base):
     cantidad      = Column(Integer, default=0)
 
     taller        = relationship("Taller", backref="inventario")
+
+
+    

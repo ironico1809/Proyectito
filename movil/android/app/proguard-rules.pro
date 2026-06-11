@@ -1,0 +1,4 @@
+-keep class com.stripe.android.** { *; }
+-dontwarn com.stripe.android.**
+-keep class com.reactnativestripesdk.** { *; }
+-dontwarn com.reactnativestripesdk.**
